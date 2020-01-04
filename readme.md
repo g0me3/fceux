@@ -1,15 +1,22 @@
-# fceux [![Build status](https://ci.appveyor.com/api/projects/status/github/TASVideos/fceux?branch=master&svg=true)](https://ci.appveyor.com/project/zeromus/fceux)
+# Oregon Trail Emulation Project
 
-An open source NES Emulator for Windows and Unix that features solid emulation accuracy and state of the art tools for power users. For some reason casual gamers use it too.
+Based on an open source NES Emulator for Windows and Unix that features solid emulation accuracy and state of the art tools for power users. For some reason casual gamers use it too.
 
-## Builds and Releases
+Some of capabilities of upgraded NES derived from OneBus NES-on-a-chip systems aren't compatible with regular nes and sometimes need a lot of hacking to separate them and keep in the same emulator both systems. So I need some kind of Sand Box to modify the emulator for my own and being able to have a working NES emulator at the same time.
 
-win32 autobuilds @ https://ci.appveyor.com/project/zeromus/fceux/build/artifacts
+# Oregon Trail Handheld Additional Specifications
+## CPU
 
-But you might like mesen more: https://github.com/SourMesen/Mesen 
+ - Higher Frequency (probably)
+ - PPU DMA (selectable)
+ 
+## RAM
 
-You should get releases from here: https://sourceforge.net/projects/fceultra/files/
+ - MAIN SYSTEM RAM: 8Kbytes
+ 
+## PPU
 
-That's because github forces us to use tags we don't have for releases.
-
-2.2.3 is the most recent release but most people are using the autobuilds.
+ - GBA 4bpp Graphics format
+ - Two separate palettes at $3C00 / $3F00 for BG/Sprites
+ - 16x16 4bpp sprites support
+ - 512Bytes OAM RAM ($2003/$2008 address registers)
