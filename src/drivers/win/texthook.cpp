@@ -50,7 +50,7 @@ extern void FCEUD_BlitScreen(uint8 *XBuf); //needed for pause, not sure where th
 //adelikat merge 7/1/08 - had to add these extern variables 
 //------------------------------
 extern uint8 PALRAM[0x20];
-extern uint8 PPU[4];
+extern uint8 PPU[16];
 extern uint8 *vnapage[4];
 extern uint8 *VPage[8];
 //------------------------------

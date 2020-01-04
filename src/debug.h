@@ -111,9 +111,13 @@ extern void ResetDebugStatisticsDeltaCounters();
 extern void IncrementInstructionsCounters();
 //-------------
 
+#define RAM_SIZE 0x2000
+#define SPRAM_SIZE 0x200
+#define PPUR_SIZE 16
+
 //internal variables that debuggers will want access to
 extern uint8 *vnapage[4],*VPage[8];
-extern uint8 PPU[4],PALRAM[0x20],UPALRAM[3],SPRAM[0x100],VRAMBuffer,PPUGenLatch,XOffset;
+extern uint8 PPU[PPUR_SIZE],PALRAM[0x20],UPALRAM[3],SPRAM[SPRAM_SIZE],VRAMBuffer,PPUGenLatch,XOffset;
 extern uint32 FCEUPPU_PeekAddress();
 extern uint8 READPAL_MOTHEROFALL(uint32 A);
 extern int numWPs;

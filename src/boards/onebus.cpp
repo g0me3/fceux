@@ -179,8 +179,161 @@ static void UNLOneBusIRQHook(void) {
 	}
 }
 
+static DECLFW(UNLOneBusWriteUnk) {
+//	FCEU_printf("w.%04x:%02x\n",A,V);
+}
+	
+static DECLFR(UNLOneBusReadUnk) {
+//	FCEU_printf("r.%04x\n", A);
+	return 0xff;
+}
+
+#define I2C_4148		0
+#define I2C_414A		2
+#define I2C_414B		3
+
+#define I2C_CLK_MASK 0x20
+#define I2C_DAT_MASK 0x10
+#define I2C_RW_MASK	 0x10
+
+#define MODE_READ		0
+#define MODE_WRITE		1
+
+#define PIN_LO			0
+#define PIN_HI			1
+#define PIN_RISE		2
+#define PIN_FALL		3
+
+#define STATE_IDLE		0
+#define STATE_ADDR		1
+#define STATE_DATA		2
+#define STATE_WAIT		3
+#define STATE_DONE		4
+
+static u8 i2c[4];
+static u8 i2c_cl_prev, i2c_cl_pin, i2c_cl_pin_prev;
+static u8 i2c_da_prev, i2c_da_pin;
+static u8 i2c_bit, i2c_byte;
+static u8 i2c_state, i2c_addr, i2c_out;
+
+// Don't know what exactly this device is, but it looks as some kind of simplified i2c controller or something
+// it used to hardware protection check at start and furthrer sometimes in the game.
+// very similar to regular i2c eeprom, but without address selection, separate R/W control lines, etc..
+// also, they uses only single byte address internally, so this may be simplified in code just by 
+// keeping one single byte written instead of 256.
+
+static DECLFW(UNLOneBusWriteI2C_PROT) {
+	i2c[A - 0x4148] = V;
+	u8 i2c_rw_mode = (i2c[I2C_4148] & I2C_RW_MASK) / I2C_RW_MASK;
+
+	u8 i2c_cl_cur = (i2c[I2C_414A] & I2C_CLK_MASK) / I2C_CLK_MASK;
+	if (i2c_cl_cur && !i2c_cl_prev)
+		i2c_cl_pin = PIN_RISE;
+	else if (!i2c_cl_cur && i2c_cl_prev)
+		i2c_cl_pin = PIN_FALL;
+	else
+		i2c_cl_pin = i2c_cl_cur;
+	i2c_cl_prev = i2c_cl_cur;
+
+	u8 i2c_da_cur = (i2c[I2C_414A] & I2C_DAT_MASK) / I2C_DAT_MASK;
+	if (i2c_da_cur && !i2c_da_prev)
+		i2c_da_pin = PIN_RISE;
+	else if (!i2c_da_cur && i2c_da_prev)
+		i2c_da_pin = PIN_FALL;
+	else
+		i2c_da_pin = i2c_da_cur;
+	i2c_da_prev = i2c_da_cur;
+
+//	FCEU_printf("w.%04x->%02x (%04x)\n", A, V, X.PC);
+
+	if (i2c_rw_mode == MODE_WRITE) {
+		if ((i2c_state == STATE_IDLE) && (i2c_cl_pin == PIN_HI) && (i2c_da_pin == PIN_FALL)) {	// START
+//			FCEU_printf("w start\n");
+			i2c_state = STATE_ADDR;
+			i2c_bit = 0;
+			i2c_byte = 0;
+		}
+		else if ((i2c_state == STATE_WAIT) && (i2c_cl_pin == PIN_HI) && (i2c_da_pin == PIN_RISE)) {	// STOP
+//			FCEU_printf("w stop\n");
+			i2c_state = STATE_DONE;
+			i2c_bit = 0;
+			i2c_byte = 0;
+		}
+		else if ((i2c_cl_pin == PIN_FALL) && (i2c_cl_pin_prev == PIN_RISE)) {	// BIT WRITE
+			if (i2c_bit < 8) {	// SEND DATA
+//				FCEU_printf("w.b %d\n", i2c_da_cur);
+				i2c_byte <<= 1;
+				i2c_byte |= i2c_da_cur;
+				i2c_bit++;
+			} else {			// ACK, apply data
+//				FCEU_printf("ack ");
+				if (i2c_state == STATE_ADDR) {
+//					FCEU_printf("w.a %02x\n", i2c_byte);
+					i2c_addr = i2c_byte;
+					i2c_state = STATE_DATA;
+					i2c_bit = 0;
+					i2c_byte = 0;
+				} else if (i2c_state == STATE_DATA) {
+// PROT HACK! read out value is not the same but somehow morphed.
+					i2c_out = ((((0 - i2c_byte) & 0x0F) << 4) | (((0 - i2c_byte) & 0xF0) >> 4));
+					FCEU_printf("w.d %02x (out = %02x)\n", i2c_byte, i2c_out);
+					i2c_state = STATE_WAIT;
+					i2c_bit = 0;
+					i2c_byte = 0;
+				}
+			}
+		}
+	} else if (i2c_rw_mode == MODE_READ) {
+	    if ((i2c_state == STATE_DONE) && (i2c_cl_pin == PIN_HI) && (i2c_da_pin == PIN_RISE)) {	// STOP
+//			FCEU_printf("r stop\n");
+			i2c_state = STATE_IDLE;
+			i2c_bit = 0;
+			i2c_byte = 0;	
+		}
+	}
+
+//	FCEU_printf("mode = %d state = %d cl = %d, da = %d bit = %d byte = %02x\n", i2c_rw_mode, i2c_state, i2c_cl_pin, i2c_da_pin, i2c_bit, i2c_byte);
+
+	i2c_cl_pin_prev = i2c_cl_pin;
+}
+
+static DECLFR(UNLOneBusReadI2C_PROT) {
+//	FCEU_printf("r.%04x (%04x)\n", A, X.PC);
+	u8 ret;
+	if ((i2c_state == STATE_DONE) && (i2c_cl_pin == PIN_RISE) && (A == 0x414B)) {
+		if (i2c_bit < 8) {
+			ret = ((i2c_out >> (7 - i2c_bit)) & 1) << 4;
+			i2c_bit++;
+		} else {
+			ret = 0;
+			i2c_bit = 0;
+		}
+//		FCEU_printf("r.%d\n", ret);
+		return ret;
+	} else
+		return i2c[A - 0x4148];
+}
+
+// this seems to be one of registers for I2C audio player
+// there are also some controls (probably for audio volume change on pin 6
+// also they put the demo switch there as well it seems on pin 4,
+// pin4 = 0 - demo game, 1 - regular game
+// pin6 = 1 - volume control release, 0 - volume control pressed
+static DECLFR(UNLOneBusRead4153) {
+	return 0x10 | 0x40;
+}
+
+// somehow this is appears to affect NMI. mostly upon writing 0 to the SPI circuit
+// (they forcibly waiting for nmi then)... not sure if this cause a NMI irq all the time when writing,
+// but let's see.
+static DECLFW(UNLOneBusWrite4153) {
+	if (V & 1)
+		TriggerNMI();
+}
+
 static DECLFW(UNLOneBusWriteAPU40XX) {
-//	if(((A & 0x3f)!=0x16) && ((apu40xx[0x30] & 0x10) || ((A & 0x3f)>0x17)))FCEU_printf("APU %04x:%04x\n",A,V);
+	int x;
+	//	if(((A & 0x3f)!=0x16) && ((apu40xx[0x30] & 0x10) || ((A & 0x3f)>0x17)))FCEU_printf("APU %04x:%04x\n",A,V);
 	apu40xx[A & 0x3f] = V;
 	switch (A & 0x3f) {
 	case 0x12:
@@ -191,6 +344,15 @@ static DECLFW(UNLOneBusWriteAPU40XX) {
 	case 0x13:
 		if (apu40xx[0x30] & 0x10) {
 			pcm_size = (V << 4) + 1;
+		}
+		break;
+	case 0x14:	// DMA hookup, Oregon hardware uses more DMA destinations like it does some other OneBus systems
+		for (x = 0; x < 256; x++) {
+			uint32 t = V << 8;
+			if (apu40xx[0x34])	// destination control register, 0 is regular sprite DMA, 1 is PPU dma.
+				X6502_DMW(0x2007, X6502_DMR(t + x));
+			else
+				X6502_DMW(0x2004, X6502_DMR(t + x));
 		}
 		break;
 	case 0x15:
@@ -257,8 +419,23 @@ static void UNLOneBusPower(void) {
 		defapuread[i] = GetReadHandler(0x4000 | i);
 		defapuwrite[i] = GetWriteHandler(0x4000 | i);
 	}
+
 	SetReadHandler(0x4000, 0x403f, UNLOneBusReadAPU40XX);
 	SetWriteHandler(0x4000, 0x403f, UNLOneBusWriteAPU40XX);
+
+	i2c[0] = i2c[1] = i2c[2] = i2c[3] = 0;
+	i2c_cl_prev = i2c_cl_pin = i2c_cl_pin_prev = 0;
+	i2c_da_prev = i2c_da_pin = 0;
+	i2c_state = STATE_IDLE;
+
+	SetWriteHandler(0x4110, 0x41ff, UNLOneBusWriteUnk);
+	SetReadHandler(0x4110, 0x41ff, UNLOneBusReadUnk);
+
+	SetWriteHandler(0x4148, 0x414B, UNLOneBusWriteI2C_PROT);
+	SetReadHandler(0x4148, 0x414B, UNLOneBusReadI2C_PROT);
+	
+	SetWriteHandler(0x4153, 0x4153, UNLOneBusWrite4153);
+	SetReadHandler(0x4153, 0x4153, UNLOneBusRead4153);
 
 	SetReadHandler(0x8000, 0xFFFF, CartBR);
 	SetWriteHandler(0x2010, 0x201f, UNLOneBusWritePPU201X);
@@ -270,6 +447,11 @@ static void UNLOneBusPower(void) {
 
 static void UNLOneBusReset(void) {
 	IRQReload = IRQCount = IRQa = 0;
+
+	i2c[0] = i2c[1] = i2c[2] = i2c[3] = 0;
+	i2c_cl_prev = i2c_cl_pin = i2c_cl_pin_prev = 0;
+	i2c_da_prev = i2c_da_pin = 0;
+	i2c_state = STATE_IDLE;
 
 	memset(cpu410x, 0x00, sizeof(cpu410x));
 	memset(ppu201x, 0x00, sizeof(ppu201x));

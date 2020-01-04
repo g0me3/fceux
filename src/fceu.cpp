@@ -355,7 +355,7 @@ uint8 *RAM;
 //windows might need to allocate these differently, so we have some special code
 
 static void AllocBuffers() {
-	RAM = (uint8*)FCEU_gmalloc(0x800);
+	RAM = (uint8*)FCEU_gmalloc(RAM_SIZE);
 }
 
 static void FreeBuffers() {
@@ -371,7 +371,7 @@ static DECLFW(BRAML) {
 }
 
 static DECLFW(BRAMH) {
-	RAM[A & 0x7FF] = V;
+	RAM[A & RAM_MASK] = V;
 }
 
 static DECLFR(ARAML) {
@@ -379,7 +379,7 @@ static DECLFR(ARAML) {
 }
 
 static DECLFR(ARAMH) {
-	return RAM[A & 0x7FF];
+	return RAM[A & RAM_MASK];
 }
 
 
@@ -906,11 +906,11 @@ void PowerNES(void) {
 	xoroshiro128plus_seed(RAMInitSeed);
 
 	FCEU_CheatResetRAM();
-	FCEU_CheatAddRAM(2, 0, RAM);
+	FCEU_CheatAddRAM(RAM_SIZE >> 10, 0, RAM);
 
 	FCEU_GeniePower();
 
-	FCEU_MemoryRand(RAM, 0x800);
+	FCEU_MemoryRand(RAM, RAM_SIZE);
 
 	SetReadHandler(0x0000, 0xFFFF, ANull);
 	SetWriteHandler(0x0000, 0xFFFF, BNull);

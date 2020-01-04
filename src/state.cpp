@@ -111,7 +111,7 @@ SFORMAT SFCPU[]={
 	{ &X.S, 1, "S\0\0"},
 	{ &X.P, 1, "P\0\0"},
 	{ &X.DB, 1, "DB"},
-	{ &RAM, 0x800 | FCEUSTATE_INDIRECT, "RAM", },
+	{ &RAM, RAM_SIZE | FCEUSTATE_INDIRECT, "RAM", },
 	{ 0 }
 };
 

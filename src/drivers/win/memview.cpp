@@ -691,7 +691,7 @@ int GetMemViewData(uint32 i)
 
 	if (EditingMode == MODE_NES_OAM)
 	{
-		return SPRAM[i & 0xFF];
+		return SPRAM[i & 0x1FF];
 	}
 
 	if (EditingMode == MODE_NES_FILE)
@@ -1017,7 +1017,7 @@ void InputData(char *input){
 				PalettePoke(addr,data[i]);
 		} else if (EditingMode == MODE_NES_OAM)
 		{
-			addr &= 0xFF;
+			addr &= 0x1FF;
 			SPRAM[addr] = data[i];
 		} else if (EditingMode == MODE_NES_FILE)
 		{
@@ -1923,10 +1923,10 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			}
 		case MENU_MV_FILE_DUMP_OAM:
 			{
-				char bar[0x100];
+				char bar[0x200];
 				unsigned int i;
-				for (i=0;i<0x100;i++) bar[i] = SPRAM[i];
-				dumpToFile(bar,0x100);
+				for (i=0;i<0x200;i++) bar[i] = SPRAM[i];
+				dumpToFile(bar,0x200);
 				return 0;
 			}
 
@@ -1960,7 +1960,7 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			}
 		case MENU_MV_FILE_LOAD_OAM:
 			{
-				char bar[0x100];
+				char bar[0x200];
 				if (loadFromFile(bar, sizeof(bar)))
 				{
 					for (uint16 addr=0; addr<sizeof(bar); ++addr)
@@ -2049,7 +2049,7 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 				else {MaxSize = 0x4000;}
 			}
 			if (EditingMode == MODE_NES_OAM)
-				MaxSize = 0x100;
+				MaxSize = 0x200;
 			if (EditingMode == MODE_NES_FILE)
 				MaxSize = 16+CHRsize[0]+PRGsize[0]; //todo: add trainer size
 			if (CurOffset >= MaxSize - DataAmount) CurOffset = MaxSize - DataAmount;

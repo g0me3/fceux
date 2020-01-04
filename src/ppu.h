@@ -1,3 +1,4 @@
+
 void FCEUPPU_Init(void);
 void FCEUPPU_Reset(void);
 void FCEUPPU_Power(void);
@@ -38,8 +39,14 @@ extern void (*FFCEUX_PPUWrite)(uint32 A, uint8 V);
 extern uint8 FASTCALL FFCEUX_PPURead_Default(uint32 A);
 void FFCEUX_PPUWrite_Default(uint32 A, uint8 V);
 
+// Oregon expanded 8K RAM on board
+#define RAM_SIZE 0x2000
+#define RAM_MASK RAM_SIZE-1
+#define SPRAM_SIZE 0x200
+#define PPUR_SIZE 16
+
 extern int g_rasterpos;
-extern uint8 PPU[4];
+extern uint8 PPU[PPUR_SIZE];
 extern bool DMC_7bit;
 extern bool paldeemphswap;
 

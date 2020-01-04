@@ -270,7 +270,7 @@ uint8 GetMem(uint16 A) {
 			case 1: return PPU[1];
 			case 2: return PPU[2]|(PPUGenLatch&0x1F);
 			case 3: return PPU[3];
-			case 4: return SPRAM[PPU[3]];
+			case 4: return SPRAM[PPU[3] | (PPU[8] << 8)];
 			case 5: return XOffset;
 			case 6: return FCEUPPU_PeekAddress() & 0xFF;
 			case 7: return VRAMBuffer;

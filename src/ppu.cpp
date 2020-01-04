@@ -371,9 +371,12 @@ int scanline;
 int g_rasterpos;
 static uint32 scanlines_per_frame;
 
-uint8 PPU[4];
+#define SPRAM_SIZE 0x200
+#define PPUR_SIZE 16
+
+uint8 PPU[PPUR_SIZE];
 uint8 PPUSPL;
-uint8 NTARAM[0x800], PALRAM[0x20], SPRAM[0x100], SPRBUF[0x100];
+uint8 NTARAM[0x800], PALRAM[0x20], SPRAM[SPRAM_SIZE], SPRBUF[0x100];
 uint8 UPALRAM[0x03];//for 0x4/0x8/0xC addresses in palette, the ones in
 					//0x20 are 0 to not break fceu rendering.
 
@@ -707,7 +710,7 @@ static DECLFR(A2004) {
 				return spr_read.ret;
 			}
 		} else
-			return SPRAM[PPU[3]];
+			return SPRAM[PPU[3] | (PPU[8] << 8)];
 	} else {
 		FCEUPPU_LineUpdate();
 		return PPUGenLatch;
@@ -880,15 +883,21 @@ static DECLFW(B2004) {
 		SPRAM[PPU[3]] = V;
 		PPU[3] = (PPU[3] + 1) & 0xFF;
 	} else {
-		if (PPUSPL >= 8) {
-			if (PPU[3] >= 8)
-				SPRAM[PPU[3]] = V;
+		if ((PPUSPL | (PPU[8] << 8)) >= 8) {
+			if ((PPU[3] | (PPU[8] << 8)) >= 8)
+				SPRAM[PPU[3] | (PPU[8] << 8)] = V;
 		} else {
 			SPRAM[PPUSPL] = V;
 		}
 		PPU[3]++;
+		if (!PPU[3])
+			PPU[8] ^= 1;
 		PPUSPL++;
 	}
+}
+
+static DECLFW(B2008) {
+	PPU[8] = V;
 }
 
 static DECLFW(B2005) {
@@ -989,14 +998,15 @@ static DECLFW(B2007) {
 	}
 }
 
-static DECLFW(B4014) {
-	uint32 t = V << 8;
-	int x;
-
-	for (x = 0; x < 256; x++)
-		X6502_DMW(0x2004, X6502_DMR(t + x));
-	SpriteDMA = V;
-}
+//static DECLFW(B4014) {
+//	uint32 t = V << 8;
+//	int x;
+//
+//	for (x = 0; x < 256; x++)
+//		X6502_DMW(0x2004, X6502_DMR(t + x));
+//	
+//	SpriteDMA = V;
+//}
 
 #define PAL(c)  ((c) + cc)
 
@@ -1702,7 +1712,7 @@ void PPU_ResetHooks() {
 }
 
 void FCEUPPU_Reset(void) {
-	VRAMBuffer = PPU[0] = PPU[1] = PPU_status = PPU[3] = 0;
+	VRAMBuffer = PPU[0] = PPU[1] = PPU_status = PPU[3] = PPU[8] = 0;
 	PPUSPL = 0;
 	PPUGenLatch = 0;
 	RefreshAddr = TempAddr = 0;
@@ -1720,7 +1730,7 @@ void FCEUPPU_Power(void) {
 	memset(NTARAM, 0x00, 0x800);
 	memset(PALRAM, 0x00, 0x20);
 	memset(UPALRAM, 0x00, 0x03);
-	memset(SPRAM, 0x00, 0x100);
+	memset(SPRAM, 0x00, SPRAM_SIZE);
 	FCEUPPU_Reset();
 
 	for (x = 0x2000; x < 0x4000; x += 8) {
@@ -1741,7 +1751,8 @@ void FCEUPPU_Power(void) {
 		ARead[x + 7] = A2007;
 		BWrite[x + 7] = B2007;
 	}
-	BWrite[0x4014] = B4014;
+	BWrite[0x2008] = B2008;
+//	BWrite[0x4014] = B4014;
 }
 
 int FCEUPPU_Loop(int skip) {
@@ -1762,7 +1773,7 @@ int FCEUPPU_Loop(int skip) {
 		//Not sure if this is correct.  According to Matt Conte and my own tests, it is.
 		//Timing is probably off, though.
 		//NOTE:  Not having this here breaks a Super Donkey Kong game.
-		PPU[3] = PPUSPL = 0;
+		PPU[3] = PPU[8] = PPUSPL = 0;
 
 		//I need to figure out the true nature and length of this delay.
 		X6502_Run(12);
@@ -1898,8 +1909,8 @@ void FCEUPPU_LoadState(int version) {
 SFORMAT FCEUPPU_STATEINFO[] = {
 	{ NTARAM, 0x800, "NTAR" },
 	{ PALRAM, 0x20, "PRAM" },
-	{ SPRAM, 0x100, "SPRA" },
-	{ PPU, 0x4, "PPUR" },
+	{ SPRAM, SPRAM_SIZE, "SPRA" },
+	{ PPU, PPUR_SIZE, "PPUR" },
 	{ &kook, 1, "KOOK" },
 	{ &ppudead, 1, "DEAD" },
 	{ &PPUSPL, 1, "PSPL" },
@@ -2085,7 +2096,7 @@ int FCEUX_PPU_Loop(int skip) {
 		//Not sure if this is correct.  According to Matt Conte and my own tests, it is.
 		//Timing is probably off, though.
 		//NOTE:  Not having this here breaks a Super Donkey Kong game.
-		PPU[3] = PPUSPL = 0;
+		PPU[3] = PPU[8] = PPUSPL = 0;
 		const int delay = 20;	//fceu used 12 here but I couldnt get it to work in marble madness and pirates.
 
 		ppur.status.sl = 241;	//for sprite reads
