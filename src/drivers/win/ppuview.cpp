@@ -31,6 +31,8 @@ extern uint8 *VPage[8];
 extern uint8 PALRAM[0x20];
 extern uint8 UPALRAM[3];
 
+#define CHRROM_SIZE 0x2000
+
 int PPUViewPosX, PPUViewPosY;
 bool PPUView_maskUnusedGraphics = true;
 bool PPUView_invertTheMask = false;
@@ -38,7 +40,7 @@ int PPUView_sprite16Mode = 0;
 
 static uint8 pallast[32+3] = { 0 }; // palette cache for change comparison
 static uint8 palcache[36] = { 0 }; //palette cache for drawing
-uint8 chrcache0[0x1000], chrcache1[0x1000], logcache0[0x1000], logcache1[0x1000]; //cache CHR, fixes a refresh problem when right-clicking
+uint8 chrcache0[CHRROM_SIZE], chrcache1[CHRROM_SIZE], logcache0[CHRROM_SIZE], logcache1[CHRROM_SIZE]; //cache CHR, fixes a refresh problem when right-clicking
 uint8 *pattern0, *pattern1; //pattern table bitmap arrays
 uint8 *ppuv_palette;
 static int pindex0 = 0, pindex1 = 0;
@@ -104,7 +106,8 @@ void DrawPatternTable(uint8 *bitmap, uint8 *table, uint8 *log, uint8 pal)
 {
 	int i,j,k,x,y,index=0;
 	int p=0,tmp;
-	uint8 chr0,chr1,logs,shift;
+	uint8 shift;
+	uint32 chr,logs;
 	uint8 *pbitmap = bitmap;
 
 	pal <<= 2;
@@ -116,25 +119,22 @@ void DrawPatternTable(uint8 *bitmap, uint8 *table, uint8 *log, uint8 pal)
 			for (k = 0; k < (PPUView_sprite16Mode + 1); k++) {
 				for (y = 0; y < 8; y++)
 				{
-					chr0 = table[index];
-					chr1 = table[index + 8];
-					logs = log[index] & log[index + 8];
-					tmp = 7;
-					shift=(PPUView_maskUnusedGraphics && debug_loggingCD && (((logs & 3) != 0) == PPUView_invertTheMask))?3:0;
+					chr = *(uint32*)&table[index];
+//					logs = log[index] & log[index + 8];
+					shift = 0;// (PPUView_maskUnusedGraphics && debug_loggingCD && (((logs & 3) != 0) == PPUView_invertTheMask)) ? 3 : 0;
 					for (x = 0; x < 8; x++)
 					{
-						p  =  (chr0 >> tmp) & 1;
-						p |= ((chr1 >> tmp) & 1) << 1;
-						p = palcache[p | pal];
-						tmp--;
+						p = chr & 0xF;
+						p = palcache[p];
+						chr >>= 4;
 						*(uint8*)(pbitmap++) = palo[p].b >> shift;
 						*(uint8*)(pbitmap++) = palo[p].g >> shift;
 						*(uint8*)(pbitmap++) = palo[p].r >> shift;
 					}
-					index++;
+					index +=4;
 					pbitmap += (PATTERNBITWIDTH-24);
 				}
-				index+=8;
+//				index += 16;
 			}
 			pbitmap -= ((PATTERNBITWIDTH<<(3+PPUView_sprite16Mode))-24);
 			//------------------------------------------------
@@ -156,18 +156,18 @@ void FCEUD_UpdatePPUView(int scanline, int refreshchr)
 
 	if(refreshchr)
 	{
-		for (i = 0, x=0x1000; i < 0x1000; i++, x++)
+		for (i = 0, x= CHRROM_SIZE; i < CHRROM_SIZE; i++, x++)
 		{
-			chrcache0[i] = VPage[i>>10][i];
-			chrcache1[i] = VPage[x>>10][x];
+			chrcache0[i] = VPage[i>>12][i];
+			chrcache1[i] = VPage[x>>12][x];
 			if (debug_loggingCD) {
 				if (cdloggerVideoDataSize)
 				{
 					int addr;
-					addr = &VPage[i >> 10][i] - CHRptr[0];
+					addr = &VPage[i >> 11][i] - CHRptr[0];
 					if ((addr >= 0) && (addr < (int)cdloggerVideoDataSize))
 						logcache0[i] = cdloggervdata[addr];
-					addr = &VPage[x >> 10][x] - CHRptr[0];
+					addr = &VPage[x >> 11][x] - CHRptr[0];
 					if ((addr >= 0) && (addr < (int)cdloggerVideoDataSize))
 						logcache1[i] = cdloggervdata[addr];
 				} else {
@@ -430,10 +430,10 @@ INT_PTR CALLBACK PPUViewCallB(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			//clear cache
 			memset(pallast,0,32+3);
 			memset(palcache,0,36);
-			memset(chrcache0,0,0x1000);
-			memset(chrcache1,0,0x1000);
-			memset(logcache0,0,0x1000);
-			memset(logcache1,0,0x1000);
+			memset(chrcache0,0, CHRROM_SIZE);
+			memset(chrcache1,0, CHRROM_SIZE);
+			memset(logcache0,0, CHRROM_SIZE);
+			memset(logcache1,0, CHRROM_SIZE);
 
 			// forced palette (e.g. for debugging CHR when palettes are all-black)
 			palcache[(8*4)+0] = 0x0F;

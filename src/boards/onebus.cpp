@@ -28,7 +28,7 @@
 #include "mapinc.h"
 
 // General Purpose Registers
-static uint8 cpu410x[16], ppu201x[16], apu40xx[64];
+static uint8 cpu410x[0x10], ppu20xx[0x80], apu40xx[0x40];
 
 // IRQ Registers
 static uint8 IRQCount, IRQa, IRQReload;
@@ -50,7 +50,7 @@ static readfunc defapuread[64];
 static SFORMAT StateRegs[] =
 {
 	{ cpu410x, 16, "REGC" },
-	{ ppu201x, 16, "REGS" },
+	{ ppu20xx, 128, "REGS" },
 	{ apu40xx, 64, "REGA" },
 	{ &IRQReload, 1, "IRQR" },
 	{ &IRQCount, 1, "IRQC" },
@@ -91,27 +91,33 @@ static void PSync(void) {
 
 static void CSync(void) {
 	static const uint8 midx[8] = { 0, 1, 2, 0, 3, 4, 5, 0 };
-	uint8 mask = 0xff >> midx[ppu201x[0xa] & 7];
-	uint32 block = ((cpu410x[0x0] & 0x0f) << 11) + ((ppu201x[0x8] & 0x70) << 4) + (ppu201x[0xa] & (~mask));
+	uint8 mask = 0xff >> midx[ppu20xx[0x1a] & 7];
+	uint32 block = ((cpu410x[0x0] & 0x0f) << 11) + ((ppu20xx[0x18] & 0x70) << 4) + (ppu20xx[0x1a] & (~mask));
 	uint32 cswap = (mmc3cmd & 0x80) << 5;
 
-	uint8 bank0 = ppu201x[0x6] & (~1);
-	uint8 bank1 = ppu201x[0x6] | 1;
-	uint8 bank2 = ppu201x[0x7] & (~1);
-	uint8 bank3 = ppu201x[0x7] | 1;
-	uint8 bank4 = ppu201x[0x2];
-	uint8 bank5 = ppu201x[0x3];
-	uint8 bank6 = ppu201x[0x4];
-	uint8 bank7 = ppu201x[0x5];
+//	setchr4(0x0000, ppu20xx[0x22] << 2);
+//	setchr4(0x1000, ppu20xx[0x23] << 2);
 
-	setchr1(0x0000 ^ cswap, block | (bank0 & mask));
-	setchr1(0x0400 ^ cswap, block | (bank1 & mask));
-	setchr1(0x0800 ^ cswap, block | (bank2 & mask));
-	setchr1(0x0c00 ^ cswap, block | (bank3 & mask));
-	setchr1(0x1000 ^ cswap, block | (bank4 & mask));
-	setchr1(0x1400 ^ cswap, block | (bank5 & mask));
-	setchr1(0x1800 ^ cswap, block | (bank6 & mask));
-	setchr1(0x1c00 ^ cswap, block | (bank7 & mask));
+	setchr8(ppu20xx[0x20] | (ppu20xx[0x21] << 8));
+//	setchr4(0x1000, ppu20xx[0x22] | (ppu20xx[0x23] << 8));
+
+	//	uint8 bank0 = ppu20xx[0x6] & (~1);
+//	uint8 bank1 = ppu20xx[0x6] | 1;
+//	uint8 bank2 = ppu20xx[0x7] & (~1);
+//	uint8 bank3 = ppu20xx[0x7] | 1;
+//	uint8 bank4 = ppu20xx[0x2];
+//	uint8 bank5 = ppu20xx[0x3];
+//	uint8 bank6 = ppu20xx[0x4];
+//	uint8 bank7 = ppu20xx[0x5];
+
+//	setchr1(0x0000 ^ cswap, block | (bank0 & mask));
+//	setchr1(0x0400 ^ cswap, block | (bank1 & mask));
+//	setchr1(0x0800 ^ cswap, block | (bank2 & mask));
+//	setchr1(0x0c00 ^ cswap, block | (bank3 & mask));
+//	setchr1(0x1000 ^ cswap, block | (bank4 & mask));
+//	setchr1(0x1400 ^ cswap, block | (bank5 & mask));
+//	setchr1(0x1800 ^ cswap, block | (bank6 & mask));
+//	setchr1(0x1c00 ^ cswap, block | (bank7 & mask));
 
 	setmirror((mirror ^ 1) & 1);
 }
@@ -134,9 +140,9 @@ static DECLFW(UNLOneBusWriteCPU410X) {
 	}
 }
 
-static DECLFW(UNLOneBusWritePPU201X) {
+static DECLFW(UNLOneBusWritePPU20XX) {
 //	FCEU_printf("PPU %04x:%04x\n",A,V);
-	ppu201x[A & 0x0f] = V;
+	ppu20xx[A - 0x2010 + 0x10] = V;
 	Sync();
 }
 
@@ -147,14 +153,14 @@ static DECLFW(UNLOneBusWriteMMC3) {
 	case 0x8001:
 	{
 		switch (mmc3cmd & 7) {
-		case 0: ppu201x[0x6] = V; CSync(); break;
-		case 1: ppu201x[0x7] = V; CSync(); break;
-		case 2: ppu201x[0x2] = V; CSync(); break;
-		case 3: ppu201x[0x3] = V; CSync(); break;
-		case 4: ppu201x[0x4] = V; CSync(); break;
-		case 5: ppu201x[0x5] = V; CSync(); break;
-		case 6: cpu410x[0x7] = V; PSync(); break;
-		case 7: cpu410x[0x8] = V; PSync(); break;
+		case 0: ppu20xx[0x16] = V; CSync(); break;
+		case 1: ppu20xx[0x17] = V; CSync(); break;
+		case 2: ppu20xx[0x12] = V; CSync(); break;
+		case 3: ppu20xx[0x13] = V; CSync(); break;
+		case 4: ppu20xx[0x14] = V; CSync(); break;
+		case 5: ppu20xx[0x15] = V; CSync(); break;
+		case 6: cpu410x[0x17] = V; PSync(); break;
+		case 7: cpu410x[0x18] = V; PSync(); break;
 		}
 		break;
 	}
@@ -410,7 +416,7 @@ static void UNLOneBusPower(void) {
 	IRQReload = IRQCount = IRQa = 0;
 
 	memset(cpu410x, 0x00, sizeof(cpu410x));
-	memset(ppu201x, 0x00, sizeof(ppu201x));
+	memset(ppu20xx, 0x00, sizeof(ppu20xx));
 	memset(apu40xx, 0x00, sizeof(apu40xx));
 
 	SetupCartCHRMapping(0, PRGptr[0], PRGsize[0], 0);
@@ -438,7 +444,7 @@ static void UNLOneBusPower(void) {
 	SetReadHandler(0x4153, 0x4153, UNLOneBusRead4153);
 
 	SetReadHandler(0x8000, 0xFFFF, CartBR);
-	SetWriteHandler(0x2010, 0x201f, UNLOneBusWritePPU201X);
+	SetWriteHandler(0x2010, 0x205f, UNLOneBusWritePPU20XX);
 	SetWriteHandler(0x4100, 0x410f, UNLOneBusWriteCPU410X);
 	SetWriteHandler(0x8000, 0xffff, UNLOneBusWriteMMC3);
 
@@ -454,7 +460,7 @@ static void UNLOneBusReset(void) {
 	i2c_state = STATE_IDLE;
 
 	memset(cpu410x, 0x00, sizeof(cpu410x));
-	memset(ppu201x, 0x00, sizeof(ppu201x));
+	memset(ppu20xx, 0x00, sizeof(ppu20xx));
 	memset(apu40xx, 0x00, sizeof(apu40xx));
 
 	Sync();

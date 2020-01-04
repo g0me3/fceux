@@ -402,16 +402,7 @@ uint8 READPAL_MOTHEROFALL(uint32 A)
 //mostly involving mmc5.
 //this might be incomplete.
 uint8* FCEUPPU_GetCHR(uint32 vadr, uint32 refreshaddr) {
-	if (MMC5Hack) {
-		if (MMC5HackCHRMode == 1) {
-			uint8 *C = MMC5HackVROMPTR;
-			C += (((MMC5HackExNTARAMPtr[refreshaddr & 0x3ff]) & 0x3f & MMC5HackVROMMask) << 12) + (vadr & 0xfff);
-			C += (MMC50x5130 & 0x3) << 18;	//11-jun-2009 for kuja_killer
-			return C;
-		} else {
-			return MMC5BGVRAMADR(vadr);
-		}
-	} else return VRAMADR(vadr);
+	return VRAMADR(vadr);
 }
 
 //likewise for ATTR
@@ -419,10 +410,7 @@ int FCEUPPU_GetAttr(int ntnum, int xt, int yt) {
 	int attraddr = 0x3C0 + ((yt >> 2) << 3) + (xt >> 2);
 	int temp = (((yt & 2) << 1) + (xt & 2));
 	int refreshaddr = xt + yt * 32;
-	if (MMC5Hack && MMC5HackCHRMode == 1)
-		return (MMC5HackExNTARAMPtr[refreshaddr & 0x3ff] & 0xC0) >> 6;
-	else
-		return (vnapage[ntnum][attraddr] & (3 << temp)) >> temp;
+	return (vnapage[ntnum][attraddr] & (3 << temp)) >> temp;
 }
 
 //new ppu-----
@@ -797,10 +785,7 @@ static DECLFR(A2007) {
 
 					if (debug_loggingCD)
 						LogAddress = GetCHRAddress(tmp);
-					if(MMC5Hack && newppu)
-						VRAMBuffer = *MMC5BGVRAMADR(tmp);
-					else
-						VRAMBuffer = VPage[tmp >> 10][tmp];
+					VRAMBuffer = VPage[tmp >> 10][tmp];
 
 				} else if (tmp < 0x3F00)
 					VRAMBuffer = vnapage[(tmp >> 10) & 0x3][tmp & 0x3FF];
@@ -1090,7 +1075,7 @@ static int spork = 0;
 
 // lasttile is really "second to last tile."
 static void RefreshLine(int lastpixel) {
-	static uint32 pshift[2];
+	static uint32 pshift[4];
 	static uint32 atlatch;
 	uint32 smorkus = RefreshAddr;
 
@@ -1119,13 +1104,7 @@ static void RefreshLine(int lastpixel) {
 	if (numtiles <= 0) return;
 
 	P = Pline;
-
-	vofs = 0;
-
-	if(PEC586Hack)
-		vofs = ((RefreshAddr & 0x200) << 3) | ((RefreshAddr >> 12) & 7);
-	else
-		vofs = ((PPU[0] & 0x10) << 8) | ((RefreshAddr >> 12) & 7);
+	vofs = ((RefreshAddr >> 12) & 7);
 
 	if (!ScreenON && !SpriteON) {
 		uint32 tem;
@@ -1158,78 +1137,54 @@ static void RefreshLine(int lastpixel) {
 	//This high-level graphics MMC5 emulation code was written for MMC5 carts in "CL" mode.
 	//It's probably not totally correct for carts in "SL" mode.
 
-#define PPUT_MMC5
-	if (MMC5Hack && geniestage != 1) {
-		if (MMC5HackCHRMode == 0 && (MMC5HackSPMode & 0x80)) {
-			int tochange = MMC5HackSPMode & 0x1F;
-			tochange -= firsttile;
-			for (X1 = firsttile; X1 < lasttile; X1++) {
-				if ((tochange <= 0 && MMC5HackSPMode & 0x40) || (tochange > 0 && !(MMC5HackSPMode & 0x40))) {
-					#define PPUT_MMC5SP
-					#include "pputile.inc"
-					#undef PPUT_MMC5SP
-				} else {
-					#include "pputile.inc"
-				}
-				tochange--;
-			}
-		} else if (MMC5HackCHRMode == 1 && (MMC5HackSPMode & 0x80)) {
-			int tochange = MMC5HackSPMode & 0x1F;
-			tochange -= firsttile;
-
-			#define PPUT_MMC5SP
-			#define PPUT_MMC5CHR1
-			for (X1 = firsttile; X1 < lasttile; X1++) {
-				#include "pputile.inc"
-			}
-			#undef PPUT_MMC5CHR1
-			#undef PPUT_MMC5SP
-		} else if (MMC5HackCHRMode == 1) {
-			#define PPUT_MMC5CHR1
-			for (X1 = firsttile; X1 < lasttile; X1++) {
-				#include "pputile.inc"
-			}
-			#undef PPUT_MMC5CHR1
-		} else {
-			for (X1 = firsttile; X1 < lasttile; X1++) {
-				#include "pputile.inc"
-			}
-		}
-	}
-	#undef PPUT_MMC5
-	else if (PPU_hook) {
+	if (PPU_hook) {
 		norecurse = 1;
 		#define PPUT_HOOK
-		if (PEC586Hack) {
-			#define PPU_BGFETCH
-			for (X1 = firsttile; X1 < lasttile; X1++) {
-				#include "pputile.inc"
-			}
-			#undef PPU_BGFETCH
-		} else {
-			for (X1 = firsttile; X1 < lasttile; X1++) {
-				#include "pputile.inc"
-			}
+		for (X1 = firsttile; X1 < lasttile; X1++) {
+			#include "pputile.inc"
 		}
 		#undef PPUT_HOOK
 		norecurse = 0;
 	} else {
-		if (PEC586Hack) {
-			#define PPU_BGFETCH
-			for (X1 = firsttile; X1 < lasttile; X1++) {
-				#include "pputile.inc"
+		for (X1 = firsttile; X1 < lasttile; X1++) {
+			uint8 *C;
+			uint32 vadr;
+
+			if (X1 >= 2) {
+				uint8 *S = PALRAM;
+
+				P[0] = S[(pshift[0] >> (8 - XOffset)) & 0xF];
+				P[1] = S[((pshift[0] >> (8 - XOffset)) >> 4) & 0xF];
+				P[2] = S[(pshift[1] >> (8 - XOffset)) & 0xF];
+				P[3] = S[((pshift[1] >> (8 - XOffset)) >> 4) & 0xF];
+				P[4] = S[(pshift[2] >> (8 - XOffset)) & 0xF];
+				P[5] = S[((pshift[2] >> (8 - XOffset)) >> 4) & 0xF];
+				P[6] = S[(pshift[3] >> (8 - XOffset)) & 0xF];
+				P[7] = S[((pshift[3] >> (8 - XOffset)) >> 4) & 0xF];
+
+				P += 8;
 			}
-			#undef PPU_BGFETCH
-		} if (QTAIHack) {
-			#define PPU_VRC5FETCH
-			for (X1 = firsttile; X1 < lasttile; X1++) {
-				#include "pputile.inc"
-			}
-			#undef PPU_VRC5FETCH
-		} else {
-			for (X1 = firsttile; X1 < lasttile; X1++) {
-				#include "pputile.inc"
-			}
+
+			C = vnapage[(RefreshAddr >> 10) & 3];
+			vadr = C[RefreshAddr & 0x3ff];
+			vadr = ((vadr << 5) + (vofs << 2));				// Fetch name table byte.
+
+			pshift[0] <<= 8;
+			pshift[1] <<= 8;
+			pshift[2] <<= 8;
+			pshift[3] <<= 8;
+
+			C = VRAMADR(vadr >> 0);
+
+			pshift[0] |= C[0];
+			pshift[1] |= C[1];
+			pshift[2] |= C[2];
+			pshift[3] |= C[3];
+
+			if ((RefreshAddr & 0x1f) == 0x1f)
+				RefreshAddr ^= 0x41F;
+			else
+				RefreshAddr++;
 		}
 	}
 
@@ -1461,10 +1416,7 @@ static void FetchSpriteData(void) {
 					}
 
 					/* Fix this geniestage hack */
-					if (MMC5Hack && geniestage != 1)
-						C = MMC5SPRVRAMADR(vadr);
-					else
-						C = VRAMADR(vadr);
+					C = VRAMADR(vadr);
 
 					if (SpriteON)
 						RENDER_LOGP(C);
@@ -1514,10 +1466,7 @@ static void FetchSpriteData(void) {
 						vadr += t & 8;
 					}
 
-					if (MMC5Hack)
-						C = MMC5SPRVRAMADR(vadr);
-					else
-						C = VRAMADR(vadr);
+					C = VRAMADR(vadr);
 					if (SpriteON)
 						RENDER_LOGP(C);
 					dst.ca[0] = C[0];
