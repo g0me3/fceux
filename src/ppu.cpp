@@ -112,9 +112,13 @@ static uint32 scanlines_per_frame;
 
 uint8 PPU[PPUR_SIZE];
 uint8 PPUSPL;
-uint8 NTARAM[0x800], PALRAM[0x20], SPRAM[SPRAM_SIZE], SPRBUF[0x100];
-uint8 UPALRAM[0x03];//for 0x4/0x8/0xC addresses in palette, the ones in
-					//0x20 are 0 to not break fceu rendering.
+uint8 NTARAM[0x800];
+uint8 SPRAM[SPRAM_SIZE], SPRBUF[0x100];
+uint8 PALRAM[0x20], UPALRAM[0x03];	// for 0x4/0x8/0xC addresses in palette, the ones in
+									// 0x20 are 0 to not break fceu rendering.
+
+uint16 PALBG[512];
+uint16 PALSP[512];
 
 #define VRAMADR(V)          &VPage[(V) >> 10][(V)]
 
@@ -144,29 +148,6 @@ int FCEUPPU_GetAttr(int ntnum, int xt, int yt) {
 	int temp = (((yt & 2) << 1) + (xt & 2));
 	int refreshaddr = xt + yt * 32;
 	return (vnapage[ntnum][attraddr] & (3 << temp)) >> temp;
-}
-
-//new ppu-----
-inline void FFCEUX_PPUWrite_Default(uint32 A, uint8 V) {
-	uint32 tmp = A;
-
-	if (tmp < 0x2000) {
-		if (PPUCHRRAM & (1 << (tmp >> 10)))
-			VPage[tmp >> 10][tmp] = V;
-	} else if (tmp < 0x3F00) {
-		if (PPUNTARAM & (1 << ((tmp & 0xF00) >> 10)))
-			vnapage[((tmp & 0xF00) >> 10)][tmp & 0x3FF] = V;
-	} else {
-		if (!(tmp & 3)) {
-			if (!(tmp & 0xC)) {
-				PALRAM[0x00] = PALRAM[0x04] = PALRAM[0x08] = PALRAM[0x0C] = V & 0x3F;
-				PALRAM[0x10] = PALRAM[0x14] = PALRAM[0x18] = PALRAM[0x1C] = V & 0x3F;
-			}
-			else
-				UPALRAM[((tmp & 0xC) >> 2) - 1] = V & 0x3F;
-		} else
-			PALRAM[tmp & 0x1F] = V & 0x3F;
-	}
 }
 
 volatile int rendercount, vromreadcount, undefinedvromcount, LogAddress = -1;
@@ -251,13 +232,9 @@ uint8 FASTCALL FFCEUX_PPURead_Default(uint32 A) {
 	}
 }
 
-
 uint8 (FASTCALL *FFCEUX_PPURead)(uint32 A) = 0;
-void (*FFCEUX_PPUWrite)(uint32 A, uint8 V) = 0;
 
 #define CALL_PPUREAD(A) (FFCEUX_PPURead(A))
-
-#define CALL_PPUWRITE(A, V) (FFCEUX_PPUWrite ? FFCEUX_PPUWrite(A, V) : FFCEUX_PPUWrite_Default(A, V))
 
 void ppu_getScroll(int &xpos, int &ypos) {
 	xpos = ((RefreshAddr & 0x400) >> 2) | ((RefreshAddr & 0x1F) << 3) | XOffset;
@@ -289,7 +266,7 @@ static DECLFR(A2004) {
 	return PPUGenLatch;
 }
 
-static DECLFR(A200x) {	/* Not correct for $2004 reads. */
+static DECLFR(A200x) {	
 	FCEUPPU_LineUpdate();
 	return PPUGenLatch;
 }
@@ -309,7 +286,6 @@ static DECLFR(A2007) {
 			DummyRead = 0;
 	}
 
-	//OLDPPU
 	FCEUPPU_LineUpdate();
 
 	if (tmp >= 0x3F00) {	// Palette RAM tied directly to the output data, without VRAM buffer
@@ -468,10 +444,12 @@ static DECLFW(B2007) {
 	if (tmp < 0x2000) {
 		if (PPUCHRRAM & (1 << (tmp >> 10)))
 			VPage[tmp >> 10][tmp] = V;
-	} else if (tmp < 0x3F00) {
+	} else if (tmp < 0x3C00) {
 		if (PPUNTARAM & (1 << ((tmp & 0xF00) >> 10)))
 			vnapage[((tmp & 0xF00) >> 10)][tmp & 0x3FF] = V;
-	} else {
+	} else if (tmp < 0x3E00) {
+		PALBG[tmp & 0x1FF]; V;
+// -- tmp ---
 		if (!(tmp & 3)) {
 			if (!(tmp & 0xC))
 				PALRAM[0x00] = PALRAM[0x04] = PALRAM[0x08] = PALRAM[0x0C] = V & 0x3F;
@@ -479,22 +457,15 @@ static DECLFW(B2007) {
 				UPALRAM[((tmp & 0xC) >> 2) - 1] = V & 0x3F;
 		} else
 			PALRAM[tmp & 0x1F] = V & 0x3F;
+// -- tmp ---
+	} else {
+		PALSP[tmp & 0x1FF]; V;
 	}
 	if (INC32)
 		RefreshAddr += 32;
 	else
 		RefreshAddr++;
 }
-
-//static DECLFW(B4014) {
-//	uint32 t = V << 8;
-//	int x;
-//
-//	for (x = 0; x < 256; x++)
-//		X6502_DMW(0x2004, X6502_DMR(t + x));
-//	
-//	SpriteDMA = V;
-//}
 
 #define PAL(c)  ((c) + cc)
 
@@ -768,7 +739,8 @@ static void DoLine(void) {
 		uint8 col;
 		if (gNoBGFillColor == 0xFF)
 			col = READPAL(0);
-		else col = gNoBGFillColor;
+		else
+			col = gNoBGFillColor;
 		tem = col | (col << 8) | (col << 16) | (col << 24);
 		tem |= 0x40404040; 
 		FCEU_dwmemset(target, tem, 256);
@@ -895,7 +867,6 @@ static void FetchSpriteData(void) {
 					vadr += t & 8;
 				}
 
-				/* Fix this geniestage hack */
 				C = VRAMADR(vadr);
 
 				if (SpriteON)
@@ -904,6 +875,7 @@ static void FetchSpriteData(void) {
 				if (SpriteON)
 					RENDER_LOGP(C + 8);
 				dst.ca[1] = C[8];
+
 				dst.x = spr->x;
 				dst.atr = spr->atr;
 
@@ -942,7 +914,7 @@ static void RefreshSprites(void) {
 		int VB;
 
 		pixdata = 0xffffffff;  // ppulut1[spr->ca[0]] | ppulut2[spr->ca[1];
-		J = spr->ca[0] | spr->ca[1];
+		J = 0xFF;  // spr->ca[0] | spr->ca[1];
 		atr = spr->atr;
 
 		if (J) {
@@ -1091,6 +1063,10 @@ void FCEUPPU_Power(void) {
 	memset(PALRAM, 0x00, 0x20);
 	memset(UPALRAM, 0x00, 0x03);
 	memset(SPRAM, 0x00, SPRAM_SIZE);
+
+	memset(PALBG, 0, 512);
+	memset(PALSP, 0, 512);
+
 	FCEUPPU_Reset();
 
 	for (x = 0x2000; x < 0x4000; x += 8) {
@@ -1233,6 +1209,9 @@ SFORMAT FCEUPPU_STATEINFO[] = {
 	{ &TempAddrT, 2 | FCEUSTATE_RLSB, "TADD" },
 	{ &VRAMBuffer, 1, "VBUF" },
 	{ &PPUGenLatch, 1, "PGEN" },
+
+	{ PALBG, 512, "PALB" },
+	{ PALSP, 512, "PALS" },
 	{ 0 }
 };
 

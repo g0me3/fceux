@@ -29,9 +29,7 @@ void ppu_getScroll(int &xpos, int &ypos);
 
 void PPU_ResetHooks();
 extern uint8 (FASTCALL *FFCEUX_PPURead)(uint32 A);
-extern void (*FFCEUX_PPUWrite)(uint32 A, uint8 V);
 extern uint8 FASTCALL FFCEUX_PPURead_Default(uint32 A);
-void FFCEUX_PPUWrite_Default(uint32 A, uint8 V);
 
 // Oregon expanded 8K RAM on board
 #define RAM_SIZE 0x2000
