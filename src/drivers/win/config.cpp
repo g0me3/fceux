@@ -211,8 +211,6 @@ static CFGSTRUCT fceuconfig[] =
 	NAC("sound",soundo),
 	NAC("sicon",status_icon),
 
-	AC(newppu),
-
 	NACS("odroms",directory_names[0]),
 	NACS("odnonvol",directory_names[1]),
 	NACS("odstates",directory_names[2]),

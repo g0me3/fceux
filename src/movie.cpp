@@ -928,7 +928,7 @@ void FCEUMOV_CreateCleanMovie()
 	currMovieData.ports[1] = joyports[1].type;
 	currMovieData.ports[2] = portFC.type;
 	currMovieData.fds = isFDS;
-	currMovieData.PPUflag = (newppu != 0);
+	currMovieData.PPUflag = 0;
 	currMovieData.RAMInitOption = RAMInitOption;
 	currMovieData.RAMInitSeed = RAMInitSeed;
 }

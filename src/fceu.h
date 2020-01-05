@@ -4,7 +4,6 @@
 #include "types.h"
 
 extern int fceuindbg;
-extern int newppu;
 void ResetGameLoaded(void);
 
 //overclocking-related
@@ -33,7 +32,7 @@ void FlushGenieRW(void);
 
 void FCEU_ResetVidSys(void);
 
-void ResetMapping(void);
+//void ResetMapping(void);
 void ResetNES(void);
 void PowerNES(void);
 
@@ -46,24 +45,6 @@ void FCEUI_RewindToLastAutosave(void);
 char *FCEUI_GetAboutString();
 
 extern uint64 timestampbase;
-
-// MMC5 external shared buffers/vars
-extern int MMC5Hack;
-extern uint32 MMC5HackVROMMask;
-extern uint8 *MMC5HackExNTARAMPtr;
-extern uint8 *MMC5HackVROMPTR;
-extern uint8 MMC5HackCHRMode;
-extern uint8 MMC5HackSPMode;
-extern uint8 MMC50x5130;
-extern uint8 MMC5HackSPScroll;
-extern uint8 MMC5HackSPPage;
-
-extern int PEC586Hack;
-
-// VRCV extarnal shared buffers/vars
-extern int QTAIHack;
-extern uint8 QTAINTRAM[2048];
-extern uint8 qtaintramreg;
 
 #define GAME_MEM_BLOCK_SIZE 131072
 
@@ -142,9 +123,6 @@ void FCEU_TogglePPU();
 void SetNESDeemph_OldHacky(uint8 d, int force);
 void DrawTextTrans(uint8 *dest, uint32 width, uint8 *textmsg, uint8 fgcolor);
 void FCEU_PutImage(void);
-#ifdef FRAMESKIP
-void FCEU_PutImageDummy(void);
-#endif
 
 #ifdef WIN32
 extern void UpdateCheckedMenuItems();

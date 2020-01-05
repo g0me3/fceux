@@ -56,7 +56,6 @@ extern int RAMInitOption;
 extern int joysticksPerFrame[INPUT_TYPES_TOTAL];
 extern bool turbo;
 extern int pal_emulation;
-extern int newppu;
 extern void PushCurrentVideoSettings();
 extern void RefreshThrottleFPS();
 extern bool LoadFM2(MovieData& movieData, EMUFILE* fp, int size, bool stopAfterHeader);
@@ -927,7 +926,6 @@ void applyMovieInputConfig()
 	RefreshThrottleFPS();
 	PushCurrentVideoSettings();
 	// update PPU type
-	newppu = currMovieData.PPUflag;
 	SetMainWindowText();
 	// return focus to TAS Editor window
 	SetFocus(taseditorWindow.hwndTASEditor);

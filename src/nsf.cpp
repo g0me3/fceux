@@ -127,7 +127,6 @@ extern char LoadedRomFName[2048];
 
 NSF_HEADER NSFHeader; //mbg merge 6/29/06 - needs to be global
 
-void NSFMMC5_Close(void);
 static uint8 *ExWRAM=0;
 
 void NSFGI(GI h)
@@ -137,19 +136,6 @@ void NSFGI(GI h)
 	case GI_CLOSE:
 		if(NSFDATA) {free(NSFDATA);NSFDATA=0;}
 		if(ExWRAM) {free(ExWRAM);ExWRAM=0;}
-		if(NSFHeader.SoundChip&1) {
-			//   NSFVRC6_Init();
-		} else if(NSFHeader.SoundChip&2) {
-			//   NSFVRC7_Init();
-		} else if(NSFHeader.SoundChip&4) {
-			//   FDSSoundReset();
-		} else if(NSFHeader.SoundChip&8) {
-			NSFMMC5_Close();
-		} else if(NSFHeader.SoundChip&0x10) {
-			//   NSFN106_Init();
-		} else if(NSFHeader.SoundChip&0x20) {
-			//   NSFAY_Init();
-		}
 		break;
 	case GI_RESETM2:
 	case GI_POWER: NSF_init();break;
@@ -307,7 +293,6 @@ static DECLFR(NSFVectorRead)
 
 void NSFVRC6_Init(void);
 void NSFVRC7_Init(void);
-void NSFMMC5_Init(void);
 void NSFN106_Init(void);
 void NSFAY_Init(void);
 
@@ -374,20 +359,6 @@ void NSF_init(void)
 	SetWriteHandler(0x3ff0,0x3fff,NSF_write);
 	SetReadHandler(0x3ff0,0x3fff,NSF_read);
 
-
-	if(NSFHeader.SoundChip&1) {
-		NSFVRC6_Init();
-	} else if(NSFHeader.SoundChip&2) {
-		NSFVRC7_Init();
-	} else if(NSFHeader.SoundChip&4) {
-		FDSSoundReset();
-	} else if(NSFHeader.SoundChip&8) {
-		NSFMMC5_Init();
-	} else if(NSFHeader.SoundChip&0x10) {
-		NSFN106_Init();
-	} else if(NSFHeader.SoundChip&0x20) {
-		NSFAY_Init();
-	}
 	CurrentSong=NSFHeader.StartingSong;
 	SongReload=0xFF;
 	NSFNMIFlags=0;

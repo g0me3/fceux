@@ -117,7 +117,6 @@ extern bool frameAdvanceLagSkip;
 extern bool turbo;
 extern bool movie_readonly;
 extern bool AutoSS;			//flag for whether an auto-save has been made
-extern int newppu;
 extern INT_PTR CALLBACK ReplayMetadataDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);	//Metadata dialog
 extern bool CheckFileExists(const char* filename);	//Receives a filename (fullpath) and checks to see if that file exists
 extern bool oldInputDisplay;
@@ -192,8 +191,6 @@ string gettingstartedhelp = "Gettingstarted";//Getting Started
 void SetMainWindowText()
 {
 	string str = FCEU_NAME_AND_VERSION;
-	if (newppu)
-		str.append(" (New PPU)");
 	if (GameInfo)
 	{
 		//Add the filename to the window caption
@@ -2556,7 +2553,6 @@ adelikat: Outsourced this to a remappable hotkey
 			EnableMenuItem(fceumenu, ID_NEWPPU, MF_GRAYED);
 			EnableMenuItem(fceumenu, ID_OLDPPU, MF_GRAYED);
 		}
-		CheckMenuRadioItem(fceumenu, ID_NEWPPU, ID_OLDPPU, newppu ? ID_NEWPPU : ID_OLDPPU, MF_BYCOMMAND);
 		// when TASEditor is engaged, some settings should not be changeable
 		if (FCEUMOV_Mode(MOVIEMODE_TASEDITOR))
 		{

@@ -96,7 +96,6 @@ static int SFEXINDEX;
 
 
 extern SFORMAT FCEUPPU_STATEINFO[];
-extern SFORMAT FCEU_NEWPPU_STATEINFO[];
 extern SFORMAT FCEUSND_STATEINFO[];
 extern SFORMAT FCEUCTRL_STATEINFO[];
 extern SFORMAT FCEUMOV_STATEINFO[];
@@ -272,7 +271,6 @@ static bool ReadStateChunks(EMUFILE* is, int32 totalsize)
 		{
 		case 1:if(!ReadStateChunk(is,SFCPU,size)) ret=false;break;
 		case 3:if(!ReadStateChunk(is,FCEUPPU_STATEINFO,size)) ret=false;break;
-		case 31:if(!ReadStateChunk(is,FCEU_NEWPPU_STATEINFO,size)) ret=false;break;
 		case 4:if(!ReadStateChunk(is,FCEUCTRL_STATEINFO,size)) ret=false;break;
 		case 7:
 			if(!FCEUMOV_ReadState(is,size)) {
@@ -380,7 +378,6 @@ bool FCEUSS_SaveMS(EMUFILE* outstream, int compressionLevel)
 	totalsize=WriteStateChunk(os,1,SFCPU);
 	totalsize+=WriteStateChunk(os,2,SFCPUC);
 	totalsize+=WriteStateChunk(os,3,FCEUPPU_STATEINFO);
-	totalsize+=WriteStateChunk(os,31,FCEU_NEWPPU_STATEINFO);
 	totalsize+=WriteStateChunk(os,4,FCEUCTRL_STATEINFO);
 	totalsize+=WriteStateChunk(os,5,FCEUSND_STATEINFO);
 	if(FCEUMOV_Mode(MOVIEMODE_PLAY|MOVIEMODE_RECORD|MOVIEMODE_FINISHED))
@@ -978,34 +975,6 @@ void FCEUI_LoadState(const char *fname, bool display_message)
 
 	if (FCEUSS_Load(fname, display_message))
 	{
-		//in case we're loading a savestate made with old ppu, we need to make sure ppur's regs used for dividing are ready to go
-		newppu_hacky_emergency_reset();
-
-		//mbg todo netplay
-#if 0 
-		if(FCEUnetplay)
-		{
-			char *fn = strdup(FCEU_MakeFName(FCEUMKF_NPTEMP, 0, 0).c_str());
-			FILE *fp;
-
-			if((fp = fopen(fn," wb")))
-			{
-				if(FCEUSS_SaveFP(fp,0))
-				{
-					fclose(fp);
-					FCEUNET_SendFile(FCEUNPCMD_LOADSTATE, fn);
-				}
-				else
-				{
-					fclose(fp);
-				}
-
-				unlink(fn);
-			}
-
-			free(fn);
-		}
-#endif
 		freshMovie = false;		//The movie has been altered so it is no longer fresh
 	} else
 	{

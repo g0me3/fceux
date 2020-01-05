@@ -5,7 +5,6 @@
 #include "fceu.h"
 
 char str[5];
-extern int newppu;
 
 /**
 * This function is called when the dialog closes.
@@ -57,11 +56,6 @@ void CloseTimingDialog(HWND hwndDlg)
 		SetDlgItemText(hwndDlg,IDC_VBLANK_SCANLINES,str);
 		SetFocus(GetDlgItem(hwndDlg, IDC_VBLANK_SCANLINES));
 	}
-	else if (overclock_enabled && newppu)
-	{
-		MessageBox(hwndDlg, "Overclocking doesn't work with new PPU!", "Error", MB_OK | MB_ICONERROR);
-		SetFocus(GetDlgItem(hwndDlg, CB_OVERCLOCKING));
-	}
 	else
 		EndDialog(hwndDlg, 0);
 
@@ -86,11 +80,6 @@ INT_PTR CALLBACK TimingConCallB(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
 			if(eoptions & EO_NOTHROTTLE)
 			{
 				CheckDlgButton(hwndDlg, CB_DISABLE_SPEED_THROTTLING, BST_CHECKED);
-			}
-
-			if(newppu)
-			{
-				EnableWindow(GetDlgItem(hwndDlg, CB_OVERCLOCKING), false);
 			}
 
 			if(overclock_enabled)

@@ -28,7 +28,7 @@
 #include "mapinc.h"
 
 // General Purpose Registers
-static uint8 cpu410x[0x10], ppu20xx[0x80], apu40xx[0x40];
+uint8 cpu410x[0x10], ppu20xx[0x80], apu40xx[0x40];
 
 // IRQ Registers
 static uint8 IRQCount, IRQa, IRQReload;
@@ -70,54 +70,28 @@ static void PSync(void) {
 	uint32 block = ((cpu410x[0x0] & 0xf0) << 4) + (cpu410x[0xa] & (~mask));
 	uint32 pswap = (mmc3cmd & 0x40) << 8;
 
-//	uint8 bank0  = (cpu410x[0xb] & 0x40)?(~1):(cpu410x[0x7]);
-//	uint8 bank1  = cpu410x[0x8];
-//	uint8 bank2  = (cpu410x[0xb] & 0x40)?(cpu410x[0x9]):(~1);
-//	uint8 bank3  = ~0;
 	uint8 bank0 = cpu410x[0x7 ^ inv_hack];
 	uint8 bank1 = cpu410x[0x8 ^ inv_hack];
 	uint8 bank2 = (cpu410x[0xb] & 0x40) ? (cpu410x[0x9]) : (~1);
 	uint8 bank3 = ~0;
 
-//	FCEU_printf(" PRG: %04x [%02x]",0x8000^pswap,block | (bank0 & mask));
 	setprg8(0x8000 ^ pswap, block | (bank0 & mask));
-//	FCEU_printf(" %04x [%02x]",0xa000^pswap,block | (bank1 & mask));
 	setprg8(0xa000, block | (bank1 & mask));
-//	FCEU_printf(" %04x [%02x]",0xc000^pswap,block | (bank2 & mask));
 	setprg8(0xc000 ^ pswap, block | (bank2 & mask));
-//	FCEU_printf(" %04x [%02x]\n",0xe000^pswap,block | (bank3 & mask));
 	setprg8(0xe000, block | (bank3 & mask));
 }
 
 static void CSync(void) {
-	static const uint8 midx[8] = { 0, 1, 2, 0, 3, 4, 5, 0 };
-	uint8 mask = 0xff >> midx[ppu20xx[0x1a] & 7];
-	uint32 block = ((cpu410x[0x0] & 0x0f) << 11) + ((ppu20xx[0x18] & 0x70) << 4) + (ppu20xx[0x1a] & (~mask));
-	uint32 cswap = (mmc3cmd & 0x80) << 5;
 
-//	setchr4(0x0000, ppu20xx[0x22] << 2);
-//	setchr4(0x1000, ppu20xx[0x23] << 2);
+	setchr8(ppu20xx[0x20]);
 
-	setchr8(ppu20xx[0x20] | (ppu20xx[0x21] << 8));
-//	setchr4(0x1000, ppu20xx[0x22] | (ppu20xx[0x23] << 8));
+//	setchr8(0x0000, ppu20xx[0x20] << 3);
+//	setchr1(0x1000, ppu20xx[0x22] << 3);
 
-	//	uint8 bank0 = ppu20xx[0x6] & (~1);
-//	uint8 bank1 = ppu20xx[0x6] | 1;
-//	uint8 bank2 = ppu20xx[0x7] & (~1);
-//	uint8 bank3 = ppu20xx[0x7] | 1;
-//	uint8 bank4 = ppu20xx[0x2];
-//	uint8 bank5 = ppu20xx[0x3];
-//	uint8 bank6 = ppu20xx[0x4];
-//	uint8 bank7 = ppu20xx[0x5];
-
-//	setchr1(0x0000 ^ cswap, block | (bank0 & mask));
-//	setchr1(0x0400 ^ cswap, block | (bank1 & mask));
-//	setchr1(0x0800 ^ cswap, block | (bank2 & mask));
-//	setchr1(0x0c00 ^ cswap, block | (bank3 & mask));
-//	setchr1(0x1000 ^ cswap, block | (bank4 & mask));
-//	setchr1(0x1400 ^ cswap, block | (bank5 & mask));
-//	setchr1(0x1800 ^ cswap, block | (bank6 & mask));
-//	setchr1(0x1c00 ^ cswap, block | (bank7 & mask));
+//	setchr2(0x0000, ppu20xx[0x20]);
+//	setchr2(0x0800, ppu20xx[0x21]);
+//	setchr2(0x1000, ppu20xx[0x22]);
+//	setchr2(0x1800, ppu20xx[0x23]);
 
 	setmirror((mirror ^ 1) & 1);
 }
@@ -146,31 +120,31 @@ static DECLFW(UNLOneBusWritePPU20XX) {
 	Sync();
 }
 
-static DECLFW(UNLOneBusWriteMMC3) {
+//static DECLFW(UNLOneBusWriteMMC3) {
 //	FCEU_printf("MMC %04x:%04x\n",A,V);
-	switch (A & 0xe001) {
-	case 0x8000: mmc3cmd = (mmc3cmd & 0x38) | (V & 0xc7); Sync(); break;
-	case 0x8001:
-	{
-		switch (mmc3cmd & 7) {
-		case 0: ppu20xx[0x16] = V; CSync(); break;
-		case 1: ppu20xx[0x17] = V; CSync(); break;
-		case 2: ppu20xx[0x12] = V; CSync(); break;
-		case 3: ppu20xx[0x13] = V; CSync(); break;
-		case 4: ppu20xx[0x14] = V; CSync(); break;
-		case 5: ppu20xx[0x15] = V; CSync(); break;
-		case 6: cpu410x[0x17] = V; PSync(); break;
-		case 7: cpu410x[0x18] = V; PSync(); break;
-		}
-		break;
-	}
-	case 0xa000: mirror = V; CSync(); break;
-	case 0xc000: IRQLatch = V & 0xfe; break;
-	case 0xc001: IRQReload = 1; break;
-	case 0xe000: X6502_IRQEnd(FCEU_IQEXT); IRQa = 0; break;
-	case 0xe001: IRQa = 1; break;
-	}
-}
+//	switch (A & 0xe001) {
+//	case 0x8000: mmc3cmd = (mmc3cmd & 0x38) | (V & 0xc7); Sync(); break;
+//	case 0x8001:
+//	{
+//		switch (mmc3cmd & 7) {
+//		case 0: ppu20xx[0x16] = V; CSync(); break;
+//		case 1: ppu20xx[0x17] = V; CSync(); break;
+//		case 2: ppu20xx[0x12] = V; CSync(); break;
+//		case 3: ppu20xx[0x13] = V; CSync(); break;
+//		case 4: ppu20xx[0x14] = V; CSync(); break;
+//		case 5: ppu20xx[0x15] = V; CSync(); break;
+//		case 6: cpu410x[0x17] = V; PSync(); break;
+//		case 7: cpu410x[0x18] = V; PSync(); break;
+//		}
+//		break;
+//	}
+//	case 0xa000: mirror = V; CSync(); break;
+//	case 0xc000: IRQLatch = V & 0xfe; break;
+//	case 0xc001: IRQReload = 1; break;
+//	case 0xe000: X6502_IRQEnd(FCEU_IQEXT); IRQa = 0; break;
+//	case 0xe001: IRQa = 1; break;
+//	}
+//}
 
 static void UNLOneBusIRQHook(void) {
 	uint32 count = IRQCount;
@@ -446,7 +420,7 @@ static void UNLOneBusPower(void) {
 	SetReadHandler(0x8000, 0xFFFF, CartBR);
 	SetWriteHandler(0x2010, 0x205f, UNLOneBusWritePPU20XX);
 	SetWriteHandler(0x4100, 0x410f, UNLOneBusWriteCPU410X);
-	SetWriteHandler(0x8000, 0xffff, UNLOneBusWriteMMC3);
+//	SetWriteHandler(0x8000, 0xffff, UNLOneBusWriteMMC3);
 
 	Sync();
 }
@@ -473,10 +447,6 @@ static void StateRestore(int version) {
 void UNLOneBus_Init(CartInfo *info) {
 	info->Power = UNLOneBusPower;
 	info->Reset = UNLOneBusReset;
-
-	if (((*(uint32*)&(info->MD5)) == 0x305fcdc3) ||	// PowerJoy Supermax Carts
-		((*(uint32*)&(info->MD5)) == 0x6abfce8e))
-		inv_hack = 0xf;
 
 	GameHBIRQHook = UNLOneBusIRQHook;
 	MapIRQHook = UNLOneBusCpuHook;

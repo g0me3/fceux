@@ -1,5 +1,4 @@
 
-void FCEUPPU_Init(void);
 void FCEUPPU_Reset(void);
 void FCEUPPU_Power(void);
 int FCEUPPU_Loop(int skip);
@@ -7,12 +6,7 @@ int FCEUPPU_Loop(int skip);
 void FCEUPPU_LineUpdate();
 void FCEUPPU_SetVideoSystem(int w);
 
-extern void (*PPU_hook)(uint32 A);
 extern void (*GameHBIRQHook)(void), (*GameHBIRQHook2)(void);
-
-int newppu_get_scanline();
-int newppu_get_dot();
-void newppu_hacky_emergency_reset();
 
 /* For cart.c and banksw.h, mostly */
 extern uint8 NTARAM[0x800], *vnapage[4];
@@ -49,6 +43,10 @@ extern int g_rasterpos;
 extern uint8 PPU[PPUR_SIZE];
 extern bool DMC_7bit;
 extern bool paldeemphswap;
+
+extern uint8 cpu410x[0x10];
+extern uint8 ppu20xx[0x80];
+extern uint8 apu40xx[0x40];
 
 enum PPUPHASE {
 	PPUPHASE_VBL, PPUPHASE_BG, PPUPHASE_OBJ

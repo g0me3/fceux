@@ -147,16 +147,7 @@ bool CheckFileExists(const char* filename) {
 }
 
 void FCEU_TogglePPU(void) {
-	newppu ^= 1;
-	if (newppu) {
-		FCEU_DispMessage("New PPU loaded", 0);
-		FCEUI_printf("New PPU loaded");
-		overclock_enabled = 0;
-	} else {
-		FCEU_DispMessage("Old PPU loaded", 0);
-		FCEUI_printf("Old PPU loaded");
-	}
-	normalscanlines = (dendy ? 290 : 240)+newppu; // use flag as number!
+	normalscanlines = (dendy ? 290 : 240);
 #ifdef WIN32
 	SetMainWindowText();
 #endif
@@ -387,7 +378,6 @@ void ResetGameLoaded(void) {
 	if (GameInfo) FCEU_CloseGame();
 	EmulationPaused = 0; //mbg 5/8/08 - loading games while paused was bad news. maybe this fixes it
 	GameStateRestore = 0;
-	PPU_hook = NULL;
 	GameHBIRQHook = NULL;
 	FFCEUX_PPURead = NULL;
 	FFCEUX_PPUWrite = NULL;
@@ -395,9 +385,6 @@ void ResetGameLoaded(void) {
 		GameExpSound.Kill();
 	memset(&GameExpSound, 0, sizeof(GameExpSound));
 	MapIRQHook = NULL;
-	MMC5Hack = 0;
-	PEC586Hack = 0;
-	QTAIHack = 0;
 	PAL &= 1;
 	default_palette_selection = 0;
 }
@@ -585,10 +572,8 @@ bool FCEUI_Initialize() {
 	//mbg 5/7/08 - I changed the ntsc settings to match pal.
 	//this is more for precision emulation, instead of entertainment, which is what fceux is all about nowadays
 	memset(&FSettings, 0, sizeof(FSettings));
-	//FSettings.UsrFirstSLine[0]=8;
 	FSettings.UsrFirstSLine[0] = 0;
 	FSettings.UsrFirstSLine[1] = 0;
-	//FSettings.UsrLastSLine[0]=231;
 	FSettings.UsrLastSLine[0] = 239;
 	FSettings.UsrLastSLine[1] = 239;
 	FSettings.SoundVolume = 150;      //0-150 scale
@@ -597,8 +582,6 @@ bool FCEUI_Initialize() {
 	FSettings.Square2Volume = 256;    //0-256 scale (256 is max volume)
 	FSettings.NoiseVolume = 256;      //0-256 scale (256 is max volume)
 	FSettings.PCMVolume = 256;        //0-256 scale (256 is max volume)
-
-	FCEUPPU_Init();
 
 	X6502_Init();
 
@@ -969,10 +952,7 @@ void FCEU_ResetVidSys(void) {
 	if (PAL)
 		dendy = 0;
 
-	if (newppu)
-		overclock_enabled = 0;
-
-	normalscanlines = (dendy ? 290 : 240)+newppu; // use flag as number!
+	normalscanlines = (dendy ? 290 : 240); // use flag as number!
 	totalscanlines = normalscanlines + (overclock_enabled ? postrenderscanlines : 0);
 	FCEUPPU_SetVideoSystem(w || dendy);
 	SetSoundVariables();
@@ -1082,7 +1062,6 @@ void FCEUI_SetRegion(int region, int notify) {
 #endif
 			break;
 	}
-	normalscanlines += newppu;
 	totalscanlines = normalscanlines + (overclock_enabled ? postrenderscanlines : 0);
 	FCEUI_SetVidSystem(pal_emulation);
 	RefreshThrottleFPS();

@@ -105,9 +105,9 @@ extern unsigned int cdloggerVideoDataSize;
 void DrawPatternTable(uint8 *bitmap, uint8 *table, uint8 *log, uint8 pal)
 {
 	int i,j,k,x,y,index=0;
-	int p=0,tmp;
+	int p = 0; // , tmp;
 	uint8 shift;
-	uint32 chr,logs;
+	uint32 chr; // , logs;
 	uint8 *pbitmap = bitmap;
 
 	pal <<= 2;

@@ -41,8 +41,6 @@
 uint8 *Page[32], *VPage[8];
 uint8 **VPageR = VPage;
 uint8 *VPageG[8];
-uint8 *MMC5SPRVPage[8];
-uint8 *MMC5BGVPage[8];
 
 static uint8 PRGIsRAM[32];  /* This page is/is not PRG RAM. */
 
@@ -104,9 +102,6 @@ void ResetCartMapping(void) {
 		Page[x] = nothing - x * 2048;
 		PRGptr[x] = CHRptr[x] = 0;
 		PRGsize[x] = CHRsize[x] = 0;
-	}
-	for (x = 0; x < 8; x++) {
-		MMC5SPRVPage[x] = MMC5BGVPage[x] = VPageR[x] = nothing - 0x400 * x;
 	}
 }
 

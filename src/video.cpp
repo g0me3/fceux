@@ -144,20 +144,6 @@ int FCEU_InitVirtualVideo(void)
 	return 1;
 }
 
-#ifdef FRAMESKIP
-void FCEU_PutImageDummy(void)
-{
-	ShowFPS();
-	if(GameInfo->type!=GIT_NSF)
-	{
-		FCEU_DrawNTSCControlBars(XBuf);
-		FCEU_DrawSaveStates(XBuf);
-		FCEU_DrawMovies(XBuf);
-	}
-	if(guiMessage.howlong) guiMessage.howlong--; /* DrawMessage() */
-}
-#endif
-
 static int dosnapsave=0;
 void FCEUI_SaveSnapshot(void)
 {

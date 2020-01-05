@@ -46,7 +46,6 @@ extern uint8 *trainerpoo;
 extern volatile int rendercount, vromreadcount, undefinedvromcount;
 extern unsigned char *cdloggervdata;
 extern unsigned int cdloggerVideoDataSize;
-extern int newppu;
 
 extern uint8 *NSFDATA;
 extern int NSFMaxBank;

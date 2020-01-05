@@ -87,35 +87,6 @@ static INLINE int CheckColor(int w)
 {
 	FCEUPPU_LineUpdate();
 
-    if(newppu)
-    {
-        int x = (int)ZD[w].mzx;
-        int y = (int)ZD[w].mzy;
-        int b = (int)ZD[w].mzb;
-        bool  block = (b&2)!=0;
-
-        int mousetime = y*256+x;
-        int nowtime = scanline*256 + g_rasterpos;
-
-        if(!block && mousetime < nowtime && mousetime >= nowtime - 384)
-        {
-            extern uint8 *XBuf;
-            uint8 *pix = XBuf+(ZD[w].mzy<<8);
-            uint8 a1 = pix[ZD[w].mzx];
-            a1&=63;
-            uint32 sum=palo[a1].r+palo[a1].g+palo[a1].b;
-            //return ZD[w].zaphit = sum != 0;
-            ZD[w].zaphit = (sum>=100*3)?1:0;
-        }
-        else
-        {
-            ZD[w].zaphit = 0;
-        }
-
-        return ZD[w].zaphit?0:1;
-    }
-
-
     if((ZD[w].zaphit+100)>=(timestampbase+timestamp))
     {
         return 0;
