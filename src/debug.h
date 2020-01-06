@@ -25,23 +25,23 @@
 //opbrktype is used to grab the breakpoint type that each instruction will cause.
 //WP_X is not used because ALL opcodes will have the execute bit set.
 static const uint8 opbrktype[256] = {
-	      /*0,    1, 2, 3,    4,    5,         6, 7, 8,    9, A, B,    C,    D,         E, F*/
-/*0x00*/	0, WP_R, 0, 0,    0, WP_R, WP_R|WP_W, 0, 0,    0, 0, 0,    0, WP_R, WP_R|WP_W, 0,
-/*0x10*/	0, WP_R, 0, 0,    0, WP_R, WP_R|WP_W, 0, 0, WP_R, 0, 0,    0, WP_R, WP_R|WP_W, 0,
-/*0x20*/	0, WP_R, 0, 0, WP_R, WP_R, WP_R|WP_W, 0, 0,    0, 0, 0, WP_R, WP_R, WP_R|WP_W, 0,
-/*0x30*/	0, WP_R, 0, 0,    0, WP_R, WP_R|WP_W, 0, 0, WP_R, 0, 0,    0, WP_R, WP_R|WP_W, 0,
-/*0x40*/	0, WP_R, 0, 0,    0, WP_R, WP_R|WP_W, 0, 0,    0, 0, 0,    0, WP_R, WP_R|WP_W, 0,
-/*0x50*/	0, WP_R, 0, 0,    0, WP_R, WP_R|WP_W, 0, 0, WP_R, 0, 0,    0, WP_R, WP_R|WP_W, 0,
-/*0x60*/	0, WP_R, 0, 0,    0, WP_R, WP_R|WP_W, 0, 0,    0, 0, 0, WP_R, WP_R, WP_R|WP_W, 0,
-/*0x70*/	0, WP_R, 0, 0,    0, WP_R, WP_R|WP_W, 0, 0, WP_R, 0, 0,    0, WP_R, WP_R|WP_W, 0,
-/*0x80*/	0, WP_W, 0, 0, WP_W, WP_W,      WP_W, 0, 0,    0, 0, 0, WP_W, WP_W,      WP_W, 0,
-/*0x90*/	0, WP_W, 0, 0, WP_W, WP_W,      WP_W, 0, 0, WP_W, 0, 0,    0, WP_W,         0, 0,
-/*0xA0*/	0, WP_R, 0, 0, WP_R, WP_R,      WP_R, 0, 0,    0, 0, 0, WP_R, WP_R,      WP_R, 0,
-/*0xB0*/	0, WP_R, 0, 0, WP_R, WP_R,      WP_R, 0, 0, WP_R, 0, 0, WP_R, WP_R,      WP_R, 0,
-/*0xC0*/	0, WP_R, 0, 0, WP_R, WP_R, WP_R|WP_W, 0, 0,    0, 0, 0, WP_R, WP_R, WP_R|WP_W, 0,
-/*0xD0*/	0, WP_R, 0, 0,    0, WP_R, WP_R|WP_W, 0, 0, WP_R, 0, 0,    0, WP_R, WP_R|WP_W, 0,
-/*0xE0*/	0, WP_R, 0, 0, WP_R, WP_R, WP_R|WP_W, 0, 0,    0, 0, 0, WP_R, WP_R, WP_R|WP_W, 0,
-/*0xF0*/	0, WP_R, 0, 0,    0, WP_R, WP_R|WP_W, 0, 0, WP_R, 0, 0,    0, WP_R, WP_R|WP_W, 0
+	/*0,    1, 2, 3,    4,    5,         6, 7, 8,    9, A, B,    C,    D,         E, F*/
+	/*0x00*/	0, WP_R, 0, 0,    0, WP_R, WP_R | WP_W, 0, 0,    0, 0, 0,    0, WP_R, WP_R | WP_W, 0,
+	/*0x10*/	0, WP_R, 0, 0,    0, WP_R, WP_R | WP_W, 0, 0, WP_R, 0, 0,    0, WP_R, WP_R | WP_W, 0,
+	/*0x20*/	0, WP_R, 0, 0, WP_R, WP_R, WP_R | WP_W, 0, 0,    0, 0, 0, WP_R, WP_R, WP_R | WP_W, 0,
+	/*0x30*/	0, WP_R, 0, 0,    0, WP_R, WP_R | WP_W, 0, 0, WP_R, 0, 0,    0, WP_R, WP_R | WP_W, 0,
+	/*0x40*/	0, WP_R, 0, 0,    0, WP_R, WP_R | WP_W, 0, 0,    0, 0, 0,    0, WP_R, WP_R | WP_W, 0,
+	/*0x50*/	0, WP_R, 0, 0,    0, WP_R, WP_R | WP_W, 0, 0, WP_R, 0, 0,    0, WP_R, WP_R | WP_W, 0,
+	/*0x60*/	0, WP_R, 0, 0,    0, WP_R, WP_R | WP_W, 0, 0,    0, 0, 0, WP_R, WP_R, WP_R | WP_W, 0,
+	/*0x70*/	0, WP_R, 0, 0,    0, WP_R, WP_R | WP_W, 0, 0, WP_R, 0, 0,    0, WP_R, WP_R | WP_W, 0,
+	/*0x80*/	0, WP_W, 0, 0, WP_W, WP_W,      WP_W, 0, 0,    0, 0, 0, WP_W, WP_W,      WP_W, 0,
+	/*0x90*/	0, WP_W, 0, 0, WP_W, WP_W,      WP_W, 0, 0, WP_W, 0, 0,    0, WP_W,         0, 0,
+	/*0xA0*/	0, WP_R, 0, 0, WP_R, WP_R,      WP_R, 0, 0,    0, 0, 0, WP_R, WP_R,      WP_R, 0,
+	/*0xB0*/	0, WP_R, 0, 0, WP_R, WP_R,      WP_R, 0, 0, WP_R, 0, 0, WP_R, WP_R,      WP_R, 0,
+	/*0xC0*/	0, WP_R, 0, 0, WP_R, WP_R, WP_R | WP_W, 0, 0,    0, 0, 0, WP_R, WP_R, WP_R | WP_W, 0,
+	/*0xD0*/	0, WP_R, 0, 0,    0, WP_R, WP_R | WP_W, 0, 0, WP_R, 0, 0,    0, WP_R, WP_R | WP_W, 0,
+	/*0xE0*/	0, WP_R, 0, 0, WP_R, WP_R, WP_R | WP_W, 0, 0,    0, 0, 0, WP_R, WP_R, WP_R | WP_W, 0,
+	/*0xF0*/	0, WP_R, 0, 0,    0, WP_R, WP_R | WP_W, 0, 0, WP_R, 0, 0,    0, WP_R, WP_R | WP_W, 0
 };
 
 
@@ -116,8 +116,8 @@ extern void IncrementInstructionsCounters();
 #define PPUR_SIZE 16
 
 //internal variables that debuggers will want access to
-extern uint8 *vnapage[4],*VPage[8];
-extern uint8 PPU[PPUR_SIZE],PALRAM[0x20],UPALRAM[3],SPRAM[SPRAM_SIZE],VRAMBuffer,PPUGenLatch,XOffset;
+extern uint8 *vnapage[4], *VPage[8];
+extern uint8 PPU[PPUR_SIZE], PALRAM[0x20], UPALRAM[3], SPRAM[SPRAM_SIZE], VRAMBuffer, PPUGenLatch, XOffset;
 extern uint32 FCEUPPU_PeekAddress();
 extern uint8 READPAL_MOTHEROFALL(uint32 A);
 extern int numWPs;
@@ -146,8 +146,6 @@ public:
 		jsrcount = 0;
 	}
 };
-
-extern NSF_HEADER NSFHeader;
 
 extern uint8 PSG[0x10];
 extern uint8 DMCFormat;

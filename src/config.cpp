@@ -46,14 +46,14 @@ char *FCEUI_GetAboutString() {
 		"\n"
 		__TIME__ " " __DATE__ "\n";
 
-	if(aboutString) return aboutString;
+	if (aboutString) return aboutString;
 
 	const char *compilerString = FCEUD_GetCompilerString();
 
 	//allocate the string and concatenate the template with the compiler string
 	if (!(aboutString = (char*)FCEU_dmalloc(strlen(aboutTemplate) + strlen(compilerString) + 1)))
-        return NULL;
+		return NULL;
 
-    sprintf(aboutString,"%s%s",aboutTemplate,compilerString);
+	sprintf(aboutString, "%s%s", aboutTemplate, compilerString);
 	return aboutString;
 }

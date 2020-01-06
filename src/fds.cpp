@@ -37,10 +37,10 @@
 #include <cstdlib>
 #include <cstring>
 
-//	TODO:  Add code to put a delay in between the time a disk is inserted
-//	and the when it can be successfully read/written to.  This should
-//	prevent writes to wrong places OR add code to prevent disk ejects
-//	when the virtual motor is on (mmm...virtual motor).
+ //	TODO:  Add code to put a delay in between the time a disk is inserted
+ //	and the when it can be successfully read/written to.  This should
+ //	prevent writes to wrong places OR add code to prevent disk ejects
+ //	when the virtual motor is on (mmm...virtual motor).
 extern int disableBatteryLoading;
 
 bool isFDS = false; //flag for determining if a FDS game is loaded, movie.cpp needs this
@@ -185,7 +185,8 @@ void FCEU_FDSInsert(void)
 	{
 		FCEU_DispMessage("Disk %d Side %s Inserted", 0, SelectDisk >> 1, (SelectDisk & 1) ? "B" : "A");
 		InDisk = SelectDisk;
-	} else
+	}
+	else
 	{
 		FCEU_DispMessage("Disk %d Side %s Ejected", 0, SelectDisk >> 1, (SelectDisk & 1) ? "B" : "A");
 		InDisk = 255;
@@ -227,7 +228,8 @@ static void FDSFix(int a) {
 			if (!(IRQa & 1)) {
 				IRQa &= ~2;
 				IRQCount = IRQLatch = 0;
-			} else
+			}
+			else
 				IRQCount = IRQLatch;
 			X6502_IRQBegin(FCEU_IQEXT);
 		}
@@ -282,27 +284,27 @@ static DECLFR(FDSRead4031) {
 		ret = 0;
 
 		switch (mapperFDS_block) {
-			case DSK_FILEHDR:
-				if (mapperFDS_diskaddr < mapperFDS_blocklen) {
-					ret = fds_disk();
-					switch (mapperFDS_diskaddr) {
-						case 13: mapperFDS_filesize = ret; break;
-						case 14:
-							mapperFDS_filesize |= ret << 8;
-							//char fdsfile[10];
-							//strncpy(fdsfile, (char*)&diskdata[InDisk][mapperFDS_blockstart + 3], 8);
-							//printf("Read file: %s (size: %d)\n"), fdsfile, mapperFDS_filesize);
-							break;
-					}
-					mapperFDS_diskaddr++;
+		case DSK_FILEHDR:
+			if (mapperFDS_diskaddr < mapperFDS_blocklen) {
+				ret = fds_disk();
+				switch (mapperFDS_diskaddr) {
+				case 13: mapperFDS_filesize = ret; break;
+				case 14:
+					mapperFDS_filesize |= ret << 8;
+					//char fdsfile[10];
+					//strncpy(fdsfile, (char*)&diskdata[InDisk][mapperFDS_blockstart + 3], 8);
+					//printf("Read file: %s (size: %d)\n"), fdsfile, mapperFDS_filesize);
+					break;
 				}
-				break;
-			default:
-				if (mapperFDS_diskaddr < mapperFDS_blocklen) {
-					ret = fds_disk();
-					mapperFDS_diskaddr++;
-				}
-				break;
+				mapperFDS_diskaddr++;
+			}
+			break;
+		default:
+			if (mapperFDS_diskaddr < mapperFDS_blocklen) {
+				ret = fds_disk();
+				mapperFDS_diskaddr++;
+			}
+			break;
 		}
 
 		DiskSeekIRQ = 150;
@@ -436,13 +438,15 @@ static void DoEnv() {
 					if (SPSG[x << 2] & 0x40) {
 						if (amplitude[x] < 0x3F)
 							amplitude[x]++;
-					} else {
+					}
+					else {
 						if (amplitude[x] > 0)
 							amplitude[x]--;
 					}
 				}
 				counto[x] = (SPSG[x << 2] & 0x3F);
-			} else
+			}
+			else
 				counto[x]--;
 		}
 }
@@ -479,10 +483,12 @@ static INLINE void ClockRise(void) {
 			if (adj > 0x7F) adj = 0x7F;
 			if (adj < -0x80) adj = -0x80;
 			b8shiftreg88 = 0x80 + adj;
-		} else {
+		}
+		else {
 			b8shiftreg88 = 0x80;
 		}
-	} else {
+	}
+	else {
 		b19shiftreg60 <<= 1;
 		b8shiftreg88 >>= 1;
 	}
@@ -498,7 +504,7 @@ static INLINE void ClockFall(void) {
 static INLINE int32 FDSDoSound(void) {
 	fdso.count += fdso.cycles;
 	if (fdso.count >= ((int64)1 << 40)) {
- dogk:
+	dogk:
 		fdso.count -= (int64)1 << 40;
 		ClockRise();
 		ClockFall();
@@ -564,7 +570,8 @@ static void FDS_ESI(void) {
 	if (FSettings.SndRate) {
 		if (FSettings.soundq >= 1) {
 			fdso.cycles = (int64)1 << 39;
-		} else {
+		}
+		else {
 			fdso.cycles = ((int64)1 << 40) * FDSClock;
 			fdso.cycles /= FSettings.SndRate * 16;
 		}
@@ -623,27 +630,27 @@ static DECLFW(FDSWrite) {
 			}
 
 			switch (mapperFDS_block) {
-				case DSK_FILEHDR:
-					if (mapperFDS_diskaddr < mapperFDS_blocklen) {
-						fds_disk() = V;
-						switch (mapperFDS_diskaddr) {
-							case 13: mapperFDS_filesize = V; break;
-							case 14:
-								mapperFDS_filesize |= V << 8;
-								//char fdsfile[10];
-								//strncpy(fdsfile, (char*)&diskdata[InDisk][mapperFDS_blockstart + 3], 8);
-								//printf("Write file: %s (size: %d)\n"), fdsfile, mapperFDS_filesize);
-								break;
-						}
-						mapperFDS_diskaddr++;
+			case DSK_FILEHDR:
+				if (mapperFDS_diskaddr < mapperFDS_blocklen) {
+					fds_disk() = V;
+					switch (mapperFDS_diskaddr) {
+					case 13: mapperFDS_filesize = V; break;
+					case 14:
+						mapperFDS_filesize |= V << 8;
+						//char fdsfile[10];
+						//strncpy(fdsfile, (char*)&diskdata[InDisk][mapperFDS_blockstart + 3], 8);
+						//printf("Write file: %s (size: %d)\n"), fdsfile, mapperFDS_filesize);
+						break;
 					}
-					break;
-				default:
-					if (mapperFDS_diskaddr < mapperFDS_blocklen) {
-						fds_disk() = V;
-						mapperFDS_diskaddr++;
-					}
-					break;
+					mapperFDS_diskaddr++;
+				}
+				break;
+			default:
+				if (mapperFDS_diskaddr < mapperFDS_blocklen) {
+					fds_disk() = V;
+					mapperFDS_diskaddr++;
+				}
+				break;
 			}
 
 		}
@@ -686,18 +693,18 @@ static DECLFW(FDSWrite) {
 					mapperFDS_block = DSK_FILEHDR;
 
 				switch (mapperFDS_block) {
-					case DSK_VOLUME:
-						mapperFDS_blocklen = 0x38;
-						break;
-					case DSK_FILECNT:
-						mapperFDS_blocklen = 0x02;
-						break;
-					case DSK_FILEHDR:
-						mapperFDS_blocklen = 0x10;
-						break;
-					case DSK_FILEDATA:		 // <blockid><filedata>
-						mapperFDS_blocklen = 0x01 + mapperFDS_filesize;
-						break;
+				case DSK_VOLUME:
+					mapperFDS_blocklen = 0x38;
+					break;
+				case DSK_FILECNT:
+					mapperFDS_blocklen = 0x02;
+					break;
+				case DSK_FILEHDR:
+					mapperFDS_blocklen = 0x10;
+					break;
+				case DSK_FILEDATA:		 // <blockid><filedata>
+					mapperFDS_blocklen = 0x01 + mapperFDS_filesize;
+					break;
 				}
 			}
 
@@ -745,9 +752,11 @@ static int SubLoad(FCEUFILE *fp) {
 				t = 65500;
 			TotalSides = t / 65500;
 			FCEU_fseek(fp, 0, SEEK_SET);
-		} else
+		}
+		else
 			return(0);
-	} else
+	}
+	else
 		TotalSides = header[4];
 
 	md5_starts(&md5);
@@ -812,13 +821,13 @@ int FDSLoad(const char *name, FCEUFILE *fp) {
 
 	ResetCartMapping();
 
-	if(FDSBIOS)
+	if (FDSBIOS)
 		free(FDSBIOS);
 	FDSBIOS = NULL;
-	if(FDSRAM)
+	if (FDSRAM)
 		free(FDSRAM);
 	FDSRAM = NULL;
-	if(CHRRAM)
+	if (CHRRAM)
 		free(CHRRAM);
 	CHRRAM = NULL;
 
@@ -827,7 +836,7 @@ int FDSLoad(const char *name, FCEUFILE *fp) {
 	SetupCartPRGMapping(0, FDSBIOS, FDSBIOSsize, 0);
 
 	if (fread(FDSBIOS, 1, FDSBIOSsize, zp) != FDSBIOSsize) {
-		if(FDSBIOS)
+		if (FDSBIOS)
 			free(FDSBIOS);
 		FDSBIOS = NULL;
 		fclose(zp);
@@ -841,7 +850,7 @@ int FDSLoad(const char *name, FCEUFILE *fp) {
 
 	FreeFDSMemory();
 	if (!SubLoad(fp)) {
-		if(FDSBIOS)
+		if (FDSBIOS)
 			free(FDSBIOS);
 		FDSBIOS = NULL;
 		return(0);
@@ -858,11 +867,11 @@ int FDSLoad(const char *name, FCEUFILE *fp) {
 		}
 
 		if ((tp = FCEU_fopen(fn, 0, "rb", 0))) {
-			FCEU_printf("Disk was written. Auxillary FDS file open \"%s\".\n",fn);
+			FCEU_printf("Disk was written. Auxillary FDS file open \"%s\".\n", fn);
 			FreeFDSMemory();
 			if (!SubLoad(tp)) {
 				FCEU_PrintError("Error reading auxillary FDS file.");
-				if(FDSBIOS)
+				if (FDSBIOS)
 					free(FDSBIOS);
 				FDSBIOS = NULL;
 				free(fn);
@@ -959,13 +968,13 @@ void FDSClose(void) {
 		}
 
 	FreeFDSMemory();
-	if(FDSBIOS)
+	if (FDSBIOS)
 		free(FDSBIOS);
 	FDSBIOS = NULL;
-	if(FDSRAM)
+	if (FDSRAM)
 		free(FDSRAM);
 	FDSRAM = NULL;
-	if(CHRRAM)
+	if (CHRRAM)
 		free(CHRRAM);
 	CHRRAM = NULL;
 	fclose(fp);

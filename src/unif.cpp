@@ -18,9 +18,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-/* TODO:  Battery backup file saving, mirror force    */
-/* **INCOMPLETE**             */
-/* Override stuff: CHR RAM instead of CHR ROM,   mirroring. */
+ /* TODO:  Battery backup file saving, mirror force    */
+ /* **INCOMPLETE**             */
+ /* Override stuff: CHR RAM instead of CHR ROM,   mirroring. */
 
 #include "types.h"
 #include "fceu.h"
@@ -46,13 +46,13 @@ typedef struct {
 
 typedef struct {
 	char *name;
-	void (*init)(CartInfo *);
+	void(*init)(CartInfo *);
 	int flags;
 } BMAPPING;
 
 typedef struct {
 	char *name;
-	int (*init)(FCEUFILE *fp);
+	int(*init)(FCEUFILE *fp);
 } BFMAPPING;
 
 static CartInfo UNIFCart;
@@ -117,7 +117,8 @@ static void MooMirroring(void) {
 		FCEU_MemoryRand(exntar, sizeof(exntar), true);
 		SetupCartMirroring(4, 1, exntar);
 		AddExState(exntar, 2048, 0, "EXNR");
-	} else
+	}
+	else
 		SetupCartMirroring(0, 0, 0);
 }
 
@@ -133,7 +134,8 @@ static int DoMirroring(FCEUFILE *fp) {
 			if (t < 6)
 				FCEU_printf(" Name/Attribute Table Mirroring: %s\n", stuffo[t]);
 		}
-	} else {
+	}
+	else {
 		FCEU_printf(" Incorrect Mirroring Chunk Size (%d). Data is:", uchead.info);
 		for (i = 0; i < uchead.info; i++) {
 			if ((t = FCEU_fgetc(fp)) == EOF)
@@ -215,7 +217,8 @@ static int CTRL(FCEUFILE *fp) {
 			GameInfo->input[0] = GameInfo->input[1] = SI_NONE;
 		if (t & 2)
 			GameInfo->input[1] = SI_ZAPPER;
-	} else {
+	}
+	else {
 		FCEU_printf(" Incorrect Control Chunk Size (%d). Data is:", uchead.info);
 		for (i = 0; i < uchead.info; i++) {
 			t = FCEU_fgetc(fp);
@@ -236,7 +239,8 @@ static int TVCI(FCEUFILE *fp) {
 		if (t == 0) {
 			GameInfo->vidsys = GIV_NTSC;
 			FCEUI_SetVidSystem(0);
-		} else if (t == 1) {
+		}
+		else if (t == 1) {
 			GameInfo->vidsys = GIV_PAL;
 			FCEUI_SetVidSystem(1);
 		}
@@ -270,7 +274,8 @@ static int LoadPRG(FCEUFILE *fp) {
 	if (FCEU_fread(malloced[z], 1, uchead.info, fp) != uchead.info) {
 		FCEU_printf("Read Error!\n");
 		return(0);
-	} else
+	}
+	else
 		FCEU_printf("\n");
 
 	SetupCartPRGMapping(z, malloced[z], t, 0);
@@ -305,7 +310,8 @@ static int LoadCHR(FCEUFILE *fp) {
 	if (FCEU_fread(malloced[16 + z], 1, uchead.info, fp) != uchead.info) {
 		FCEU_printf("Read Error!\n");
 		return(0);
-	} else
+	}
+	else
 		FCEU_printf("\n");
 
 	SetupCartCHRMapping(z, malloced[16 + z], t, 0);
@@ -383,11 +389,12 @@ static int InitializeBoard(void) {
 					CHRRAMSize = 256;
 				else
 					CHRRAMSize = 8;
-					CHRRAMSize <<= 10;
+				CHRRAMSize <<= 10;
 				if ((UNIFchrrama = (uint8*)FCEU_malloc(CHRRAMSize))) {
 					SetupCartCHRMapping(0, UNIFchrrama, CHRRAMSize, 1);
 					AddExState(UNIFchrrama, CHRRAMSize, 0, "CHRR");
-				} else
+				}
+				else
 					return(-1);
 			}
 			if (bmap[x].flags & BMCFLAG_FORCE4)
@@ -470,7 +477,7 @@ int UNIFLoad(const char *name, FCEUFILE *fp) {
 	currCartInfo = &UNIFCart;
 	return 1;
 
- aborto:
+aborto:
 
 	FreeUNIF();
 	ResetUNIF();

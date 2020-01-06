@@ -373,7 +373,8 @@ static void CheckHInfo(void) {
 						tofix |= 2;
 						Mirroring = 0;
 					}
-				} else if (Mirroring != moo[x].mirror) {
+				}
+				else if (Mirroring != moo[x].mirror) {
 					if (Mirroring != (moo[x].mirror & ~4))
 						if ((moo[x].mirror & ~4) <= 2)	/* Don't complain if one-screen mirroring
 														needs to be set(the iNES header can't
@@ -431,7 +432,7 @@ static void CheckHInfo(void) {
 
 typedef struct {
 	int32 mapper;
-	void (*init)(CartInfo *);
+	void(*init)(CartInfo *);
 } NewMI;
 
 //this is for games that is not the a power of 2
@@ -462,40 +463,41 @@ int iNESLoad(const char *name, FCEUFILE *fp, int OverwriteVidMode) {
 
 	if (FCEU_fread(&head, 1, 16, fp) != 16 || memcmp(&head, "NES\x1A", 4))
 		return 0;
-	
+
 	head.cleanup();
 
 	memset(&iNESCart, 0, sizeof(iNESCart));
 
 	iNES2 = ((head.ROM_type2 & 0x0C) == 0x08);
-	if(iNES2)
+	if (iNES2)
 	{
 		iNESCart.ines2 = true;
-		iNESCart.wram_size = (head.RAM_size & 0x0F)?(64 << (head.RAM_size & 0x0F)):0;
-		iNESCart.battery_wram_size = (head.RAM_size & 0xF0)?(64 << ((head.RAM_size & 0xF0)>>4)):0;
-		iNESCart.vram_size = (head.VRAM_size & 0x0F)?(64 << (head.VRAM_size & 0x0F)):0;
-		iNESCart.battery_vram_size = (head.VRAM_size & 0xF0)?(64 << ((head.VRAM_size & 0xF0)>>4)):0;
+		iNESCart.wram_size = (head.RAM_size & 0x0F) ? (64 << (head.RAM_size & 0x0F)) : 0;
+		iNESCart.battery_wram_size = (head.RAM_size & 0xF0) ? (64 << ((head.RAM_size & 0xF0) >> 4)) : 0;
+		iNESCart.vram_size = (head.VRAM_size & 0x0F) ? (64 << (head.VRAM_size & 0x0F)) : 0;
+		iNESCart.battery_vram_size = (head.VRAM_size & 0xF0) ? (64 << ((head.VRAM_size & 0xF0) >> 4)) : 0;
 		iNESCart.submapper = head.ROM_type3 >> 4;
 	}
 
 	MapperNo = (head.ROM_type >> 4);
 	MapperNo |= (head.ROM_type2 & 0xF0);
-	if(iNES2) MapperNo |= ((head.ROM_type3 & 0x0F) << 8);
-	
+	if (iNES2) MapperNo |= ((head.ROM_type3 & 0x0F) << 8);
+
 	if (head.ROM_type & 8) {
 		Mirroring = 2;
-	} else
+	}
+	else
 		Mirroring = (head.ROM_type & 1);
 
 	int not_round_size = head.ROM_size;
-	if(iNES2) not_round_size |= ((head.Upper_ROM_VROM_size & 0x0F) << 8);
-	
+	if (iNES2) not_round_size |= ((head.Upper_ROM_VROM_size & 0x0F) << 8);
+
 	if (!head.ROM_size && !iNES2)
 		ROM_size = 256;
 	else
 		ROM_size = uppow2(not_round_size);
 
-	VROM_size = uppow2(head.VROM_size | (iNES2?((head.Upper_ROM_VROM_size & 0xF0)<<4):0));
+	VROM_size = uppow2(head.VROM_size | (iNES2 ? ((head.Upper_ROM_VROM_size & 0xF0) << 4) : 0));
 
 	int round = true;
 	for (int i = 0; i != sizeof(not_power2) / sizeof(not_power2[0]); ++i) {
@@ -552,14 +554,14 @@ int iNESLoad(const char *name, FCEUFILE *fp, int OverwriteVidMode) {
 
 	iNESCart.CRC32 = iNESGameCRC32;
 
-	FCEU_printf(" PRG ROM:  %3d x 16KiB\n", (round) ? ROM_size: not_round_size);
+	FCEU_printf(" PRG ROM:  %3d x 16KiB\n", (round) ? ROM_size : not_round_size);
 	FCEU_printf(" CHR ROM:  %3d x  8KiB\n", head.VROM_size);
 	FCEU_printf(" ROM CRC32:  0x%08lx\n", iNESGameCRC32);
 	{
 		int x;
 		FCEU_printf(" ROM MD5:  0x");
-		for(x=0;x<16;x++)
-			FCEU_printf("%02x",iNESCart.MD5[x]);
+		for (x = 0; x < 16; x++)
+			FCEU_printf("%02x", iNESCart.MD5[x]);
 		FCEU_printf("\n");
 	}
 
@@ -577,13 +579,13 @@ int iNESLoad(const char *name, FCEUFILE *fp, int OverwriteVidMode) {
 	FCEU_printf(" Mirroring: %s\n", Mirroring == 2 ? "None (Four-screen)" : Mirroring ? "Vertical" : "Horizontal");
 	FCEU_printf(" Battery-backed: %s\n", (head.ROM_type & 2) ? "Yes" : "No");
 	FCEU_printf(" Trained: %s\n", (head.ROM_type & 4) ? "Yes" : "No");
-	if(iNES2) 
+	if (iNES2)
 	{
 		FCEU_printf(" NES2.0 Extensions\n");
 		FCEU_printf(" Sub Mapper #: %d\n", iNESCart.submapper);
 		FCEU_printf(" Total WRAM size: %d\n", iNESCart.wram_size + iNESCart.battery_wram_size);
 		FCEU_printf(" Total VRAM size: %d\n", iNESCart.vram_size + iNESCart.battery_vram_size);
-		if(head.ROM_type & 2)
+		if (head.ROM_type & 2)
 		{
 			FCEU_printf(" WRAM backed by battery: %d\n", iNESCart.battery_wram_size);
 			FCEU_printf(" VRAM backed by battery: %d\n", iNESCart.battery_vram_size);
@@ -611,7 +613,8 @@ int iNESLoad(const char *name, FCEUFILE *fp, int OverwriteVidMode) {
 	if (Mirroring == 2) {
 		ExtraNTARAM = (uint8*)FCEU_gmalloc(2048);
 		SetupCartMirroring(4, 1, ExtraNTARAM);
-	} else if (Mirroring >= 0x10)
+	}
+	else if (Mirroring >= 0x10)
 		SetupCartMirroring(2 + (Mirroring & 1), 1, 0);
 	else
 		SetupCartMirroring(Mirroring & 1, (Mirroring & 4) >> 2, 0);
@@ -630,7 +633,8 @@ int iNESLoad(const char *name, FCEUFILE *fp, int OverwriteVidMode) {
 	// Extract Filename only. Should account for Windows/Unix this way.
 	if (strrchr(name, '/')) {
 		name = strrchr(name, '/') + 1;
-	} else if (strrchr(name, '\\')) {
+	}
+	else if (strrchr(name, '\\')) {
 		name = strrchr(name, '\\') + 1;
 	}
 
@@ -643,7 +647,8 @@ int iNESLoad(const char *name, FCEUFILE *fp, int OverwriteVidMode) {
 	// TODO: MD5 check against a list of all known PAL games instead?
 	if (iNES2) {
 		FCEUI_SetVidSystem(((head.TV_system & 3) == 1) ? 1 : 0);
-	} else if (OverwriteVidMode) {
+	}
+	else if (OverwriteVidMode) {
 		if (strstr(name, "(E)") || strstr(name, "(e)")
 			|| strstr(name, "(Europe)") || strstr(name, "(PAL)")
 			|| strstr(name, "(F)") || strstr(name, "(f)")
@@ -726,7 +731,7 @@ static int iNES_Init(int num) {
 		if (num == tmp->number) {
 			UNIFchrrama = 0;	// need here for compatibility with UNIF mapper code
 			if (!VROM_size) {
-				if(!iNESCart.ines2)
+				if (!iNESCart.ines2)
 				{
 					switch (num) {	// FIXME, mapper or game data base with the board parameters and ROM/RAM sizes
 					case 13:  CHRRAMSize = 16 * 1024; break;
@@ -748,7 +753,7 @@ static int iNES_Init(int num) {
 				FCEU_MemoryRand(VROM, CHRRAMSize);
 
 				UNIFchrrama = VROM;
-				if(CHRRAMSize == 0)
+				if (CHRRAMSize == 0)
 				{
 					//probably a mistake. 
 					//but (for chrram): "Use of $00 with no CHR ROM implies that the game is wired to map nametable memory in CHR space. The value $00 MUST NOT be used if a mapper isn't defined to allow this. "

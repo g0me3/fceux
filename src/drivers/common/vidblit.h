@@ -25,8 +25,7 @@ void Blit8ToHigh(uint8 *src, uint8 *dest, int xr, int yr, int pitch, int xscale,
 void Blit8To8(uint8 *src, uint8 *dest, int xr, int yr, int pitch, int xscale, int yscale, int efx, int special);
 
 void Blit32to24(uint32 *src, uint8 *dest, int xr, int yr, int dpitch);
-void Blit32to16(uint32 *src, uint16 *dest, int xr, int yr, int dpitch,
-        int shiftr[3], int shiftl[3]);
+void Blit32to16(uint32 *src, uint16 *dest, int xr, int yr, int dpitch, int shiftr[3], int shiftl[3]);
 
 
 u32 ModernDeemphColorMap(u8* src, u8* srcbuf, int xscale, int yscale);

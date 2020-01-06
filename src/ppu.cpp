@@ -28,7 +28,7 @@
 #include "file.h"
 #include "utils/endian.h"
 #include "utils/memory.h"
-		 
+
 #include "cart.h"
 #include "palette.h"
 #include "state.h"
@@ -36,7 +36,7 @@
 #include "input.h"
 #include "driver.h"
 #include "debug.h"
-		 
+
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
@@ -92,7 +92,7 @@ uint8 PPUCHRRAM = 0;
 static uint8 deemp = 0;
 static int deempcnt[8];
 
-void (*GameHBIRQHook)(void), (*GameHBIRQHook2)(void);
+void(*GameHBIRQHook)(void), (*GameHBIRQHook2)(void);
 
 uint8 vtoggle = 0;
 uint8 XOffset = 0;
@@ -122,10 +122,9 @@ uint16 PALSP[512];
 
 #define VRAMADR(V)          &VPage[(V) >> 10][(V)]
 
-uint8 READPAL_MOTHEROFALL(uint32 A)
-{
-	if(!(A & 3)) {
-		if(!(A & 0xC))
+uint8 READPAL_MOTHEROFALL(uint32 A) {
+	if (!(A & 3)) {
+		if (!(A & 0xC))
 			return READPAL(0x00);
 		else
 			return READUPAL(((A & 0xC) >> 2) - 1);
@@ -159,8 +158,9 @@ int GetCHRAddress(int A) {
 		int result = &VPage[A >> 10][A] - CHRptr[0];
 		if ((result >= 0) && (result < (int)cdloggerVideoDataSize))
 			return result;
-	} else
-		if(A < 0x2000) return A;
+	}
+	else
+		if (A < 0x2000) return A;
 	return -1;
 }
 
@@ -169,7 +169,8 @@ int GetCHROffset(uint8 *ptr) {
 	if (cdloggerVideoDataSize) {
 		if ((result >= 0) && (result < (int)cdloggerVideoDataSize))
 			return result;
-	} else {
+	}
+	else {
 		if ((result >= 0) && (result < 0x2000))
 			return result;
 	}
@@ -177,13 +178,10 @@ int GetCHROffset(uint8 *ptr) {
 }
 
 #define RENDER_LOG(tmp) { \
-		if (debug_loggingCD) \
-		{ \
+		if (debug_loggingCD) { \
 			int addr = GetCHRAddress(tmp); \
-			if (addr != -1)	\
-			{ \
-				if (!(cdloggervdata[addr] & 1))	\
-				{ \
+			if (addr != -1)	{ \
+				if (!(cdloggervdata[addr] & 1))	{ \
 					cdloggervdata[addr] |= 1; \
 					if(cdloggerVideoDataSize) { \
 						if (!(cdloggervdata[addr] & 2)) undefinedvromcount--; \
@@ -195,13 +193,10 @@ int GetCHROffset(uint8 *ptr) {
 }
 
 #define RENDER_LOGP(tmp) { \
-		if (debug_loggingCD) \
-		{ \
+		if (debug_loggingCD) { \
 			int addr = GetCHROffset(tmp); \
-			if (addr != -1)	\
-			{ \
-				if (!(cdloggervdata[addr] & 1))	\
-				{ \
+			if (addr != -1)	{ \
+				if (!(cdloggervdata[addr] & 1))	{ \
 					cdloggervdata[addr] |= 1; \
 					if(cdloggerVideoDataSize) { \
 						if (!(cdloggervdata[addr] & 2)) undefinedvromcount--; \
@@ -217,22 +212,25 @@ uint8 FASTCALL FFCEUX_PPURead_Default(uint32 A) {
 
 	if (tmp < 0x2000) {
 		return VPage[tmp >> 10][tmp];
-	} else if (tmp < 0x3F00) {
+	}
+	else if (tmp < 0x3F00) {
 		return vnapage[(tmp >> 10) & 0x3][tmp & 0x3FF];
-	} else {
+	}
+	else {
 		uint8 ret;
 		if (!(tmp & 3)) {
 			if (!(tmp & 0xC))
 				ret = READPAL(0x00);
 			else
 				ret = READUPAL(((tmp & 0xC) >> 2) - 1);
-		} else
+		}
+		else
 			ret = READPAL(tmp & 0x1F);
 		return ret;
 	}
 }
 
-uint8 (FASTCALL *FFCEUX_PPURead)(uint32 A) = 0;
+uint8(FASTCALL *FFCEUX_PPURead)(uint32 A) = 0;
 
 #define CALL_PPUREAD(A) (FFCEUX_PPURead(A))
 
@@ -266,7 +264,7 @@ static DECLFR(A2004) {
 	return PPUGenLatch;
 }
 
-static DECLFR(A200x) {	
+static DECLFR(A200x) {
 	FCEUPPU_LineUpdate();
 	return PPUGenLatch;
 }
@@ -282,7 +280,8 @@ static DECLFR(A2007) {
 				if ((!(cdloggervdata[LogAddress] & 1)) && cdloggerVideoDataSize) undefinedvromcount--;
 				vromreadcount++;
 			}
-		} else
+		}
+		else
 			DummyRead = 0;
 	}
 
@@ -294,35 +293,38 @@ static DECLFR(A2007) {
 				ret = READPAL(0x00);
 			else
 				ret = READUPAL(((tmp & 0xC) >> 2) - 1);
-		} else
+		}
+		else
 			ret = READPAL(tmp & 0x1F);
-		#ifdef FCEUDEF_DEBUGGER
+#ifdef FCEUDEF_DEBUGGER
 		if (!fceuindbg)
-		#endif
+#endif
 		{
 			if ((tmp - 0x1000) < 0x2000)
 				VRAMBuffer = VPage[(tmp - 0x1000) >> 10][tmp - 0x1000];
 			else
 				VRAMBuffer = vnapage[((tmp - 0x1000) >> 10) & 0x3][(tmp - 0x1000) & 0x3FF];
 		}
-	} else {
+	}
+	else {
 		ret = VRAMBuffer;
-		#ifdef FCEUDEF_DEBUGGER
+#ifdef FCEUDEF_DEBUGGER
 		if (!fceuindbg)
-		#endif
+#endif
 		{
 			PPUGenLatch = VRAMBuffer;
 			if (tmp < 0x2000) {
 				if (debug_loggingCD)
 					LogAddress = GetCHRAddress(tmp);
 				VRAMBuffer = VPage[tmp >> 10][tmp];
-			} else if (tmp < 0x3F00)
+			}
+			else if (tmp < 0x3F00)
 				VRAMBuffer = vnapage[(tmp >> 10) & 0x3][tmp & 0x3FF];
 		}
 
-	#ifdef FCEUDEF_DEBUGGER
+#ifdef FCEUDEF_DEBUGGER
 		if (!fceuindbg)
-	#endif
+#endif
 		{
 			if ((ScreenON || SpriteON) && (scanline < 240)) {
 				uint32 rad = RefreshAddr;
@@ -334,10 +336,12 @@ static DECLFR(A2007) {
 						rad ^= 0x3e0;
 					else
 						rad += 0x20;
-				} else
+				}
+				else
 					rad += 0x1000;
 				RefreshAddr = rad;
-			} else {
+			}
+			else {
 				if (INC32)
 					RefreshAddr += 32;
 				else
@@ -363,7 +367,7 @@ static DECLFW(B2000) {
 static DECLFW(B2001) {
 	FCEUPPU_LineUpdate();
 	if (paldeemphswap)
-		V = (V&0x9F)|((V&0x40)>>1)|((V&0x20)<<1);
+		V = (V & 0x9F) | ((V & 0x40) >> 1) | ((V & 0x20) << 1);
 	PPUGenLatch = V;
 	PPU[1] = V;
 	if (V & 0xE0)
@@ -385,7 +389,8 @@ static DECLFW(B2004) {
 	if ((PPUSPL | (PPU[8] << 8)) >= 8) {
 		if ((PPU[3] | (PPU[8] << 8)) >= 8)
 			SPRAM[PPU[3] | (PPU[8] << 8)] = V;
-	} else {
+	}
+	else {
 		SPRAM[PPUSPL] = V;
 	}
 	PPU[3]++;
@@ -406,7 +411,8 @@ static DECLFW(B2005) {
 		tmp &= 0xFFE0;
 		tmp |= V >> 3;
 		XOffset = V & 7;
-	} else {
+	}
+	else {
 		tmp &= 0x8C1F;
 		tmp |= ((V & ~0x7) << 2);
 		tmp |= (V & 7) << 12;
@@ -423,7 +429,8 @@ static DECLFW(B2006) {
 	if (!vtoggle) {
 		TempAddr &= 0x00FF;
 		TempAddr |= (V & 0x3f) << 8;
-	} else {
+	}
+	else {
 		TempAddr &= 0xFF00;
 		TempAddr |= V;
 		RefreshAddr = TempAddr;
@@ -436,7 +443,7 @@ static DECLFW(B2007) {
 	uint32 tmp = RefreshAddr & 0x3FFF;
 
 	if (debug_loggingCD) {
-		if(!cdloggerVideoDataSize && (tmp < 0x2000))
+		if (!cdloggerVideoDataSize && (tmp < 0x2000))
 			cdloggervdata[tmp] = 0;
 	}
 
@@ -444,21 +451,25 @@ static DECLFW(B2007) {
 	if (tmp < 0x2000) {
 		if (PPUCHRRAM & (1 << (tmp >> 10)))
 			VPage[tmp >> 10][tmp] = V;
-	} else if (tmp < 0x3C00) {
+	}
+	else if (tmp < 0x3C00) {
 		if (PPUNTARAM & (1 << ((tmp & 0xF00) >> 10)))
 			vnapage[((tmp & 0xF00) >> 10)][tmp & 0x3FF] = V;
-	} else if (tmp < 0x3E00) {
+	}
+	else if (tmp < 0x3E00) {
 		PALBG[tmp & 0x1FF]; V;
-// -- tmp ---
+		// -- tmp ---
 		if (!(tmp & 3)) {
 			if (!(tmp & 0xC))
 				PALRAM[0x00] = PALRAM[0x04] = PALRAM[0x08] = PALRAM[0x0C] = V & 0x3F;
 			else
 				UPALRAM[((tmp & 0xC) >> 2) - 1] = V & 0x3F;
-		} else
+		}
+		else
 			PALRAM[tmp & 0x1F] = V & 0x3F;
-// -- tmp ---
-	} else {
+		// -- tmp ---
+	}
+	else {
 		PALSP[tmp & 0x1FF]; V;
 	}
 	if (INC32)
@@ -494,10 +505,10 @@ void FCEUPPU_LineUpdate(void) {
 #ifdef FCEUDEF_DEBUGGER
 	if (!fceuindbg)
 #endif
-	if (Pline) {
-		int l = GETLASTPIXEL;
-		RefreshLine(l);
-	}
+		if (Pline) {
+			int l = GETLASTPIXEL;
+			RefreshLine(l);
+		}
 }
 
 static bool rendersprites = true, renderbg = true;
@@ -510,16 +521,6 @@ void FCEUI_SetRenderPlanes(bool sprites, bool bg) {
 void FCEUI_GetRenderPlanes(bool& sprites, bool& bg) {
 	sprites = rendersprites;
 	bg = renderbg;
-}
-
-static void CheckSpriteHit(int p);
-
-static void EndRL(void) {
-	RefreshLine(272);
-	if (tofix)
-		Fixit1();
-	CheckSpriteHit(272);
-	Pline = 0;
 }
 
 static int32 sphitx;
@@ -550,7 +551,7 @@ static void RefreshLine(int lastpixel) {
 	static uint32 atlatch;
 	uint32 smorkus = RefreshAddr;
 
-	#define RefreshAddr smorkus
+#define RefreshAddr smorkus
 	uint32 vofs;
 	int X1;
 
@@ -583,7 +584,7 @@ static void RefreshLine(int lastpixel) {
 
 		firsttile = lasttile;
 
-		#define TOFIXNUM (272 - 0x4)
+#define TOFIXNUM (272 - 0x4)
 		if (lastpixel >= TOFIXNUM && tofix) {
 			Fixit1();
 			tofix = 0;
@@ -625,7 +626,7 @@ static void RefreshLine(int lastpixel) {
 
 		cc = C[0x3c0 + (zz >> 2) + ((RefreshAddr & 0x380) >> 4)];	// Fetch attribute table byte.
 		cc = (cc >> ((zz & 2) + ((RefreshAddr & 0x40) >> 4))) & 3;
-			
+
 		pshift[0] <<= 8;
 		pshift[1] <<= 8;
 		pshift[2] <<= 8;
@@ -713,7 +714,8 @@ static void Fixit1(void) {
 				rad ^= 0x3e0;
 			else
 				rad += 0x20;
-		} else
+		}
+		else
 			rad += 0x1000;
 		RefreshAddr = rad;
 	}
@@ -732,7 +734,12 @@ static void DoLine(void) {
 	u8* dtarget = XDBuf + ((scanline < 240 ? scanline : 240) << 8);
 
 	X6502_Run(256);
-	EndRL();
+
+	RefreshLine(272);
+	if (tofix)
+		Fixit1();
+	CheckSpriteHit(272);
+	Pline = 0;
 
 	if (!renderbg) {	// User asked to not display background data.
 		uint32 tem;
@@ -742,7 +749,7 @@ static void DoLine(void) {
 		else
 			col = gNoBGFillColor;
 		tem = col | (col << 8) | (col << 16) | (col << 24);
-		tem |= 0x40404040; 
+		tem |= 0x40404040;
 		FCEU_dwmemset(target, tem, 256);
 	}
 
@@ -750,8 +757,7 @@ static void DoLine(void) {
 		CopySprites(target);
 
 	//greyscale handling (mask some bits off the color) ? ? ?
-	if (ScreenON || SpriteON)
-	{
+	if (ScreenON || SpriteON) {
 		if (PPU[1] & 0x01) {
 			for (x = 63; x >= 0; x--)
 				*(uint32*)&target[x << 2] = (*(uint32*)&target[x << 2]) & 0x30303030;
@@ -762,7 +768,8 @@ static void DoLine(void) {
 	if ((PPU[1] >> 5) == 0x7) {
 		for (x = 63; x >= 0; x--)
 			*(uint32*)&target[x << 2] = ((*(uint32*)&target[x << 2]) & 0x3f3f3f3f) | 0xc0c0c0c0;
-	} else if (PPU[1] & 0xE0)
+	}
+	else if (PPU[1] & 0xE0)
 		for (x = 63; x >= 0; x--)
 			*(uint32*)&target[x << 2] = (*(uint32*)&target[x << 2]) | 0x40404040;
 	else
@@ -771,7 +778,7 @@ static void DoLine(void) {
 
 	//write the actual deemph
 	for (x = 63; x >= 0; x--)
-		*(uint32*)&dtarget[x << 2] = ((PPU[1]>>5)<<0)|((PPU[1]>>5)<<8)|((PPU[1]>>5)<<16)|((PPU[1]>>5)<<24);
+		*(uint32*)&dtarget[x << 2] = ((PPU[1] >> 5) << 0) | ((PPU[1] >> 5) << 8) | ((PPU[1] >> 5) << 16) | ((PPU[1] >> 5) << 24);
 
 	sphitx = 0x100;
 
@@ -784,7 +791,8 @@ static void DoLine(void) {
 		X6502_Run(4);
 		GameHBIRQHook();
 		X6502_Run(85 - 16 - 10);
-	} else {
+	}
+	else {
 		X6502_Run(6);	// Tried 65, caused problems with Slalom(maybe others)
 		Fixit2();
 		X6502_Run(85 - 6 - 16);
@@ -798,12 +806,12 @@ static void DoLine(void) {
 
 	if (SpriteON)
 		RefreshSprites();
+
 	if (GameHBIRQHook2 && (ScreenON || SpriteON))
 		GameHBIRQHook2();
 	scanline++;
-	if (scanline < 240) {
+	if (scanline < 240)
 		ResetRL(XBuf + (scanline << 8));
-	}
 	X6502_Run(16);
 }
 
@@ -840,53 +848,55 @@ static void FetchSpriteData(void) {
 	vofs = (uint32)(P0 & 0x8 & (((P0 & 0x20) ^ 0x20) >> 2)) << 9;
 	H += (P0 & 0x20) >> 2;
 
-		for (n = 63; n >= 0; n--, spr++) {
-			if ((uint32)(scanline - spr->y) >= H) continue;
-			if (ns < maxsprites) {
-				SPRB dst;
-				uint8 *C;
-				int t;
-				uint32 vadr;
-				if (n == 63) sb = 1;
+	for (n = 63; n >= 0; n--, spr++) {
+		if ((uint32)(scanline - spr->y) >= H) continue;
+		if (ns < maxsprites) {
+			SPRB dst;
+			uint8 *C;
+			int t;
+			uint32 vadr;
+			if (n == 63) sb = 1;
 
 
-				t = (int)scanline - (spr->y);
+			t = (int)scanline - (spr->y);
 
-				if (Sprite16)
-					vadr = ((spr->no & 1) << 12) + ((spr->no & 0xFE) << 4);
-				else
-					vadr = (spr->no << 4) + vofs;
+			if (Sprite16)
+				vadr = ((spr->no & 1) << 12) + ((spr->no & 0xFE) << 4);
+			else
+				vadr = (spr->no << 4) + vofs;
 
-				if (spr->atr & V_FLIP) {
-					vadr += 7;
-					vadr -= t;
-					vadr += (P0 & 0x20) >> 1;
-					vadr -= t & 8;
-				} else {
-					vadr += t;
-					vadr += t & 8;
-				}
-
-				C = VRAMADR(vadr);
-
-				if (SpriteON)
-					RENDER_LOGP(C);
-				dst.ca[0] = C[0];
-				if (SpriteON)
-					RENDER_LOGP(C + 8);
-				dst.ca[1] = C[8];
-
-				dst.x = spr->x;
-				dst.atr = spr->atr;
-
-				*(uint32*)&SPRBUF[ns << 2] = *(uint32*)&dst;
-
-				ns++;
-			} else {
-				PPU_status |= 0x20;
-				break;
+			if (spr->atr & V_FLIP) {
+				vadr += 7;
+				vadr -= t;
+				vadr += (P0 & 0x20) >> 1;
+				vadr -= t & 8;
 			}
+			else {
+				vadr += t;
+				vadr += t & 8;
+			}
+
+			C = VRAMADR(vadr);
+
+			if (SpriteON)
+				RENDER_LOGP(C);
+			dst.ca[0] = C[0];
+			if (SpriteON)
+				RENDER_LOGP(C + 8);
+			dst.ca[1] = C[8];
+
+			dst.x = spr->x;
+			dst.atr = spr->atr;
+
+			*(uint32*)&SPRBUF[ns << 2] = *(uint32*)&dst;
+
+			ns++;
 		}
+		else {
+			PPU_status |= 0x20;
+			break;
+		}
+	}
 
 	//Handle case when >8 sprites per scanline option is enabled.
 	if (ns > 8) PPU_status |= 0x20;
@@ -923,13 +933,13 @@ static void RefreshSprites(void) {
 				sphitdata = J;
 				if (atr & H_FLIP)
 					sphitdata = ((J << 7) & 0x80) |
-								((J << 5) & 0x40) |
-								((J << 3) & 0x20) |
-								((J << 1) & 0x10) |
-								((J >> 1) & 0x08) |
-								((J >> 3) & 0x04) |
-								((J >> 5) & 0x02) |
-								((J >> 7) & 0x01);
+					((J << 5) & 0x40) |
+					((J << 3) & 0x20) |
+					((J << 1) & 0x10) |
+					((J >> 1) & 0x08) |
+					((J >> 3) & 0x04) |
+					((J >> 5) & 0x02) |
+					((J >> 7) & 0x01);
 			}
 
 			C = sprlinebuf + x;
@@ -952,7 +962,8 @@ static void RefreshSprites(void) {
 					if (J & 0x02) C[1] = READPAL(VB | (pixdata & 3)) | 0x40;
 					pixdata >>= 4;
 					if (J & 0x01) C[0] = READPAL(VB | pixdata) | 0x40;
-				} else {
+				}
+				else {
 					if (J & 0x80) C[0] = READPAL(VB | (pixdata & 3)) | 0x40;
 					pixdata >>= 4;
 					if (J & 0x40) C[1] = READPAL(VB | (pixdata & 3)) | 0x40;
@@ -969,7 +980,8 @@ static void RefreshSprites(void) {
 					pixdata >>= 4;
 					if (J & 0x01) C[7] = READPAL(VB | pixdata) | 0x40;
 				}
-			} else {
+			}
+			else {
 				if (atr & H_FLIP) {
 					if (J & 0x80) C[7] = READPAL(VB | (pixdata & 3));
 					pixdata >>= 4;
@@ -986,7 +998,8 @@ static void RefreshSprites(void) {
 					if (J & 0x02) C[1] = READPAL(VB | (pixdata & 3));
 					pixdata >>= 4;
 					if (J & 0x01) C[0] = READPAL(VB | pixdata);
-				} else {
+				}
+				else {
 					if (J & 0x80) C[0] = READPAL(VB | (pixdata & 3));
 					pixdata >>= 4;
 					if (J & 0x40) C[1] = READPAL(VB | (pixdata & 3));
@@ -1014,17 +1027,16 @@ static void CopySprites(uint8 *target) {
 	uint8 *P = target;
 
 	if (!spork) return;
-	
+
 	spork = 0;
 
 	if (!rendersprites) return;						// User asked to not display sprites.
 
-	if(!SpriteON) return;
+	if (!SpriteON) return;
 
-	for(int i = 0; i < 256; i++)
-	{
+	for (int i = 0; i < 256; i++) {
 		uint8 t = sprlinebuf[i];
-		if(!(t&0x80))
+		if (!(t & 0x80))
 			if (!(t & 0x40) || (P[i] & 0x40))		// Normal sprite || behind bg sprite
 				P[i] = t;
 	}
@@ -1032,10 +1044,11 @@ static void CopySprites(uint8 *target) {
 
 void FCEUPPU_SetVideoSystem(int w) {
 	if (w) {
-		scanlines_per_frame = dendy ? 262: 312;
+		scanlines_per_frame = dendy ? 262 : 312;
 		FSettings.FirstSLine = FSettings.UsrFirstSLine[1];
 		FSettings.LastSLine = FSettings.UsrLastSLine[1];
-	} else {
+	}
+	else {
 		scanlines_per_frame = 262;
 		FSettings.FirstSLine = FSettings.UsrFirstSLine[0];
 		FSettings.LastSLine = FSettings.UsrLastSLine[0];
@@ -1088,7 +1101,7 @@ void FCEUPPU_Power(void) {
 		BWrite[x + 7] = B2007;
 	}
 	BWrite[0x2008] = B2008;
-//	BWrite[0x4014] = B4014;
+	//	BWrite[0x4014] = B4014;
 }
 
 int FCEUPPU_Loop(int skip) {
@@ -1097,7 +1110,8 @@ int FCEUPPU_Loop(int skip) {
 		memset(XBuf, 0x80, 256 * 240);
 		X6502_Run(scanlines_per_frame * (256 + 85));
 		ppudead--;
-	} else {
+	}
+	else {
 		X6502_Run(256 + 85);
 		PPU_status |= 0x80;
 
@@ -1108,12 +1122,9 @@ int FCEUPPU_Loop(int skip) {
 
 		//I need to figure out the true nature and length of this delay.
 		X6502_Run(12);
-		if (GameInfo->type == GIT_NSF)
-			DoNSFFrame();
-		else {
-			if (VBlankON)
-				TriggerNMI();
-		}
+		if (VBlankON)
+			TriggerNMI();
+
 		X6502_Run((scanlines_per_frame - 242) * (256 + 85) - 12);
 		if (overclock_enabled && vblankscanlines) {
 			if (!DMC_7bit || !skip_7bit_overclocking) {
@@ -1143,50 +1154,46 @@ int FCEUPPU_Loop(int skip) {
 		X6502_Run(16 - kook);
 		kook ^= 1;
 
-		if (GameInfo->type == GIT_NSF)
-			X6502_Run((256 + 85) * normalscanlines);
-		else {
-			deemp = PPU[1] >> 5;
+		deemp = PPU[1] >> 5;
 
-			// manual samples can't play correctly with overclocking
-			if (DMC_7bit && skip_7bit_overclocking) // 7bit sample started before 240th line
-				totalscanlines = normalscanlines;
-			else
-				totalscanlines = normalscanlines + (overclock_enabled ? postrenderscanlines : 0);
+		// manual samples can't play correctly with overclocking
+		if (DMC_7bit && skip_7bit_overclocking) // 7bit sample started before 240th line
+			totalscanlines = normalscanlines;
+		else
+			totalscanlines = normalscanlines + (overclock_enabled ? postrenderscanlines : 0);
 
-			for (scanline = 0; scanline < totalscanlines; ) {	//scanline is incremented in  DoLine.  Evil. :/
-				deempcnt[deemp]++;
-				if (scanline < 240)
-					DEBUG(FCEUD_UpdatePPUView(scanline, 1));
-				DoLine();
+		for (scanline = 0; scanline < totalscanlines; ) {	//scanline is incremented in  DoLine.  Evil. :/
+			deempcnt[deemp]++;
+			if (scanline < 240)
+				DEBUG(FCEUD_UpdatePPUView(scanline, 1));
+			DoLine();
 
-				if (scanline < normalscanlines || scanline == totalscanlines)
-					overclocking = 0;
-				else {
-					if (DMC_7bit && skip_7bit_overclocking) // 7bit sample started after 240th line
-						break;
-					overclocking = 1;
-				}
+			if (scanline < normalscanlines || scanline == totalscanlines)
+				overclocking = 0;
+			else {
+				if (DMC_7bit && skip_7bit_overclocking) // 7bit sample started after 240th line
+					break;
+				overclocking = 1;
 			}
-			DMC_7bit = 0;
-
-			//deemph nonsense, kept for complicated reasons (see SetNESDeemph_OldHacky implementation)
-			int maxref = 0;
-			for (int x = 1, max = 0; x < 7; x++) {
-				if (deempcnt[x] > max) {
-					max = deempcnt[x];
-					maxref = x;
-				}
-				deempcnt[x] = 0;
-			}
-			SetNESDeemph_OldHacky(maxref, 0);
 		}
+		DMC_7bit = 0;
+
+		//deemph nonsense, kept for complicated reasons (see SetNESDeemph_OldHacky implementation)
+		int maxref = 0;
+		for (int x = 1, max = 0; x < 7; x++) {
+			if (deempcnt[x] > max) {
+				max = deempcnt[x];
+				maxref = x;
+			}
+			deempcnt[x] = 0;
+		}
+		SetNESDeemph_OldHacky(maxref, 0);
 	}	//else... to if(ppudead)
 
 	return(1);
 }
 
-int (*PPU_MASTER)(int skip) = FCEUPPU_Loop;
+int(*PPU_MASTER)(int skip) = FCEUPPU_Loop;
 
 static uint16 TempAddrT, RefreshAddrT;
 

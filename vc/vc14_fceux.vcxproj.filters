@@ -406,7 +406,6 @@
     </ClCompile>
     <ClCompile Include="..\src\movie.cpp" />
     <ClCompile Include="..\src\netplay.cpp" />
-    <ClCompile Include="..\src\nsf.cpp" />
     <ClCompile Include="..\src\oldmovie.cpp" />
     <ClCompile Include="..\src\palette.cpp" />
     <ClCompile Include="..\src\ppu.cpp" />
@@ -517,76 +516,7 @@
     <ClCompile Include="..\src\drivers\win\taseditor\laglog.cpp">
       <Filter>drivers\win\taseditor</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\boards\mmc3.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\boards\mmc5.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\boards\n106.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\boards\n625092.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\boards\novel.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\boards\onebus.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\boards\pec-586.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\boards\sa-9602b.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\boards\sachen.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\boards\sc-127.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\boards\sheroes.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\boards\sl1632.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\boards\subor.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\boards\super24.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\boards\supervision.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\boards\t-227-1.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\boards\t-262.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\boards\tengen.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\boards\tf-1201.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\boards\transformer.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\boards\vrc1.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\boards\vrc2and4.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\boards\vrc3.cpp">
-      <Filter>boards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\boards\vrc5.cpp">
       <Filter>boards</Filter>
     </ClCompile>
     <ClCompile Include="..\src\utils\ioapi.cpp">
@@ -1054,9 +984,6 @@
       <Filter>include files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\netplay.h">
-      <Filter>include files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\nsf.h">
       <Filter>include files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\oldmovie.h">

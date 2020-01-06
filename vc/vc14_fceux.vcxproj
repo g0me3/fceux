@@ -795,7 +795,6 @@
     <ClCompile Include="..\src\lua-engine.cpp" />
     <ClCompile Include="..\src\movie.cpp" />
     <ClCompile Include="..\src\netplay.cpp" />
-    <ClCompile Include="..\src\nsf.cpp" />
     <ClCompile Include="..\src\oldmovie.cpp" />
     <ClCompile Include="..\src\palette.cpp" />
     <ClCompile Include="..\src\ppu.cpp" />
@@ -922,7 +921,6 @@
     <ClInclude Include="..\src\input\suborkb.h" />
     <ClInclude Include="..\src\movie.h" />
     <ClInclude Include="..\src\netplay.h" />
-    <ClInclude Include="..\src\nsf.h" />
     <ClInclude Include="..\src\oldmovie.h" />
     <ClInclude Include="..\src\palette.h" />
     <ClInclude Include="..\src\ppu.h" />

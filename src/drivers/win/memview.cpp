@@ -134,19 +134,19 @@ int LoadTableFile();
 void UnloadTableFile();
 void InputData(char *input);
 int GetMemViewData(uint32 i);
-int UpdateCheatColorCallB(char *name, uint32 a, uint8 v, int compare,int s,int type, void *data); //mbg merge 6/29/06 - added arg
-int DeleteCheatCallB(char *name, uint32 a, uint8 v, int compare,int s,int type); //mbg merge 6/29/06 - added arg
+int UpdateCheatColorCallB(char *name, uint32 a, uint8 v, int compare, int s, int type, void *data); //mbg merge 6/29/06 - added arg
+int DeleteCheatCallB(char *name, uint32 a, uint8 v, int compare, int s, int type); //mbg merge 6/29/06 - added arg
 void FreezeRam(int address, int mode, int final);
 int GetHexScreenCoordx(int offset);
 int GetHexScreenCoordy(int offset);
-int GetAddyFromCoord(int x,int y);
-void AutoScrollFromCoord(int x,int y);
+int GetAddyFromCoord(int x, int y);
+void AutoScrollFromCoord(int x, int y);
 LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 INT_PTR CALLBACK MemFindCallB(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 void FindNext();
 void OpenFindDialog();
 static int GetFileData(uint32 offset);
-static int WriteFileData(uint32 offset,int data);
+static int WriteFileData(uint32 offset, int data);
 static void PalettePoke(uint32 addr, uint8 data);
 
 
@@ -176,7 +176,7 @@ static char chartable[256];
 //HBITMAP HDataBmp;
 //HGDIOBJ HDataObj;
 HDC HDataDC;
-int CursorX=2, CursorY=9;
+int CursorX = 2, CursorY = 9;
 int CursorStartAddy, CursorEndAddy = PREVIOUS_VALUE_UNDEFINED;
 int CursorDragPoint = -1;//, CursorShiftPoint = -1;
 //int CursorStartNibble=1, CursorEndNibble; //1 means that only half of the byte is selected
@@ -209,7 +209,7 @@ struct UNDOSTRUCT {
 	UNDOSTRUCT *last; //mbg merge 7/18/06 removed struct qualifier
 };
 
-struct UNDOSTRUCT *undo_list=0;
+struct UNDOSTRUCT *undo_list = 0;
 
 void resetHighlightingActivityLog()
 {
@@ -221,8 +221,8 @@ void resetHighlightingActivityLog()
 	}
 }
 
-void ApplyPatch(int addr,int size, uint8* data){
-	UNDOSTRUCT *tmp=(UNDOSTRUCT*)malloc(sizeof(UNDOSTRUCT)); //mbg merge 7/18/06 removed struct qualifiers and added cast
+void ApplyPatch(int addr, int size, uint8* data) {
+	UNDOSTRUCT *tmp = (UNDOSTRUCT*)malloc(sizeof(UNDOSTRUCT)); //mbg merge 7/18/06 removed struct qualifiers and added cast
 
 	int i;
 
@@ -233,32 +233,32 @@ void ApplyPatch(int addr,int size, uint8* data){
 	tmp->addr = addr;
 	tmp->size = size;
 	tmp->data = (uint8*)malloc(sizeof(uint8)*size);
-	tmp->last=undo_list;
+	tmp->last = undo_list;
 
-	for(i = 0;i < size;i++){
-		tmp->data[i] = GetFileData((uint32)addr+i);
-		WriteFileData((uint32)addr+i,data[i]);
+	for (i = 0; i < size; i++) {
+		tmp->data[i] = GetFileData((uint32)addr + i);
+		WriteFileData((uint32)addr + i, data[i]);
 	}
 
-	undo_list=tmp;
+	undo_list = tmp;
 
 	//UpdateColorTable();
 	return;
 }
 
-void UndoLastPatch(){
-	struct UNDOSTRUCT *tmp=undo_list;
+void UndoLastPatch() {
+	struct UNDOSTRUCT *tmp = undo_list;
 	int i;
-	if(undo_list == 0)return;
+	if (undo_list == 0)return;
 	//while(tmp->next != 0){tmp=tmp->next;}; //traverse to the one before the last one
 
-	for(i = 0;i < tmp->size;i++){
-		WriteFileData((uint32)tmp->addr+i,tmp->data[i]);
+	for (i = 0; i < tmp->size; i++) {
+		WriteFileData((uint32)tmp->addr + i, tmp->data[i]);
 	}
 
-	undo_list=undo_list->last;
+	undo_list = undo_list->last;
 
-	ChangeMemViewFocus(MODE_NES_FILE,tmp->addr, -1); //move to the focus to where we are undoing at.
+	ChangeMemViewFocus(MODE_NES_FILE, tmp->addr, -1); //move to the focus to where we are undoing at.
 
 	free(tmp->data);
 	free(tmp);
@@ -269,14 +269,14 @@ void GotoAddress(HWND hwnd) {
 	char* gotoaddressstring;
 	int gotoaddress;
 	char* gototitle;
-	
+
 	gototitle = (char*)malloc(18);
 	gotoaddressstring = (char*)malloc(8);
 	gotoaddressstring[0] = '\0';
-	sprintf(gototitle, "%s%X%s", "Goto (0-", MaxSize-1, ")");
-	if(CWin32InputBox::InputBox(gototitle, "Goto which address:", gotoaddressstring, 8, false, hwnd) == IDOK)
+	sprintf(gototitle, "%s%X%s", "Goto (0-", MaxSize - 1, ")");
+	if (CWin32InputBox::InputBox(gototitle, "Goto which address:", gotoaddressstring, 8, false, hwnd) == IDOK)
 	{
-		if(EOF != sscanf(gotoaddressstring, "%x", &gotoaddress))
+		if (EOF != sscanf(gotoaddressstring, "%x", &gotoaddress))
 		{
 			SetHexEditorAddress(gotoaddress);
 		}
@@ -288,19 +288,19 @@ void SetHexEditorAddress(int gotoaddress)
 
 	if (gotoaddress < 0)
 		gotoaddress = 0;
-	if (gotoaddress > (MaxSize-1))
-		gotoaddress = (MaxSize-1);
-	
+	if (gotoaddress > (MaxSize - 1))
+		gotoaddress = (MaxSize - 1);
+
 	CursorStartAddy = gotoaddress;
 	CursorEndAddy = -1;
 	ChangeMemViewFocus(EditingMode, CursorStartAddy, -1);
 }
 
-static void FlushUndoBuffer(){
+static void FlushUndoBuffer() {
 	struct UNDOSTRUCT *tmp;
-	while(undo_list!= 0){
-		tmp=undo_list;
-		undo_list=undo_list->last;
+	while (undo_list != 0) {
+		tmp = undo_list;
+		undo_list = undo_list->last;
 		free(tmp->data);
 		free(tmp);
 	}
@@ -309,41 +309,41 @@ static void FlushUndoBuffer(){
 }
 
 
-static int GetFileData(uint32 offset){
-	if(offset < 16) return *((unsigned char *)&head+offset);
-	if(offset < 16+PRGsize[0])return PRGptr[0][offset-16];
-	if(offset < 16+PRGsize[0]+CHRsize[0])return CHRptr[0][offset-16-PRGsize[0]];
+static int GetFileData(uint32 offset) {
+	if (offset < 16) return *((unsigned char *)&head + offset);
+	if (offset < 16 + PRGsize[0])return PRGptr[0][offset - 16];
+	if (offset < 16 + PRGsize[0] + CHRsize[0])return CHRptr[0][offset - 16 - PRGsize[0]];
 	return -1;
 }
 
-static int WriteFileData(uint32 addr,int data){
+static int WriteFileData(uint32 addr, int data) {
 	if (addr < 16) MessageBox(hMemView, "You can't edit ROM header here, however you can use iNES Header Editor to edit the header if it's an iNES format file.", "Sorry", MB_OK | MB_ICONERROR);
-	if((addr >= 16) && (addr < PRGsize[0]+16)) *(uint8 *)(GetNesPRGPointer(addr-16)) = data;
-	if((addr >= PRGsize[0]+16) && (addr < CHRsize[0]+PRGsize[0]+16)) *(uint8 *)(GetNesCHRPointer(addr-16-PRGsize[0])) = data;
+	if ((addr >= 16) && (addr < PRGsize[0] + 16)) *(uint8 *)(GetNesPRGPointer(addr - 16)) = data;
+	if ((addr >= PRGsize[0] + 16) && (addr < CHRsize[0] + PRGsize[0] + 16)) *(uint8 *)(GetNesCHRPointer(addr - 16 - PRGsize[0])) = data;
 
 	return 0;
 }
 
-static int GetRomFileSize(){ //todo: fix or remove this?
+static int GetRomFileSize() { //todo: fix or remove this?
 	return 0;
 }
 
 void SaveRomAs()
 {
-	const char filter[]="NES ROM file (*.nes)\0*.nes\0All Files (*.*)\0*.*\0\0";
+	const char filter[] = "NES ROM file (*.nes)\0*.nes\0All Files (*.*)\0*.*\0\0";
 	char nameo[2048];
 
 	OPENFILENAME ofn;
-	memset(&ofn,0,sizeof(ofn));
-	ofn.lStructSize=sizeof(ofn);
-	ofn.hInstance=fceu_hInstance;
-	ofn.lpstrTitle="Save Nes ROM as...";
-	ofn.lpstrFilter=filter;
+	memset(&ofn, 0, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hInstance = fceu_hInstance;
+	ofn.lpstrTitle = "Save Nes ROM as...";
+	ofn.lpstrFilter = filter;
 	strcpy(nameo, mass_replace(GetRomName(), "|", ".").c_str());
-	ofn.lpstrFile=nameo;
-	ofn.lpstrDefExt="nes";
-	ofn.nMaxFile=256;
-	ofn.Flags=OFN_EXPLORER|OFN_FILEMUSTEXIST|OFN_HIDEREADONLY;
+	ofn.lpstrFile = nameo;
+	ofn.lpstrDefExt = "nes";
+	ofn.nMaxFile = 256;
+	ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
 	ofn.hwndOwner = hMemView;
 	if (GetSaveFileName(&ofn))
 		iNesSaveAs(nameo);
@@ -354,39 +354,39 @@ int LoadTable(const char* nameo)
 	char str[50];
 	FILE *FP;
 	int i, line, charcode1, charcode2;
-	
-	for(i = 0;i < 256;i++){
+
+	for (i = 0; i < 256; i++) {
 		chartable[i] = 0;
 	}
 
-	FP = fopen(nameo,"r");
+	FP = fopen(nameo, "r");
 	line = 0;
-	while((fgets(str, 45, FP)) != NULL){/* get one line from the file */
+	while ((fgets(str, 45, FP)) != NULL) {/* get one line from the file */
 		line++;
 
-		if(strlen(str) < 3)continue;
+		if (strlen(str) < 3)continue;
 
 		charcode1 = charcode2 = -1;
 
-		if((str[0] >= 'a') && (str[0] <= 'f')) charcode1 = str[0]-('a'-0xA);
-		if((str[0] >= 'A') && (str[0] <= 'F')) charcode1 = str[0]-('A'-0xA);
-		if((str[0] >= '0') && (str[0] <= '9')) charcode1 = str[0]-'0';
+		if ((str[0] >= 'a') && (str[0] <= 'f')) charcode1 = str[0] - ('a' - 0xA);
+		if ((str[0] >= 'A') && (str[0] <= 'F')) charcode1 = str[0] - ('A' - 0xA);
+		if ((str[0] >= '0') && (str[0] <= '9')) charcode1 = str[0] - '0';
 
-		if((str[1] >= 'a') && (str[1] <= 'f')) charcode2 = str[1]-('a'-0xA);
-		if((str[1] >= 'A') && (str[1] <= 'F')) charcode2 = str[1]-('A'-0xA);
-		if((str[1] >= '0') && (str[1] <= '9')) charcode2 = str[1]-'0';
+		if ((str[1] >= 'a') && (str[1] <= 'f')) charcode2 = str[1] - ('a' - 0xA);
+		if ((str[1] >= 'A') && (str[1] <= 'F')) charcode2 = str[1] - ('A' - 0xA);
+		if ((str[1] >= '0') && (str[1] <= '9')) charcode2 = str[1] - '0';
 
-		if(charcode1 == -1){
+		if (charcode1 == -1) {
 			UnloadTableFile();
 			fclose(FP);
 			return line; //we have an error getting the first input
 		}
 
-		if(charcode2 != -1) charcode1 = (charcode1<<4)|charcode2;
+		if (charcode2 != -1) charcode1 = (charcode1 << 4) | charcode2;
 
-		for(i = 0;i < (int)strlen(str);i++)if(str[i] == '=')break;
+		for (i = 0; i < (int)strlen(str); i++)if (str[i] == '=')break;
 
-		if(i == strlen(str)){
+		if (i == strlen(str)) {
 			UnloadTableFile();
 			fclose(FP);
 			return line; //error no '=' found
@@ -394,7 +394,7 @@ int LoadTable(const char* nameo)
 
 		i++;
 		//ORing i with 32 just converts it to lowercase if it isn't
-		if(((str[i]|32) == 'r') && ((str[i+1]|32) == 'e') && ((str[i+2]|32) == 't'))
+		if (((str[i] | 32) == 'r') && ((str[i + 1] | 32) == 'e') && ((str[i + 2] | 32) == 't'))
 			charcode2 = 0x0D;
 		else charcode2 = str[i];
 
@@ -408,29 +408,29 @@ int LoadTable(const char* nameo)
 //should return -1, otherwise returns the line number it had the error on
 int LoadTableFile()
 {
-	const char filter[]="Table Files (*.TBL)\0*.tbl\0All Files (*.*)\0*.*\0\0";
+	const char filter[] = "Table Files (*.TBL)\0*.tbl\0All Files (*.*)\0*.*\0\0";
 	char nameo[2048];
 	OPENFILENAME ofn;
-	memset(&ofn,0,sizeof(ofn));
-	ofn.lStructSize=sizeof(ofn);
-	ofn.hInstance=fceu_hInstance;
-	ofn.lpstrTitle="Load Table File...";
-	ofn.lpstrFilter=filter;
-	nameo[0]=0;
-	ofn.lpstrFile=nameo;
-	ofn.nMaxFile=256;
-	ofn.Flags=OFN_EXPLORER|OFN_FILEMUSTEXIST|OFN_HIDEREADONLY;
+	memset(&ofn, 0, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hInstance = fceu_hInstance;
+	ofn.lpstrTitle = "Load Table File...";
+	ofn.lpstrFilter = filter;
+	nameo[0] = 0;
+	ofn.lpstrFile = nameo;
+	ofn.nMaxFile = 256;
+	ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
 	ofn.hwndOwner = hMemView;
-	if(!GetOpenFileName(&ofn))return -1;
+	if (!GetOpenFileName(&ofn))return -1;
 
 	int result = LoadTable(nameo);
 	return result;
 }
 
-void UnloadTableFile(){
-	for(int i = 0;i < 256;i++){
+void UnloadTableFile() {
+	for (int i = 0; i < 256; i++) {
 		int j = i;
-		if(j < 0x20)j = 0x2E;
+		if (j < 0x20)j = 0x2E;
 		//if(j > 0x7e)j = 0x2E;
 		chartable[i] = j;
 	}
@@ -449,7 +449,7 @@ void UpdateMemoryView(int draw_all)
 	//LPVOID lpMsgBuf;
 	//int curlength;
 	char str[100];
-	
+
 	if (PreviousCurOffset != CurOffset)
 		resetHighlightingActivityLog();
 
@@ -477,76 +477,78 @@ void UpdateMemoryView(int draw_all)
 	{
 		if ((PreviousCurOffset != CurOffset) || draw_all)
 		{
-			MoveToEx(HDataDC,0,MemFontHeight*((i-CurOffset)/16),NULL);
+			MoveToEx(HDataDC, 0, MemFontHeight*((i - CurOffset) / 16), NULL);
 			if (i < MaxSize)
-				SetTextColor(HDataDC,RGB(HexForeColorR,HexForeColorG,HexForeColorB));	//addresses text color			000 = black, 255255255 = white
+				SetTextColor(HDataDC, RGB(HexForeColorR, HexForeColorG, HexForeColorB));	//addresses text color			000 = black, 255255255 = white
 			else
-				SetTextColor(HDataDC,RGB(HexBoundColorR,HexBoundColorG,HexBoundColorB)); // addresses out of bounds
-			SetBkColor(HDataDC,RGB(HexBackColorR,HexBackColorG,HexBackColorB));		//addresses back color
-			sprintf(str,"%06X: ",i);
-			TextOut(HDataDC,0,0,str,strlen(str));
+				SetTextColor(HDataDC, RGB(HexBoundColorR, HexBoundColorG, HexBoundColorB)); // addresses out of bounds
+			SetBkColor(HDataDC, RGB(HexBackColorR, HexBackColorG, HexBackColorB));		//addresses back color
+			sprintf(str, "%06X: ", i);
+			TextOut(HDataDC, 0, 0, str, strlen(str));
 		}
-		for(j = 0;j < 16;j++)
+		for (j = 0; j < 16; j++)
 		{
-			byteValue = GetMemViewData(i+j);
-			if (MemView_HighlightActivity && ((PreviousValues[i+j-CurOffset] != byteValue) && (PreviousValues[i+j-CurOffset] != PREVIOUS_VALUE_UNDEFINED)))
-				byteHighlightingValue = HighlightedBytes[i+j-CurOffset] = MemView_HighlightActivity_FadingPeriod;
+			byteValue = GetMemViewData(i + j);
+			if (MemView_HighlightActivity && ((PreviousValues[i + j - CurOffset] != byteValue) && (PreviousValues[i + j - CurOffset] != PREVIOUS_VALUE_UNDEFINED)))
+				byteHighlightingValue = HighlightedBytes[i + j - CurOffset] = MemView_HighlightActivity_FadingPeriod;
 			else
-				byteHighlightingValue = HighlightedBytes[i+j-CurOffset];
-			
-			if ((CursorEndAddy == -1) && (CursorStartAddy == i+j))
+				byteHighlightingValue = HighlightedBytes[i + j - CurOffset];
+
+			if ((CursorEndAddy == -1) && (CursorStartAddy == i + j))
 			{
 				//print up single highlighted text
 				MoveToEx(HDataDC, 8 * MemFontWidth + (j * 3 * MemFontWidth), MemFontHeight * ((i - CurOffset) / 16), NULL);
-				if(TempData != PREVIOUS_VALUE_UNDEFINED)
+				if (TempData != PREVIOUS_VALUE_UNDEFINED)
 				{
 					// User is typing New Data
 					// 1st nybble
-					sprintf(str,"%X",TempData);
-					SetBkColor(HDataDC,RGB(255,255,255));
-					SetTextColor(HDataDC,RGB(255,0,0));
-					TextOut(HDataDC,0,0,str,1);
+					sprintf(str, "%X", TempData);
+					SetBkColor(HDataDC, RGB(255, 255, 255));
+					SetTextColor(HDataDC, RGB(255, 0, 0));
+					TextOut(HDataDC, 0, 0, str, 1);
 					// 2nd nybble
 					MoveToEx(HDataDC, MemFontWidth + 8 * MemFontWidth + (j * 3 * MemFontWidth), MemFontHeight * ((i - CurOffset) / 16), NULL);
-					sprintf(str,"%X", byteValue % 16);
-					SetTextColor(HDataDC,RGB(HexBackColorR,HexBackColorG,HexBackColorB));
-					SetBkColor(HDataDC,RGB(HexForeColorR,HexForeColorG,HexForeColorB));
+					sprintf(str, "%X", byteValue % 16);
+					SetTextColor(HDataDC, RGB(HexBackColorR, HexBackColorG, HexBackColorB));
+					SetBkColor(HDataDC, RGB(HexForeColorR, HexForeColorG, HexForeColorB));
 					TextOut(HDataDC, 0, 0, str, 1);
-				} else
+				}
+				else
 				{
 					// Selecting a Single Byte
-					sprintf(str,"%X",(int)(byteValue / 16));
-					SetTextColor(HDataDC,RGB(255,255,255));		//single address highlight
-					SetBkColor(HDataDC,RGB(0,0,0));
-					TextOut(HDataDC,0,0,str,1);
+					sprintf(str, "%X", (int)(byteValue / 16));
+					SetTextColor(HDataDC, RGB(255, 255, 255));		//single address highlight
+					SetBkColor(HDataDC, RGB(0, 0, 0));
+					TextOut(HDataDC, 0, 0, str, 1);
 					// 2nd nybble
 					MoveToEx(HDataDC, MemFontWidth + 8 * MemFontWidth + (j * 3 * MemFontWidth), MemFontHeight * ((i - CurOffset) / 16), NULL);
-					sprintf(str,"%X", byteValue % 16);
-					SetTextColor(HDataDC,TextColorList[i+j-CurOffset]);
-					SetBkColor(HDataDC,BGColorList[i+j-CurOffset]);
-					TextOut(HDataDC,0,0,str,1);
+					sprintf(str, "%X", byteValue % 16);
+					SetTextColor(HDataDC, TextColorList[i + j - CurOffset]);
+					SetBkColor(HDataDC, BGColorList[i + j - CurOffset]);
+					TextOut(HDataDC, 0, 0, str, 1);
 				}
 				//TextOut(HDataDC,0,0," ",1);
 
 				// single address highlight - right column
-				SetTextColor(HDataDC,RGB(255,255,255));
-				SetBkColor(HDataDC,RGB(0,0,0));
+				SetTextColor(HDataDC, RGB(255, 255, 255));
+				SetBkColor(HDataDC, RGB(0, 0, 0));
 				MoveToEx(HDataDC, (59 + j) * MemFontWidth, MemFontHeight * ((i - CurOffset) / 16), NULL); //todo: try moving this above the for loop
 				str[0] = chartable[byteValue];
-				if((u8)str[0] < 0x20)str[0] = 0x2E;
+				if ((u8)str[0] < 0x20)str[0] = 0x2E;
 				//if(str[0] > 0x7e)str[0] = 0x2E;
 				str[1] = 0;
-				TextOut(HDataDC,0,0,str,1);
+				TextOut(HDataDC, 0, 0, str, 1);
 
-				PreviousValues[i+j-CurOffset] = PREVIOUS_VALUE_UNDEFINED; //set it to redraw this one next time
-			} else if (draw_all || (PreviousValues[i+j-CurOffset] != byteValue) || byteHighlightingValue)
+				PreviousValues[i + j - CurOffset] = PREVIOUS_VALUE_UNDEFINED; //set it to redraw this one next time
+			}
+			else if (draw_all || (PreviousValues[i + j - CurOffset] != byteValue) || byteHighlightingValue)
 			{
 				// print up normal text
 				if (byteHighlightingValue)
 				{
 					// fade out 1 step
 					if (MemView_HighlightActivity_FadeWhenPaused || !FCEUI_EmulationPaused() || JustFrameAdvanced)
-						byteHighlightingValue = (--HighlightedBytes[i+j-CurOffset]);
+						byteHighlightingValue = (--HighlightedBytes[i + j - CurOffset]);
 
 					if (byteHighlightingValue > 0)
 					{
@@ -556,40 +558,42 @@ void UpdateMemoryView(int draw_all)
 							SetTextColor(HDataDC, highlightActivityColors[HIGHLIGHT_ACTIVITY_NUM_COLORS - 1]);
 						else
 							SetTextColor(HDataDC, highlightActivityColors[byteHighlightingValue]);
-							
-					} else
-					{
-						SetTextColor(HDataDC,TextColorList[i+j-CurOffset]);
+
 					}
-				} else
-				{
-					SetTextColor(HDataDC,TextColorList[i+j-CurOffset]);//(8+j*3)*MemFontWidth
+					else
+					{
+						SetTextColor(HDataDC, TextColorList[i + j - CurOffset]);
+					}
 				}
-				SetBkColor(HDataDC,BGColorList[i+j-CurOffset]);
-				MoveToEx(HDataDC, 8 * MemFontWidth + (j * 3 * MemFontWidth), MemFontHeight * ((i - CurOffset) / 16),NULL);
-				sprintf(str,"%X", (int)(byteValue / 16));
+				else
+				{
+					SetTextColor(HDataDC, TextColorList[i + j - CurOffset]);//(8+j*3)*MemFontWidth
+				}
+				SetBkColor(HDataDC, BGColorList[i + j - CurOffset]);
+				MoveToEx(HDataDC, 8 * MemFontWidth + (j * 3 * MemFontWidth), MemFontHeight * ((i - CurOffset) / 16), NULL);
+				sprintf(str, "%X", (int)(byteValue / 16));
 				TextOut(HDataDC, 0, 0, str, 1);
-				MoveToEx(HDataDC, MemFontWidth + 8 * MemFontWidth + (j * 3 * MemFontWidth), MemFontHeight * ((i - CurOffset) / 16),NULL);
-				sprintf(str,"%X", byteValue % 16);
+				MoveToEx(HDataDC, MemFontWidth + 8 * MemFontWidth + (j * 3 * MemFontWidth), MemFontHeight * ((i - CurOffset) / 16), NULL);
+				sprintf(str, "%X", byteValue % 16);
 				TextOut(HDataDC, 0, 0, str, 1);
 
-				MoveToEx(HDataDC,(59+j)*MemFontWidth,MemFontHeight*((i-CurOffset)/16),NULL); //todo: try moving this above the for loop
+				MoveToEx(HDataDC, (59 + j)*MemFontWidth, MemFontHeight*((i - CurOffset) / 16), NULL); //todo: try moving this above the for loop
 				str[0] = chartable[byteValue];
-				if((u8)str[0] < 0x20)str[0] = 0x2E;
+				if ((u8)str[0] < 0x20)str[0] = 0x2E;
 				//if(str[0] > 0x7e)str[0] = 0x2E;
 				str[1] = 0;
-				TextOut(HDataDC,0,0,str,1);
+				TextOut(HDataDC, 0, 0, str, 1);
 
-				PreviousValues[i+j-CurOffset] = byteValue;
+				PreviousValues[i + j - CurOffset] = byteValue;
 			}
 		}
 
-		if(draw_all)
+		if (draw_all)
 		{
-			MoveToEx(HDataDC,56*MemFontWidth,MemFontHeight*((i-CurOffset)/16),NULL);
-			SetTextColor(HDataDC,RGB(HexForeColorR,HexForeColorG,HexForeColorB));	//Column separator
-			SetBkColor(HDataDC,RGB(HexBackColorR,HexBackColorG,HexBackColorB));
-			TextOut(HDataDC,0,0," : ",3);
+			MoveToEx(HDataDC, 56 * MemFontWidth, MemFontHeight*((i - CurOffset) / 16), NULL);
+			SetTextColor(HDataDC, RGB(HexForeColorR, HexForeColorG, HexForeColorB));	//Column separator
+			SetBkColor(HDataDC, RGB(HexBackColorR, HexBackColorG, HexBackColorB));
+			TextOut(HDataDC, 0, 0, " : ", 3);
 		}
 		/*
 		 for(j = 0;j < 16;j++){
@@ -609,15 +613,15 @@ void UpdateMemoryView(int draw_all)
 	}
 	//	}
 
-	SetTextColor(HDataDC,RGB(0,0,0));
-	SetBkColor(HDataDC,RGB(0,0,0));
+	SetTextColor(HDataDC, RGB(0, 0, 0));
+	SetBkColor(HDataDC, RGB(0, 0, 0));
 
-	MoveToEx(HDataDC,0,0,NULL);	
+	MoveToEx(HDataDC, 0, 0, NULL);
 	PreviousCurOffset = CurOffset;
 	return;
 }
 
-char EditString[4][20] = {"RAM","PPU","OAM","ROM"};
+char EditString[4][20] = { "RAM","PPU","OAM","ROM" };
 
 void UpdateCaption()
 {
@@ -633,7 +637,8 @@ void UpdateCaption()
 				sprintf(str, "Hex Editor - (PRG) ROM: 0x%X", CursorStartAddy);
 			else if (CursorStartAddy - 16 - PRGsize[0] < (int)CHRsize[0])
 				sprintf(str, "Hex Editor - (CHR) ROM: 0x%X", CursorStartAddy);
-		} else
+		}
+		else
 		{
 			sprintf(str, "Hex Editor - %s: 0x%X", EditString[EditingMode], CursorStartAddy);
 		}
@@ -658,12 +663,13 @@ void UpdateCaption()
 				}
 			}
 		}
-	} else
+	}
+	else
 	{
 		sprintf(str, "Hex Editor - %s: 0x%X - 0x%X (0x%X)",
 			EditString[EditingMode], CursorStartAddy, CursorEndAddy, CursorEndAddy - CursorStartAddy + 1);
 	}
-	SetWindowText(hMemView,str);
+	SetWindowText(hMemView, str);
 	return;
 }
 
@@ -675,18 +681,10 @@ int GetMemViewData(uint32 i)
 	if (EditingMode == MODE_NES_PPU)
 	{
 		i &= 0x3FFF;
-		if(i < 0x2000)return VPage[(i)>>10][(i)];
-		//NSF PPU Viewer crash here (UGETAB) (Also disabled by 'MaxSize = 0x2000')
-		if (GameInfo->type==GIT_NSF)
-		{
-			return (0);
-		}
-		else
-		{
-			if(i < 0x3F00)
-				return vnapage[(i >> 10) & 0x3][i & 0x3FF];
-			return READPAL_MOTHEROFALL(i & 0x1F);
-		}
+		if (i < 0x2000)return VPage[(i) >> 10][(i)];
+		if (i < 0x3F00)
+			return vnapage[(i >> 10) & 0x3][i & 0x3FF];
+		return READPAL_MOTHEROFALL(i & 0x1F);
 	}
 
 	if (EditingMode == MODE_NES_OAM)
@@ -697,9 +695,9 @@ int GetMemViewData(uint32 i)
 	if (EditingMode == MODE_NES_FILE)
 	{
 		//todo: use getfiledata() here
-		if(i < 16) return *((unsigned char *)&head+i);
-		if(i < 16+PRGsize[0])return PRGptr[0][i-16];
-		if(i < 16+PRGsize[0]+CHRsize[0])return CHRptr[0][i-16-PRGsize[0]];
+		if (i < 16) return *((unsigned char *)&head + i);
+		if (i < 16 + PRGsize[0])return PRGptr[0][i - 16];
+		if (i < 16 + PRGsize[0] + CHRsize[0])return CHRptr[0][i - 16 - PRGsize[0]];
 	}
 	return 0;
 }
@@ -707,33 +705,33 @@ int GetMemViewData(uint32 i)
 void UpdateColorTable()
 {
 	UNDOSTRUCT *tmp; //mbg merge 7/18/06 removed struct qualifier
-	int i,j;
-	if(!hMemView)return;
-	for(i = 0;i < DataAmount;i++)
+	int i, j;
+	if (!hMemView)return;
+	for (i = 0; i < DataAmount; i++)
 	{
-		if((i+CurOffset >= CursorStartAddy) && (i+CurOffset <= CursorEndAddy))
+		if ((i + CurOffset >= CursorStartAddy) && (i + CurOffset <= CursorEndAddy))
 		{
-			BGColorList[i] = RGB(HexForeColorR,HexForeColorG,HexForeColorB);			//Highlighter color bg	- 2 columns
-			TextColorList[i] = RGB(HexBackColorR,HexBackColorG,HexBackColorB);		//Highlighter color text - 2 columns
+			BGColorList[i] = RGB(HexForeColorR, HexForeColorG, HexForeColorB);			//Highlighter color bg	- 2 columns
+			TextColorList[i] = RGB(HexBackColorR, HexBackColorG, HexBackColorB);		//Highlighter color text - 2 columns
 			continue;
 		}
 
-		BGColorList[i] = RGB(HexBackColorR,HexBackColorG,HexBackColorB);			//Regular color bb - 2columns
-		TextColorList[i] = RGB(HexForeColorR,HexForeColorG,HexForeColorB);		//Regular color text - 2 columns
+		BGColorList[i] = RGB(HexBackColorR, HexBackColorG, HexBackColorB);			//Regular color bb - 2columns
+		TextColorList[i] = RGB(HexForeColorR, HexForeColorG, HexForeColorB);		//Regular color text - 2 columns
 	}
 
-	for (j=0;j<nextBookmark;j++)
+	for (j = 0; j < nextBookmark; j++)
 	{
-		if(hexBookmarks[j].editmode != EditingMode) continue;
-		if(((int)hexBookmarks[j].address >= CurOffset) && ((int)hexBookmarks[j].address < CurOffset+DataAmount))
-			TextColorList[hexBookmarks[j].address - CurOffset] = RGB(0,0xCC,0); // Green for Bookmarks
+		if (hexBookmarks[j].editmode != EditingMode) continue;
+		if (((int)hexBookmarks[j].address >= CurOffset) && ((int)hexBookmarks[j].address < CurOffset + DataAmount))
+			TextColorList[hexBookmarks[j].address - CurOffset] = RGB(0, 0xCC, 0); // Green for Bookmarks
 	}
 
 	//mbg merge 6/29/06 - added argument
 	if (EditingMode == MODE_NES_MEMORY)
 		FCEUI_ListCheats(UpdateCheatColorCallB, 0);
 
-	if(EditingMode == MODE_NES_FILE)
+	if (EditingMode == MODE_NES_FILE)
 	{
 		if (cdloggerdataSize)
 		{
@@ -748,22 +746,25 @@ void UpdateColorTable()
 						if ((cdloggerdata[temp_offset] & 3) == 3)
 						{
 							// the byte is both Code and Data - green
-							TextColorList[i]=RGB(0,190,0);
-						} else if((cdloggerdata[temp_offset] & 3) == 1)
+							TextColorList[i] = RGB(0, 190, 0);
+						}
+						else if ((cdloggerdata[temp_offset] & 3) == 1)
 						{
 							// the byte is Code - dark-yellow
-							TextColorList[i]=RGB(160,140,0);
-						} else if((cdloggerdata[temp_offset] & 3) == 2)
+							TextColorList[i] = RGB(160, 140, 0);
+						}
+						else if ((cdloggerdata[temp_offset] & 3) == 2)
 						{
 							// the byte is Data - blue/cyan
 							if (cdloggerdata[temp_offset] & 0x40)
 								// PCM data - cyan
-								TextColorList[i]=RGB(0,130,160);
+								TextColorList[i] = RGB(0, 130, 160);
 							else
 								// non-PCM data - blue
-								TextColorList[i]=RGB(0,0,210);
+								TextColorList[i] = RGB(0, 0, 210);
 						}
-					} else
+					}
+					else
 					{
 						temp_offset -= cdloggerdataSize;
 						if (((unsigned int)temp_offset < cdloggerVideoDataSize))
@@ -772,15 +773,17 @@ void UpdateColorTable()
 							if ((cdloggervdata[temp_offset] & 3) == 3)
 							{
 								// the byte was both rendered and read programmatically - light-green
-								TextColorList[i]=RGB(5,255,5);
-							} else if ((cdloggervdata[temp_offset] & 3) == 1)
+								TextColorList[i] = RGB(5, 255, 5);
+							}
+							else if ((cdloggervdata[temp_offset] & 3) == 1)
 							{
 								// the byte was rendered - yellow
-								TextColorList[i]=RGB(210,190,0);
-							} else if ((cdloggervdata[temp_offset] & 3) == 2)
+								TextColorList[i] = RGB(210, 190, 0);
+							}
+							else if ((cdloggervdata[temp_offset] & 3) == 2)
 							{
 								// the byte was read programmatically - light-blue
-								TextColorList[i]=RGB(15,15,255);
+								TextColorList[i] = RGB(15, 15, 255);
 							}
 						}
 					}
@@ -789,14 +792,14 @@ void UpdateColorTable()
 		}
 
 		tmp = undo_list;
-		while(tmp!= 0)
+		while (tmp != 0)
 		{
 			//if((tmp->addr < CurOffset+DataAmount) && (tmp->addr+tmp->size > CurOffset))
-			for(i = tmp->addr;i < tmp->addr+tmp->size;i++){
-				if((i > CurOffset) && (i < CurOffset+DataAmount))
-					TextColorList[i-CurOffset] = RGB(RomFreezeColorR,RomFreezeColorG,RomFreezeColorB);
+			for (i = tmp->addr; i < tmp->addr + tmp->size; i++) {
+				if ((i > CurOffset) && (i < CurOffset + DataAmount))
+					TextColorList[i - CurOffset] = RGB(RomFreezeColorR, RomFreezeColorG, RomFreezeColorB);
 			}
-			tmp=tmp->last;
+			tmp = tmp->last;
 		}
 	}
 
@@ -804,21 +807,21 @@ void UpdateColorTable()
 }
 
 //mbg merge 6/29/06 - added argument
-int UpdateCheatColorCallB(char *name, uint32 a, uint8 v, int compare,int s,int type, void *data) {
+int UpdateCheatColorCallB(char *name, uint32 a, uint8 v, int compare, int s, int type, void *data) {
 
-	if((a >= (uint32)CurOffset) && (a < (uint32)CurOffset+DataAmount)){
-		if(s)TextColorList[a-CurOffset] = RGB(HexFreezeColorR,HexFreezeColorG,HexFreezeColorB);
+	if ((a >= (uint32)CurOffset) && (a < (uint32)CurOffset + DataAmount)) {
+		if (s)TextColorList[a - CurOffset] = RGB(HexFreezeColorR, HexFreezeColorG, HexFreezeColorB);
 	}
 	return 1;
 }
 
 int addrtodelete;    // This is a very ugly hackish method of doing this
 int cheatwasdeleted; // but it works and that is all that matters here.
-int DeleteCheatCallB(char *name, uint32 a, uint8 v, int compare,int s,int type, void *data){  //mbg merge 6/29/06 - added arg
-	if(cheatwasdeleted == -1)return 1;
+int DeleteCheatCallB(char *name, uint32 a, uint8 v, int compare, int s, int type, void *data) {  //mbg merge 6/29/06 - added arg
+	if (cheatwasdeleted == -1)return 1;
 	cheatwasdeleted++;
-	if(a == addrtodelete){
-		FCEUI_DelCheat(cheatwasdeleted-1);
+	if (a == addrtodelete) {
+		FCEUI_DelCheat(cheatwasdeleted - 1);
 		cheatwasdeleted = -1;
 		return 0;
 	}
@@ -827,19 +830,19 @@ int DeleteCheatCallB(char *name, uint32 a, uint8 v, int compare,int s,int type, 
 
 void dumpToFile(const char* buffer, unsigned int size)
 {
-	char name[513] = {0};
+	char name[513] = { 0 };
 
 	OPENFILENAME ofn;
 	memset(&ofn, 0, sizeof(ofn));
-	ofn.lStructSize=sizeof(ofn);
-	ofn.hInstance=fceu_hInstance;
-	ofn.lpstrTitle="Save to file ...";
-	ofn.lpstrFilter="Binary File (*.BIN)\0*.bin\0All Files (*.*)\0*.*\0\0";
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hInstance = fceu_hInstance;
+	ofn.lpstrTitle = "Save to file ...";
+	ofn.lpstrFilter = "Binary File (*.BIN)\0*.bin\0All Files (*.*)\0*.*\0\0";
 	strcpy(name, mass_replace(GetRomName(), "|", ".").c_str());
-	ofn.lpstrFile=name;
-	ofn.lpstrDefExt="bin";
-	ofn.nMaxFile=256;
-	ofn.Flags=OFN_EXPLORER|OFN_HIDEREADONLY;
+	ofn.lpstrFile = name;
+	ofn.lpstrDefExt = "bin";
+	ofn.nMaxFile = 256;
+	ofn.Flags = OFN_EXPLORER | OFN_HIDEREADONLY;
 
 	if (GetSaveFileName(&ofn))
 	{
@@ -857,19 +860,19 @@ void dumpToFile(const char* buffer, unsigned int size)
 
 bool loadFromFile(char* buffer, unsigned int size)
 {
-	char name[513] = {0};
+	char name[513] = { 0 };
 
 	OPENFILENAME ofn;
 	memset(&ofn, 0, sizeof(ofn));
-	ofn.lStructSize=sizeof(ofn);
-	ofn.hInstance=fceu_hInstance;
-	ofn.lpstrTitle="Save to file ...";
-	ofn.lpstrFilter="Binary File (*.BIN)\0*.bin\0All Files (*.*)\0*.*\0\0";
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hInstance = fceu_hInstance;
+	ofn.lpstrTitle = "Save to file ...";
+	ofn.lpstrFilter = "Binary File (*.BIN)\0*.bin\0All Files (*.*)\0*.*\0\0";
 	strcpy(name, mass_replace(GetRomName(), "|", ".").c_str());
-	ofn.lpstrFile=name;
-	ofn.lpstrDefExt="bin";
-	ofn.nMaxFile=256;
-	ofn.Flags=OFN_EXPLORER | OFN_FILEMUSTEXIST;
+	ofn.lpstrFile = name;
+	ofn.lpstrDefExt = "bin";
+	ofn.nMaxFile = 256;
+	ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST;
 
 	if (GetOpenFileName(&ofn))
 	{
@@ -891,14 +894,14 @@ bool loadFromFile(char* buffer, unsigned int size)
 
 void UnfreezeAllRam() {
 
-	int i=0;
+	int i = 0;
 
 	char * Cname;
 	uint32 Caddr;
 	int Ctype;
 
 	// Get last cheat number + 1
-	while (FCEUI_GetCheat(i,NULL,NULL,NULL,NULL,NULL,NULL)) {
+	while (FCEUI_GetCheat(i, NULL, NULL, NULL, NULL, NULL, NULL)) {
 		i = i + 1;
 	}
 
@@ -910,10 +913,10 @@ void UnfreezeAllRam() {
 		// Since this is automated, only remove unnamed variables, as they
 		// would be added by the freeze command. Manual unfreeze should let them
 		// make that mistake once or twice, in case they like it that way.
-		FCEUI_GetCheat(i,&Cname,&Caddr,NULL,NULL,NULL,&Ctype);
+		FCEUI_GetCheat(i, &Cname, &Caddr, NULL, NULL, NULL, &Ctype);
 		if ((Cname[0] == '\0') && ((Caddr < 0x2000) || ((Caddr >= 0x6000) && (Caddr < 0x8000))) && (Ctype == 1)) {
 			// Already Added, so consider it a success
-			FreezeRam(Caddr,-1,1);
+			FreezeRam(Caddr, -1, 1);
 
 		}
 
@@ -924,9 +927,9 @@ void UnfreezeAllRam() {
 }
 
 
-void FreezeRam(int address, int mode, int final){
+void FreezeRam(int address, int mode, int final) {
 	// mode: -1 == Unfreeze; 0 == Toggle; 1 == Freeze
-	if(FrozenAddressCount <= 256 && (address < 0x2000) || ((address >= 0x6000) && (address <= 0x7FFF))){
+	if (FrozenAddressCount <= 256 && (address < 0x2000) || ((address >= 0x6000) && (address <= 0x7FFF))) {
 		//adelikat:  added FrozenAddressCount check to if statement to prevent user from freezing more than 256 address (unfreezing when > 256 crashes)
 		addrtodelete = address;
 		cheatwasdeleted = 0;
@@ -935,7 +938,7 @@ void FreezeRam(int address, int mode, int final){
 		{
 			//mbg merge 6/29/06 - added argument
 			FCEUI_ListCheats(DeleteCheatCallB, 0);
-			if(mode == 0 && cheatwasdeleted != -1)
+			if (mode == 0 && cheatwasdeleted != -1)
 				FCEUI_AddCheat("", address, GetMem(address), -1, 1);
 		}
 		else
@@ -951,7 +954,7 @@ void FreezeRam(int address, int mode, int final){
 }
 
 //input is expected to be an ASCII string
-void InputData(char *input){
+void InputData(char *input) {
 	//CursorEndAddy = -1;
 	int addr, i, j, datasize = 0;
 	unsigned char *data;
@@ -960,31 +963,33 @@ void InputData(char *input){
 	//mbg merge 7/18/06 added cast:
 	data = (uint8 *)malloc(strlen(input) + 1); //it can't be larger than the input string, so use that as the size
 
-	for(i = 0;input[i] != 0;i++){
-		if(!EditingText){
+	for (i = 0; input[i] != 0; i++) {
+		if (!EditingText) {
 			inputc = -1;
-			if((input[i] >= 'a') && (input[i] <= 'f')) inputc = input[i]-('a'-0xA);
-			if((input[i] >= 'A') && (input[i] <= 'F')) inputc = input[i]-('A'-0xA);
-			if((input[i] >= '0') && (input[i] <= '9')) inputc = input[i]-'0';
-			if(inputc == -1)continue;
+			if ((input[i] >= 'a') && (input[i] <= 'f')) inputc = input[i] - ('a' - 0xA);
+			if ((input[i] >= 'A') && (input[i] <= 'F')) inputc = input[i] - ('A' - 0xA);
+			if ((input[i] >= '0') && (input[i] <= '9')) inputc = input[i] - '0';
+			if (inputc == -1)continue;
 
-			if(TempData != PREVIOUS_VALUE_UNDEFINED)
+			if (TempData != PREVIOUS_VALUE_UNDEFINED)
 			{
-				data[datasize++] = inputc|(TempData<<4);
+				data[datasize++] = inputc | (TempData << 4);
 				TempData = PREVIOUS_VALUE_UNDEFINED;
-			} else
+			}
+			else
 			{
 				TempData = inputc;
 			}
-		} else {
-			for(j = 0;j < 256;j++)if(chartable[j] == input[i])break;
-			if(j == 256)continue;
+		}
+		else {
+			for (j = 0; j < 256; j++)if (chartable[j] == input[i])break;
+			if (j == 256)continue;
 			data[datasize++] = j;
 		}
 	}
 
-	if(datasize+CursorStartAddy >= MaxSize){ //too big
-		datasize = MaxSize-CursorStartAddy;
+	if (datasize + CursorStartAddy >= MaxSize) { //too big
+		datasize = MaxSize - CursorStartAddy;
 		//free(data);
 		//return;
 	}
@@ -996,39 +1001,42 @@ void InputData(char *input){
 	//sprintf(str,"datasize = %d",datasize);
 	//MessageBox(hMemView,str, "debug", MB_OK);
 
-	for(i = 0;i < datasize;i++){
-		addr = CursorStartAddy+i;
+	for (i = 0; i < datasize; i++) {
+		addr = CursorStartAddy + i;
 
 		if (addr >= MaxSize) continue;
 
 		if (EditingMode == MODE_NES_MEMORY)
 		{
 			// RAM (system bus)
-			BWrite[addr](addr,data[i]);
-		} else if (EditingMode == MODE_NES_PPU)
+			BWrite[addr](addr, data[i]);
+		}
+		else if (EditingMode == MODE_NES_PPU)
 		{
 			// PPU
 			addr &= 0x3FFF;
-			if(addr < 0x2000)
-				VPage[addr>>10][addr] = data[i]; //todo: detect if this is vrom and turn it red if so
-			if((addr >= 0x2000) && (addr < 0x3F00))
-				vnapage[(addr>>10)&0x3][addr&0x3FF] = data[i]; //todo: this causes 0x3000-0x3f00 to mirror 0x2000-0x2f00, is this correct?
-			if((addr >= 0x3F00) && (addr < 0x3FFF))
-				PalettePoke(addr,data[i]);
-		} else if (EditingMode == MODE_NES_OAM)
+			if (addr < 0x2000)
+				VPage[addr >> 10][addr] = data[i]; //todo: detect if this is vrom and turn it red if so
+			if ((addr >= 0x2000) && (addr < 0x3F00))
+				vnapage[(addr >> 10) & 0x3][addr & 0x3FF] = data[i]; //todo: this causes 0x3000-0x3f00 to mirror 0x2000-0x2f00, is this correct?
+			if ((addr >= 0x3F00) && (addr < 0x3FFF))
+				PalettePoke(addr, data[i]);
+		}
+		else if (EditingMode == MODE_NES_OAM)
 		{
 			addr &= 0x1FF;
 			SPRAM[addr] = data[i];
-		} else if (EditingMode == MODE_NES_FILE)
+		}
+		else if (EditingMode == MODE_NES_FILE)
 		{
 			// ROM
-			ApplyPatch(addr,datasize,data);
+			ApplyPatch(addr, datasize, data);
 			break;
 		}
 	}
-	CursorStartAddy+=datasize;
-	CursorEndAddy=-1;
-	if(CursorStartAddy >= MaxSize)CursorStartAddy = MaxSize-1;
+	CursorStartAddy += datasize;
+	CursorEndAddy = -1;
+	if (CursorStartAddy >= MaxSize)CursorStartAddy = MaxSize - 1;
 
 	free(data);
 	ChangeMemViewFocus(EditingMode, CursorStartAddy, -1);
@@ -1071,45 +1079,41 @@ CursorStartAddy++;
 */
 
 
-void ChangeMemViewFocus(int newEditingMode, int StartOffset,int EndOffset){
+void ChangeMemViewFocus(int newEditingMode, int StartOffset, int EndOffset) {
 	SCROLLINFO si;
 
-	//if (GameInfo->type==GIT_NSF) {
-	//	FCEUD_PrintError("Sorry, you can't yet use the Memory Viewer with NSFs.");
-	//	return;
-	//}
+	if (!hMemView)DoMemView();
+	if (EditingMode != newEditingMode)
+		MemViewCallB(hMemView, WM_COMMAND, MENU_MV_VIEW_RAM + newEditingMode, 0); //let the window handler change this for us
 
-	if(!hMemView)DoMemView();
-	if(EditingMode != newEditingMode)
-		MemViewCallB(hMemView,WM_COMMAND,MENU_MV_VIEW_RAM+newEditingMode,0); //let the window handler change this for us
-
-	if((EndOffset == StartOffset) || (EndOffset == -1)){
+	if ((EndOffset == StartOffset) || (EndOffset == -1)) {
 		CursorEndAddy = -1;
 		CursorStartAddy = StartOffset;
-	} else {
-		CursorStartAddy = std::min(StartOffset,EndOffset);
-		CursorEndAddy = std::max(StartOffset,EndOffset);
+	}
+	else {
+		CursorStartAddy = std::min(StartOffset, EndOffset);
+		CursorEndAddy = std::max(StartOffset, EndOffset);
 	}
 	CursorDragPoint = -1;
 
 
-	if(std::min(StartOffset,EndOffset) >= MaxSize)return; //this should never happen
+	if (std::min(StartOffset, EndOffset) >= MaxSize)return; //this should never happen
 
-	if(StartOffset < CurOffset){
-		CurOffset = (StartOffset/16)*16;
+	if (StartOffset < CurOffset) {
+		CurOffset = (StartOffset / 16) * 16;
 	}
 
-	if(StartOffset >= CurOffset+DataAmount){
-		CurOffset = ((StartOffset/16)*16)-DataAmount+0x10;
-		if(CurOffset < 0)CurOffset = 0;
+	if (StartOffset >= CurOffset + DataAmount) {
+		CurOffset = ((StartOffset / 16) * 16) - DataAmount + 0x10;
+		if (CurOffset < 0)CurOffset = 0;
 	}
 
-	SetFocus(hMemView);	
+	SetFocus(hMemView);
 	ZeroMemory(&si, sizeof(SCROLLINFO));
 	si.fMask = SIF_POS;
 	si.cbSize = sizeof(SCROLLINFO);
-	si.nPos = CurOffset/16;
-	SetScrollInfo(hMemView,SB_VERT,&si,TRUE);
+	si.nPos = CurOffset / 16;
+	SetScrollInfo(hMemView, SB_VERT, &si, TRUE);
 	UpdateCaption();
 	UpdateColorTable();
 	return;
@@ -1130,68 +1134,68 @@ int GetHexScreenCoordy(int offset)
 
 //if the mouse is in the text field, this function will set AddyWasText to 1 otherwise it is 0
 //if the mouse wasn't in any range, this function returns -1
-int GetAddyFromCoord(int x,int y)
+int GetAddyFromCoord(int x, int y)
 {
 	int MemFontWidth = debugSystem->HexeditorFontWidth + HexCharSpacing;
 	int MemFontHeight = debugSystem->HexeditorFontHeight + HexRowHeightBorder;
 
-	if(y < 0)y = 0;
-	if(x < 8*MemFontWidth)x = 8*MemFontWidth+1;
+	if (y < 0)y = 0;
+	if (x < 8 * MemFontWidth)x = 8 * MemFontWidth + 1;
 
-	if(y > DataAmount*MemFontHeight) return -1;
+	if (y > DataAmount*MemFontHeight) return -1;
 
-	if(x < 55*MemFontWidth){
+	if (x < 55 * MemFontWidth) {
 		AddyWasText = 0;
-		return ((y/MemFontHeight)*16)+((x-(8*MemFontWidth))/(3*MemFontWidth))+CurOffset;
+		return ((y / MemFontHeight) * 16) + ((x - (8 * MemFontWidth)) / (3 * MemFontWidth)) + CurOffset;
 	}
 
-	if((x > 59*MemFontWidth) && (x < 75*MemFontWidth)){
+	if ((x > 59 * MemFontWidth) && (x < 75 * MemFontWidth)) {
 		AddyWasText = 1;
-		return ((y/MemFontHeight)*16)+((x-(59*MemFontWidth))/(MemFontWidth))+CurOffset;
+		return ((y / MemFontHeight) * 16) + ((x - (59 * MemFontWidth)) / (MemFontWidth)) + CurOffset;
 	}
 
 	return -1;
 }
 
-void AutoScrollFromCoord(int x,int y)
+void AutoScrollFromCoord(int x, int y)
 {
 	SCROLLINFO si;
-	if(y < 0){
+	if (y < 0) {
 		ZeroMemory(&si, sizeof(SCROLLINFO));
 		si.fMask = SIF_ALL;
 		si.cbSize = sizeof(SCROLLINFO);
-		GetScrollInfo(hMemView,SB_VERT,&si);
+		GetScrollInfo(hMemView, SB_VERT, &si);
 		si.nPos += y / 16;
 		if (si.nPos < si.nMin) si.nPos = si.nMin;
-		if ((si.nPos+(int)si.nPage) > si.nMax) si.nPos = si.nMax-si.nPage;
-		CurOffset = si.nPos*16;
+		if ((si.nPos + (int)si.nPage) > si.nMax) si.nPos = si.nMax - si.nPage;
+		CurOffset = si.nPos * 16;
 		if (CurOffset + DataAmount >= MaxSize) CurOffset = MaxSize - DataAmount;
 		if (CurOffset < 0) CurOffset = 0;
-		SetScrollInfo(hMemView,SB_VERT,&si,TRUE);
+		SetScrollInfo(hMemView, SB_VERT, &si, TRUE);
 		return;
 	}
 
-	if(y > ClientHeight){
+	if (y > ClientHeight) {
 		ZeroMemory(&si, sizeof(SCROLLINFO));
 		si.fMask = SIF_ALL;
 		si.cbSize = sizeof(SCROLLINFO);
-		GetScrollInfo(hMemView,SB_VERT,&si);
-		si.nPos -= (ClientHeight-y) / 16;
+		GetScrollInfo(hMemView, SB_VERT, &si);
+		si.nPos -= (ClientHeight - y) / 16;
 		if (si.nPos < si.nMin) si.nPos = si.nMin;
-		if ((si.nPos+(int)si.nPage) > si.nMax) si.nPos = si.nMax-si.nPage;
-		CurOffset = si.nPos*16;
+		if ((si.nPos + (int)si.nPage) > si.nMax) si.nPos = si.nMax - si.nPage;
+		CurOffset = si.nPos * 16;
 		if (CurOffset + DataAmount >= MaxSize) CurOffset = MaxSize - DataAmount;
 		if (CurOffset < 0) CurOffset = 0;
-		SetScrollInfo(hMemView,SB_VERT,&si,TRUE);
+		SetScrollInfo(hMemView, SB_VERT, &si, TRUE);
 		return;
 	}
 }
 
 void KillMemView()
 {
-	ReleaseDC(hMemView,mDC);
+	ReleaseDC(hMemView, mDC);
 	DestroyWindow(hMemView);
-	UnregisterClass("MEMVIEW",fceu_hInstance);
+	UnregisterClass("MEMVIEW", fceu_hInstance);
 	hMemView = 0;
 	hMemFind = 0;
 	return;
@@ -1200,12 +1204,12 @@ void KillMemView()
 LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	HDC          hdc;
-	HGLOBAL      hGlobal ;
-	PTSTR        pGlobal ;
+	HGLOBAL      hGlobal;
+	PTSTR        pGlobal;
 	HMENU        hMenu;
 	MENUITEMINFO MenuInfo;
 	POINT        point;
-	PAINTSTRUCT ps ;
+	PAINTSTRUCT ps;
 	TEXTMETRIC tm;
 	SCROLLINFO si;
 	int x, y, i, j;
@@ -1222,33 +1226,33 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 
 	case WM_ENTERMENULOOP:return 0;
 	case WM_INITMENUPOPUP:
-		if(undo_list != 0)EnableMenuItem(GetMenu(hMemView),MENU_MV_EDIT_UNDO,MF_BYCOMMAND | MF_ENABLED);
-		else EnableMenuItem(GetMenu(hMemView),MENU_MV_EDIT_UNDO,MF_BYCOMMAND | MF_GRAYED);
+		if (undo_list != 0)EnableMenuItem(GetMenu(hMemView), MENU_MV_EDIT_UNDO, MF_BYCOMMAND | MF_ENABLED);
+		else EnableMenuItem(GetMenu(hMemView), MENU_MV_EDIT_UNDO, MF_BYCOMMAND | MF_GRAYED);
 
-		if(TableFileLoaded)EnableMenuItem(GetMenu(hMemView),MENU_MV_FILE_UNLOAD_TBL,MF_BYCOMMAND | MF_ENABLED);
-		else EnableMenuItem(GetMenu(hMemView),MENU_MV_FILE_UNLOAD_TBL,MF_BYCOMMAND | MF_GRAYED);
+		if (TableFileLoaded)EnableMenuItem(GetMenu(hMemView), MENU_MV_FILE_UNLOAD_TBL, MF_BYCOMMAND | MF_ENABLED);
+		else EnableMenuItem(GetMenu(hMemView), MENU_MV_FILE_UNLOAD_TBL, MF_BYCOMMAND | MF_GRAYED);
 
 		return 0;
 
 	case WM_CREATE:
-		SetWindowPos(hwnd,0,MemView_wndx,MemView_wndy,MemViewSizeX,MemViewSizeY,SWP_NOZORDER|SWP_NOOWNERZORDER);
-		
+		SetWindowPos(hwnd, 0, MemView_wndx, MemView_wndy, MemViewSizeX, MemViewSizeY, SWP_NOZORDER | SWP_NOOWNERZORDER);
+
 		debuggerWasActive = 1;
 		mDC = GetDC(hwnd);
 		HDataDC = mDC;//deleteme
-		SelectObject (HDataDC, debugSystem->hHexeditorFont);
-		SetTextAlign(HDataDC,TA_UPDATECP | TA_TOP | TA_LEFT);
+		SelectObject(HDataDC, debugSystem->hHexeditorFont);
+		SetTextAlign(HDataDC, TA_UPDATECP | TA_TOP | TA_LEFT);
 
-		GetTextMetrics (HDataDC, &tm);
+		GetTextMetrics(HDataDC, &tm);
 
 		MaxSize = 0x10000;
 		//Allocate Memory for color lists
 		DataAmount = 0x100;
 		//mbg merge 7/18/06 added casts:
-		TextColorList = (COLORREF*)malloc(DataAmount*sizeof(COLORREF));
-		BGColorList = (COLORREF*)malloc(DataAmount*sizeof(COLORREF));
-		PreviousValues = (int*)malloc(DataAmount*sizeof(int));
-		HighlightedBytes = (unsigned int*)malloc(DataAmount*sizeof(unsigned int));
+		TextColorList = (COLORREF*)malloc(DataAmount * sizeof(COLORREF));
+		BGColorList = (COLORREF*)malloc(DataAmount * sizeof(COLORREF));
+		PreviousValues = (int*)malloc(DataAmount * sizeof(int));
+		HighlightedBytes = (unsigned int*)malloc(DataAmount * sizeof(unsigned int));
 		resetHighlightingActivityLog();
 		EditingText = CurOffset = 0;
 		EditingMode = MODE_NES_MEMORY;
@@ -1259,12 +1263,12 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 
 		// update menus
 		for (i = MODE_NES_MEMORY; i <= MODE_NES_FILE; i++)
-			if(EditingMode == i) {
+			if (EditingMode == i) {
 				CheckMenuRadioItem(GetMenu(hwnd), MENU_MV_VIEW_RAM, MENU_MV_VIEW_ROM, MENU_MV_VIEW_RAM, MF_BYCOMMAND);
 				break;
 			}
-		CheckMenuItem(GetMenu(hwnd), ID_HIGHLIGHTING_HIGHLIGHT_ACTIVITY, (MemView_HighlightActivity) ? MF_CHECKED: MF_UNCHECKED);
-		CheckMenuItem(GetMenu(hwnd), ID_HIGHLIGHTING_FADEWHENPAUSED, (MemView_HighlightActivity_FadeWhenPaused) ? MF_CHECKED: MF_UNCHECKED);
+		CheckMenuItem(GetMenu(hwnd), ID_HIGHLIGHTING_HIGHLIGHT_ACTIVITY, (MemView_HighlightActivity) ? MF_CHECKED : MF_UNCHECKED);
+		CheckMenuItem(GetMenu(hwnd), ID_HIGHLIGHTING_FADEWHENPAUSED, (MemView_HighlightActivity_FadeWhenPaused) ? MF_CHECKED : MF_UNCHECKED);
 
 		updateBookmarkMenus(GetSubMenu(GetMenu(hwnd), BOOKMARKS_SUBMENU_POS));
 		return 0;
@@ -1275,57 +1279,57 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		return 0;
 
 	case WM_DROPFILES:
-		{
-			UINT len;
-			char *ftmp;
+	{
+		UINT len;
+		char *ftmp;
 
-			len=DragQueryFile((HDROP)wParam,0,0,0)+1; 
-			if((ftmp=(char*)malloc(len))) 
+		len = DragQueryFile((HDROP)wParam, 0, 0, 0) + 1;
+		if ((ftmp = (char*)malloc(len)))
+		{
+			DragQueryFile((HDROP)wParam, 0, ftmp, len);
+			string fileDropped = ftmp;
+			//adelikat:  Drag and Drop only checks file extension, the internal functions are responsible for file error checking
+			//-------------------------------------------------------
+			//Check if .tbl
+			//-------------------------------------------------------
+			if (!(fileDropped.find(".tbl") == string::npos) && (fileDropped.find(".tbl") == fileDropped.length() - 4))
 			{
-				DragQueryFile((HDROP)wParam,0,ftmp,len); 
-				string fileDropped = ftmp;
-				//adelikat:  Drag and Drop only checks file extension, the internal functions are responsible for file error checking
-				//-------------------------------------------------------
-				//Check if .tbl
-				//-------------------------------------------------------
-				if (!(fileDropped.find(".tbl") == string::npos) && (fileDropped.find(".tbl") == fileDropped.length()-4))
-				{
-					LoadTable(fileDropped.c_str());
-				}
-				else
-				{
-					std::string str = "Could not open " + fileDropped;
-					MessageBox(hwnd, str.c_str(), "File error", 0);
-				}
-			}            
+				LoadTable(fileDropped.c_str());
+			}
+			else
+			{
+				std::string str = "Could not open " + fileDropped;
+				MessageBox(hwnd, str.c_str(), "File error", 0);
+			}
 		}
-		break;
+	}
+	break;
 	case WM_VSCROLL:
 
 		ZeroMemory(&si, sizeof(SCROLLINFO));
 		si.fMask = SIF_ALL;
 		si.cbSize = sizeof(SCROLLINFO);
-		GetScrollInfo(hwnd,SB_VERT,&si);
-		switch(LOWORD(wParam)) {
-	case SB_ENDSCROLL:
-	case SB_TOP:
-	case SB_BOTTOM: break;
-	case SB_LINEUP: si.nPos--; break;
-	case SB_LINEDOWN:si.nPos++; break;
-	case SB_PAGEUP: si.nPos-=si.nPage; break;
-	case SB_PAGEDOWN: si.nPos+=si.nPage; break;
-	case SB_THUMBPOSITION: //break;
-	case SB_THUMBTRACK: si.nPos = si.nTrackPos; break;
+		GetScrollInfo(hwnd, SB_VERT, &si);
+		switch (LOWORD(wParam)) {
+		case SB_ENDSCROLL:
+		case SB_TOP:
+		case SB_BOTTOM: break;
+		case SB_LINEUP: si.nPos--; break;
+		case SB_LINEDOWN:si.nPos++; break;
+		case SB_PAGEUP: si.nPos -= si.nPage; break;
+		case SB_PAGEDOWN: si.nPos += si.nPage; break;
+		case SB_THUMBPOSITION: //break;
+		case SB_THUMBTRACK: si.nPos = si.nTrackPos; break;
 		}
 		if (si.nPos < si.nMin) si.nPos = si.nMin;
-		if ((si.nPos+(int)si.nPage) > si.nMax) si.nPos = si.nMax-si.nPage; //mbg merge 7/18/06 added cast
-		CurOffset = si.nPos*16;
-		SetScrollInfo(hwnd,SB_VERT,&si,TRUE);
+		if ((si.nPos + (int)si.nPage) > si.nMax) si.nPos = si.nMax - si.nPage; //mbg merge 7/18/06 added cast
+		CurOffset = si.nPos * 16;
+		SetScrollInfo(hwnd, SB_VERT, &si, TRUE);
 		UpdateColorTable();
 		return 0;
 	case WM_CHAR:
-		if(GetKeyState(VK_CONTROL) & 0x8000)return 0; //prevents input when pressing ctrl+c
-		c[0] = (char)(wParam&0xFF);
+		if (GetKeyState(VK_CONTROL) & 0x8000)return 0; //prevents input when pressing ctrl+c
+		c[0] = (char)(wParam & 0xFF);
 		c[1] = 0;
 		//sprintf(str,"c[0] = %c c[1] = %c",c[0],c[1]);
 		//MessageBox(hMemView,str, "debug", MB_OK);
@@ -1347,7 +1351,7 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		//MessageBox(hMemView,"somebody", "mouse wheel dance!", MB_OK);
 		}*/
 
-		if(GetKeyState(VK_CONTROL) & 0x8000){
+		if (GetKeyState(VK_CONTROL) & 0x8000) {
 
 			if (wParam >= '0' && wParam <= '9')
 			{
@@ -1356,17 +1360,17 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 
 				if (newValue != -1)
 				{
-					ChangeMemViewFocus(hexBookmarks[bookmark].editmode,newValue,-1);
+					ChangeMemViewFocus(hexBookmarks[bookmark].editmode, newValue, -1);
 					UpdateColorTable();
 				}
 			}
 
-			switch(wParam){
+			switch (wParam) {
 			case 0x43: //Ctrl+C
-				MemViewCallB(hMemView,WM_COMMAND,MENU_MV_EDIT_COPY,0); //recursion at work
+				MemViewCallB(hMemView, WM_COMMAND, MENU_MV_EDIT_COPY, 0); //recursion at work
 				return 0;
 			case 0x56: //Ctrl+V
-				MemViewCallB(hMemView,WM_COMMAND,MENU_MV_EDIT_PASTE,0);
+				MemViewCallB(hMemView, WM_COMMAND, MENU_MV_EDIT_PASTE, 0);
 				return 0;
 			case 0x5a: //Ctrl+Z
 				UndoLastPatch(); break;
@@ -1380,10 +1384,10 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		}
 
 		//if(CursorShiftPoint == -1){
-		if(wParam == VK_LEFT)CursorStartAddy--;
-		if(wParam == VK_RIGHT)CursorStartAddy++;
-		if(wParam == VK_UP)CursorStartAddy-=16;
-		if(wParam == VK_DOWN)CursorStartAddy+=16;
+		if (wParam == VK_LEFT)CursorStartAddy--;
+		if (wParam == VK_RIGHT)CursorStartAddy++;
+		if (wParam == VK_UP)CursorStartAddy -= 16;
+		if (wParam == VK_DOWN)CursorStartAddy += 16;
 		/*} else {
 		if(wParam == VK_LEFT)CursorShiftPoint--;
 		if(wParam == VK_RIGHT)CursorShiftPoint++;
@@ -1397,30 +1401,30 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		}*/
 
 		//if(CursorStartAddy == CursorEndAddy)CursorEndAddy = -1;
-		if(CursorStartAddy < 0) CursorStartAddy = 0;
-		if(CursorStartAddy >= MaxSize) CursorStartAddy = MaxSize-1;
+		if (CursorStartAddy < 0) CursorStartAddy = 0;
+		if (CursorStartAddy >= MaxSize) CursorStartAddy = MaxSize - 1;
 
-		if((wParam == VK_DOWN) || (wParam == VK_UP) ||
-			(wParam == VK_RIGHT) || (wParam == VK_LEFT)){
-				CursorEndAddy = -1;
-				TempData = PREVIOUS_VALUE_UNDEFINED;
-				if(CursorStartAddy < CurOffset) CurOffset = (CursorStartAddy/16)*16;
-				if(CursorStartAddy > CurOffset+DataAmount-0x10)CurOffset = ((CursorStartAddy-DataAmount+0x10)/16)*16;
+		if ((wParam == VK_DOWN) || (wParam == VK_UP) ||
+			(wParam == VK_RIGHT) || (wParam == VK_LEFT)) {
+			CursorEndAddy = -1;
+			TempData = PREVIOUS_VALUE_UNDEFINED;
+			if (CursorStartAddy < CurOffset) CurOffset = (CursorStartAddy / 16) * 16;
+			if (CursorStartAddy > CurOffset + DataAmount - 0x10)CurOffset = ((CursorStartAddy - DataAmount + 0x10) / 16) * 16;
 		}
 
-		if(wParam == VK_PRIOR) { CurOffset-=DataAmount; CursorStartAddy-=DataAmount; }
-		if(wParam == VK_NEXT) { CurOffset+=DataAmount; CursorStartAddy+=DataAmount; }
-		if(wParam == VK_HOME) { CurOffset=0; CursorStartAddy=0; }
-		if(wParam == VK_END) { CurOffset = MaxSize-DataAmount;  CursorStartAddy=MaxSize-1; }
+		if (wParam == VK_PRIOR) { CurOffset -= DataAmount; CursorStartAddy -= DataAmount; }
+		if (wParam == VK_NEXT) { CurOffset += DataAmount; CursorStartAddy += DataAmount; }
+		if (wParam == VK_HOME) { CurOffset = 0; CursorStartAddy = 0; }
+		if (wParam == VK_END) { CurOffset = MaxSize - DataAmount;  CursorStartAddy = MaxSize - 1; }
 
 		if (CurOffset >= MaxSize - DataAmount) CurOffset = MaxSize - DataAmount;
 		if (CurOffset < 0) CurOffset = 0;
-		if(wParam == VK_PRIOR || wParam == VK_NEXT || wParam == VK_HOME || wParam == VK_END)
+		if (wParam == VK_PRIOR || wParam == VK_NEXT || wParam == VK_HOME || wParam == VK_END)
 		{
 			CursorEndAddy = -1;
 			TempData = PREVIOUS_VALUE_UNDEFINED;
 			if (CursorStartAddy < 0) CursorStartAddy = 0;
-			if (CursorStartAddy >= MaxSize) CursorStartAddy = MaxSize-1;
+			if (CursorStartAddy >= MaxSize) CursorStartAddy = MaxSize - 1;
 		}
 		/*
 		if((wParam == VK_PRIOR) || (wParam == VK_NEXT)){
@@ -1440,8 +1444,8 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		ZeroMemory(&si, sizeof(SCROLLINFO));
 		si.fMask = SIF_POS;
 		si.cbSize = sizeof(SCROLLINFO);
-		si.nPos = CurOffset/16;
-		SetScrollInfo(hwnd,SB_VERT,&si,TRUE);
+		si.nPos = CurOffset / 16;
+		SetScrollInfo(hwnd, SB_VERT, &si, TRUE);
 		UpdateColorTable();
 		UpdateCaption();
 		return 0;
@@ -1456,8 +1460,8 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		lbuttondown = 1;
 		x = GET_X_LPARAM(lParam);
 		y = GET_Y_LPARAM(lParam);
-		if((i = GetAddyFromCoord(x,y)) < 0) { CursorDragPoint = -1; return 0; }
-		if(i > MaxSize) { CursorDragPoint = -1; return 0; }
+		if ((i = GetAddyFromCoord(x, y)) < 0) { CursorDragPoint = -1; return 0; }
+		if (i > MaxSize) { CursorDragPoint = -1; return 0; }
 		EditingText = AddyWasText;
 		lbuttondownx = x;
 		lbuttondowny = y;
@@ -1472,7 +1476,7 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		{
 			x = GET_X_LPARAM(lParam);
 			y = GET_Y_LPARAM(lParam);
-			i = GetAddyFromCoord(x,y);
+			i = GetAddyFromCoord(x, y);
 			if (i >= 0 && i < MaxSize)
 			{
 				EditingText = AddyWasText;
@@ -1486,17 +1490,17 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 	}
 	case WM_MOUSEMOVE:
 		if (CursorDragPoint < 0) return 0;
-		mousex = x = GET_X_LPARAM(lParam); 
-		mousey = y = GET_Y_LPARAM(lParam); 
-		if(lbuttondown){
-			AutoScrollFromCoord(x,y);
-			i = GetAddyFromCoord(x,y);
-			if (i >= MaxSize)i = MaxSize-1;
+		mousex = x = GET_X_LPARAM(lParam);
+		mousey = y = GET_Y_LPARAM(lParam);
+		if (lbuttondown) {
+			AutoScrollFromCoord(x, y);
+			i = GetAddyFromCoord(x, y);
+			if (i >= MaxSize)i = MaxSize - 1;
 			EditingText = AddyWasText;
-			if(i >= 0){
-				CursorStartAddy = std::min(i,CursorDragPoint);
-				CursorEndAddy = std::max(i,CursorDragPoint);
-				if(CursorEndAddy == CursorStartAddy)CursorEndAddy = -1;
+			if (i >= 0) {
+				CursorStartAddy = std::min(i, CursorDragPoint);
+				CursorEndAddy = std::max(i, CursorDragPoint);
+				if (CursorEndAddy == CursorStartAddy)CursorEndAddy = -1;
 			}
 
 			UpdateCaption();
@@ -1507,8 +1511,8 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		return 0;
 	case WM_LBUTTONUP:
 		lbuttondown = 0;
-		if(CursorEndAddy == CursorStartAddy)CursorEndAddy = -1;
-		if((CursorEndAddy < CursorStartAddy) && (CursorEndAddy != -1)){ //this reverses them if they're not right
+		if (CursorEndAddy == CursorStartAddy)CursorEndAddy = -1;
+		if ((CursorEndAddy < CursorStartAddy) && (CursorEndAddy != -1)) { //this reverses them if they're not right
 			i = CursorStartAddy;
 			CursorStartAddy = CursorEndAddy;
 			CursorEndAddy = i;
@@ -1521,96 +1525,99 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 	{
 		point.x = x = GET_X_LPARAM(lParam);
 		point.y = y = GET_Y_LPARAM(lParam);
-		ScreenToClient(hMemView,&point);
+		ScreenToClient(hMemView, &point);
 		mousex = point.x;
 		mousey = point.y;
-		j = GetAddyFromCoord(mousex,mousey);
+		j = GetAddyFromCoord(mousex, mousey);
 		bank = getBank(j);
 		//sprintf(str,"x = %d, y = %d, j = %d",mousex,mousey,j);
 		//MessageBox(hMemView,str, "mouse wheel dance!", MB_OK);
 		hMenu = CreatePopupMenu();
-		for(i = 0;i < POPUPNUM;i++)
+		for (i = 0; i < POPUPNUM; i++)
 		{
-			if((j >= popupmenu[i].minaddress) && (j <= popupmenu[i].maxaddress) && (EditingMode == popupmenu[i].editingmode))
+			if ((j >= popupmenu[i].minaddress) && (j <= popupmenu[i].maxaddress) && (EditingMode == popupmenu[i].editingmode))
 			{
-				memset(&MenuInfo,0,sizeof(MENUITEMINFO));
-				switch(popupmenu[i].id)
+				memset(&MenuInfo, 0, sizeof(MENUITEMINFO));
+				switch (popupmenu[i].id)
 				{
 					//this will set the text for the menu dynamically based on the id
-					case ID_ADDRESS_FRZ_SUBMENU:
+				case ID_ADDRESS_FRZ_SUBMENU:
+				{
+					HMENU sub = CreatePopupMenu();
+					AppendMenu(hMenu, MF_POPUP | MF_STRING, (UINT_PTR)sub, "Freeze / Unfreeze Address");
+					AppendMenu(sub, MF_STRING, ID_ADDRESS_FRZ_TOGGLE_STATE, "Toggle state");
+					AppendMenu(sub, MF_STRING, ID_ADDRESS_FRZ_FREEZE, "Freeze");
+					AppendMenu(sub, MF_STRING, ID_ADDRESS_FRZ_UNFREEZE, "Unfreeze");
+					AppendMenu(sub, MF_SEPARATOR, ID_ADDRESS_FRZ_SEP, "-");
+					AppendMenu(sub, MF_STRING, ID_ADDRESS_FRZ_UNFREEZE_ALL, "Unfreeze all");
+
+					if (CursorEndAddy == -1) tempAddy = CursorStartAddy;
+					else tempAddy = CursorEndAddy;								//This is necessary because CursorEnd = -1 if only 1 address is selected
+					if (tempAddy - CursorStartAddy + FrozenAddressCount > 255)	//There is a limit of 256 possible frozen addresses, therefore if the user has selected more than this limit, disable freeze menu items
 					{
-						HMENU sub = CreatePopupMenu();
-						AppendMenu(hMenu, MF_POPUP | MF_STRING, (UINT_PTR)sub, "Freeze / Unfreeze Address");
-						AppendMenu(sub, MF_STRING, ID_ADDRESS_FRZ_TOGGLE_STATE, "Toggle state");
-						AppendMenu(sub, MF_STRING, ID_ADDRESS_FRZ_FREEZE, "Freeze");
-						AppendMenu(sub, MF_STRING, ID_ADDRESS_FRZ_UNFREEZE, "Unfreeze");
-						AppendMenu(sub, MF_SEPARATOR, ID_ADDRESS_FRZ_SEP, "-");
-						AppendMenu(sub, MF_STRING, ID_ADDRESS_FRZ_UNFREEZE_ALL, "Unfreeze all");
-			
-						if (CursorEndAddy == -1) tempAddy = CursorStartAddy;
-						else tempAddy = CursorEndAddy;								//This is necessary because CursorEnd = -1 if only 1 address is selected
-						if (tempAddy - CursorStartAddy + FrozenAddressCount > 255)	//There is a limit of 256 possible frozen addresses, therefore if the user has selected more than this limit, disable freeze menu items
-						{														
-							EnableMenuItem(sub,ID_ADDRESS_FRZ_TOGGLE_STATE,MF_GRAYED);
-							EnableMenuItem(sub,ID_ADDRESS_FRZ_FREEZE,MF_GRAYED);				
-						}
-						continue;
+						EnableMenuItem(sub, ID_ADDRESS_FRZ_TOGGLE_STATE, MF_GRAYED);
+						EnableMenuItem(sub, ID_ADDRESS_FRZ_FREEZE, MF_GRAYED);
 					}
-					case ID_ADDRESS_ADDBP_R:
+					continue;
+				}
+				case ID_ADDRESS_ADDBP_R:
+				{
+					// We want this to give the address to add the read breakpoint for
+					if ((j <= CursorEndAddy) && (j >= CursorStartAddy))
 					{
-						// We want this to give the address to add the read breakpoint for
-						if ((j <= CursorEndAddy) && (j >= CursorStartAddy))
-						{
-							if (j >= 0x8000 && bank != -1)
-								sprintf(str,"Add Read Breakpoint For Address %02X:%04X-%02X:%04X", bank, CursorStartAddy, bank, CursorEndAddy);
-							else
-								sprintf(str,"Add Read Breakpoint For Address %04X-%04X", CursorStartAddy, CursorEndAddy);
-						} else
-						{
-							if (j >= 0x8000 && bank != -1)
-								sprintf(str,"Add Read Breakpoint For Address %02X:%04X", bank, j);
-							else
-								sprintf(str,"Add Read Breakpoint For Address %04X", j);
-						}
-						popupmenu[i].text = str;
-						break;
+						if (j >= 0x8000 && bank != -1)
+							sprintf(str, "Add Read Breakpoint For Address %02X:%04X-%02X:%04X", bank, CursorStartAddy, bank, CursorEndAddy);
+						else
+							sprintf(str, "Add Read Breakpoint For Address %04X-%04X", CursorStartAddy, CursorEndAddy);
 					}
-					case ID_ADDRESS_ADDBP_W:
+					else
 					{
-						if ((j <= CursorEndAddy) && (j >= CursorStartAddy))
-						{
-							if (j >= 0x8000 && bank != -1)
-								sprintf(str,"Add Write Breakpoint For Address %02X:%04X-%02X:%04X", bank, CursorStartAddy, bank, CursorEndAddy);
-							else
-								sprintf(str,"Add Write Breakpoint For Address %04X-%04X", CursorStartAddy, CursorEndAddy);
-						} else
-						{
-							if (j >= 0x8000 && bank != -1)
-								sprintf(str,"Add Write Breakpoint For Address %02X:%04X", bank, j);
-							else
-								sprintf(str,"Add Write Breakpoint For Address %04X", j);
-						}
-						popupmenu[i].text = str;
-						break;
+						if (j >= 0x8000 && bank != -1)
+							sprintf(str, "Add Read Breakpoint For Address %02X:%04X", bank, j);
+						else
+							sprintf(str, "Add Read Breakpoint For Address %04X", j);
 					}
-					case ID_ADDRESS_ADDBP_X:
+					popupmenu[i].text = str;
+					break;
+				}
+				case ID_ADDRESS_ADDBP_W:
+				{
+					if ((j <= CursorEndAddy) && (j >= CursorStartAddy))
 					{
-						if ((j <= CursorEndAddy) && (j >= CursorStartAddy))
-						{
-							if (j >= 0x8000 && bank != -1)
-								sprintf(str,"Add Execute Breakpoint For Address %02X:%04X-%02X:%04X", bank, CursorStartAddy, bank, CursorEndAddy);
-							else
-								sprintf(str,"Add Execute Breakpoint For Address %04X-%04X", CursorStartAddy, CursorEndAddy);
-						} else
-						{
-							if (j >= 0x8000 && bank != -1)
-								sprintf(str,"Add Execute Breakpoint For Address %02X:%04X", bank, j);
-							else
-								sprintf(str,"Add Execute Breakpoint For Address %04X", j);
-						}
-						popupmenu[i].text = str;
-						break;
+						if (j >= 0x8000 && bank != -1)
+							sprintf(str, "Add Write Breakpoint For Address %02X:%04X-%02X:%04X", bank, CursorStartAddy, bank, CursorEndAddy);
+						else
+							sprintf(str, "Add Write Breakpoint For Address %04X-%04X", CursorStartAddy, CursorEndAddy);
 					}
+					else
+					{
+						if (j >= 0x8000 && bank != -1)
+							sprintf(str, "Add Write Breakpoint For Address %02X:%04X", bank, j);
+						else
+							sprintf(str, "Add Write Breakpoint For Address %04X", j);
+					}
+					popupmenu[i].text = str;
+					break;
+				}
+				case ID_ADDRESS_ADDBP_X:
+				{
+					if ((j <= CursorEndAddy) && (j >= CursorStartAddy))
+					{
+						if (j >= 0x8000 && bank != -1)
+							sprintf(str, "Add Execute Breakpoint For Address %02X:%04X-%02X:%04X", bank, CursorStartAddy, bank, CursorEndAddy);
+						else
+							sprintf(str, "Add Execute Breakpoint For Address %04X-%04X", CursorStartAddy, CursorEndAddy);
+					}
+					else
+					{
+						if (j >= 0x8000 && bank != -1)
+							sprintf(str, "Add Execute Breakpoint For Address %02X:%04X", bank, j);
+						else
+							sprintf(str, "Add Execute Breakpoint For Address %04X", j);
+					}
+					popupmenu[i].text = str;
+					break;
+				}
 				}
 				MenuInfo.cbSize = sizeof(MENUITEMINFO);
 				MenuInfo.fMask = MIIM_TYPE | MIIM_ID | MIIM_DATA;
@@ -1618,185 +1625,188 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 				MenuInfo.dwTypeData = popupmenu[i].text;
 				MenuInfo.cch = strlen(popupmenu[i].text);
 				MenuInfo.wID = popupmenu[i].id;
-				InsertMenuItem(hMenu,i+1,1,&MenuInfo);
+				InsertMenuItem(hMenu, i + 1, 1, &MenuInfo);
 			}
 		}
 		if (i != 0)
 			i = TrackPopupMenuEx(hMenu, TPM_RETURNCMD | TPM_RIGHTBUTTON, x, y, hMemView, NULL);
-		switch(i)
+		switch (i)
 		{
-			case ID_ADDRESS_FRZ_TOGGLE_STATE:
+		case ID_ADDRESS_FRZ_TOGGLE_STATE:
+		{
+			int n;
+			for (n = CursorStartAddy; (CursorEndAddy == -1 && n == CursorStartAddy) || n <= CursorEndAddy; n++)
 			{
-				int n;
-				for (n=CursorStartAddy;(CursorEndAddy == -1 && n == CursorStartAddy) || n<=CursorEndAddy;n++)
-				{
-					FreezeRam(n, 0, n == CursorEndAddy);
-				}
-				break;
-			}
-			case ID_ADDRESS_FRZ_FREEZE:
-			{
-				int n;
-				for (n=CursorStartAddy;(CursorEndAddy == -1 && n == CursorStartAddy) || n<=CursorEndAddy;n++)
-				{
-					FreezeRam(n, 1, n == CursorEndAddy);
-				}
-				break;
-			}
-			case ID_ADDRESS_FRZ_UNFREEZE:
-			{
-				int n;
-				for (n=CursorStartAddy;(CursorEndAddy == -1 && n == CursorStartAddy) || n<=CursorEndAddy;n++)
-				{
-					FreezeRam(n, -1, n == CursorEndAddy);
-				}
-				break;
-			}
-			case ID_ADDRESS_FRZ_UNFREEZE_ALL:
-			{
-				UnfreezeAllRam();
-				break;
+				FreezeRam(n, 0, n == CursorEndAddy);
 			}
 			break;
-
-			case ID_ADDRESS_ADDBP_R:
+		}
+		case ID_ADDRESS_FRZ_FREEZE:
+		{
+			int n;
+			for (n = CursorStartAddy; (CursorEndAddy == -1 && n == CursorStartAddy) || n <= CursorEndAddy; n++)
 			{
-				if (numWPs < MAXIMUM_NUMBER_OF_BREAKPOINTS)
-				{
-					watchpoint[numWPs].flags = WP_E | WP_R;
-					if (EditingMode == MODE_NES_PPU)
-						watchpoint[numWPs].flags |= BT_P;
-					if ((j <= CursorEndAddy) && (j >= CursorStartAddy))
-					{
-						watchpoint[numWPs].address = CursorStartAddy;
-						watchpoint[numWPs].endaddress = CursorEndAddy;
-					} else
-					{
-						watchpoint[numWPs].address = j;
-						watchpoint[numWPs].endaddress = 0;
-					}
-					char condition[10] = {0};
-					if (EditingMode == MODE_NES_MEMORY)
-					{
-						// only break at this Bank
-						if (j >= 0x8000 && bank != -1)
-							sprintf(condition, "T==#%02X", bank);
-					}
-					checkCondition(condition, numWPs);
-
-					numWPs++;
-					{ extern int myNumWPs;
-					myNumWPs++; }
-					if (hDebug)
-						AddBreakList();
-					else
-						DoDebug(0);
-				}
-				break;
+				FreezeRam(n, 1, n == CursorEndAddy);
 			}
-			case ID_ADDRESS_ADDBP_W:
+			break;
+		}
+		case ID_ADDRESS_FRZ_UNFREEZE:
+		{
+			int n;
+			for (n = CursorStartAddy; (CursorEndAddy == -1 && n == CursorStartAddy) || n <= CursorEndAddy; n++)
 			{
-				if (numWPs < MAXIMUM_NUMBER_OF_BREAKPOINTS)
-				{
-					watchpoint[numWPs].flags = WP_E | WP_W;
-					if (EditingMode == MODE_NES_PPU)
-						watchpoint[numWPs].flags |= BT_P;
-					if ((j <= CursorEndAddy) && (j >= CursorStartAddy))
-					{
-						watchpoint[numWPs].address = CursorStartAddy;
-						watchpoint[numWPs].endaddress = CursorEndAddy;
-					} else
-					{
-						watchpoint[numWPs].address = j;
-						watchpoint[numWPs].endaddress = 0;
-					}
-					char condition[10] = {0};
-					if (EditingMode == MODE_NES_MEMORY)
-					{
-						// only break at this Bank
-						if (j >= 0x8000 && bank != -1)
-							sprintf(condition, "T==#%02X", bank);
-					}
-					checkCondition(condition, numWPs);
-
-					numWPs++;
-					{ extern int myNumWPs;
-					myNumWPs++; }
-					if (hDebug)
-						AddBreakList();
-					else
-						DoDebug(0);
-				}
-				break;
+				FreezeRam(n, -1, n == CursorEndAddy);
 			}
-			case ID_ADDRESS_ADDBP_X:
-			{
-				if (numWPs < MAXIMUM_NUMBER_OF_BREAKPOINTS)
-				{
-					watchpoint[numWPs].flags = WP_E | WP_X;
-					if((j <= CursorEndAddy) && (j >= CursorStartAddy))
-					{
-						watchpoint[numWPs].address = CursorStartAddy;
-						watchpoint[numWPs].endaddress = CursorEndAddy;
-					} else
-					{
-						watchpoint[numWPs].address = j;
-						watchpoint[numWPs].endaddress = 0;
-					}
-					char condition[10] = {0};
-					if (EditingMode == MODE_NES_MEMORY)
-					{
-						// only break at this Bank
-						if (j >= 0x8000 && bank != -1)
-							sprintf(condition, "T==#%02X", bank);
-					}
-					checkCondition(condition, numWPs);
+			break;
+		}
+		case ID_ADDRESS_FRZ_UNFREEZE_ALL:
+		{
+			UnfreezeAllRam();
+			break;
+		}
+		break;
 
-					numWPs++;
-					{ extern int myNumWPs;
-					myNumWPs++; }
-					if (hDebug)
-						AddBreakList();
-					else
-						DoDebug(0);
-				}
-				break;
-			}
-			case ID_ADDRESS_SEEK_IN_ROM:
-				ChangeMemViewFocus(MODE_NES_FILE,GetNesFileAddress(j),-1);
-				break;
-			case ID_ADDRESS_CREATE_GG_CODE:
-				SetGGConvFocus(j,GetMem(j));
-				break;
-			case ID_ADDRESS_BOOKMARK:
+		case ID_ADDRESS_ADDBP_R:
+		{
+			if (numWPs < MAXIMUM_NUMBER_OF_BREAKPOINTS)
 			{
-				if (toggleBookmark(hwnd, CursorStartAddy, EditingMode))
+				watchpoint[numWPs].flags = WP_E | WP_R;
+				if (EditingMode == MODE_NES_PPU)
+					watchpoint[numWPs].flags |= BT_P;
+				if ((j <= CursorEndAddy) && (j >= CursorStartAddy))
 				{
-					MessageBox(hDebug, "Can't set more than 64 bookmarks", "Error", MB_OK | MB_ICONERROR);
+					watchpoint[numWPs].address = CursorStartAddy;
+					watchpoint[numWPs].endaddress = CursorEndAddy;
 				}
 				else
 				{
-					updateBookmarkMenus(GetSubMenu(GetMenu(hwnd), BOOKMARKS_SUBMENU_POS));
-					UpdateColorTable();
+					watchpoint[numWPs].address = j;
+					watchpoint[numWPs].endaddress = 0;
 				}
-				break;
-			}
-			case ID_ADDRESS_SYMBOLIC_NAME:
-			{
-				if (DoSymbolicDebugNaming(j, hMemView))
+				char condition[10] = { 0 };
+				if (EditingMode == MODE_NES_MEMORY)
 				{
-					// enable "Symbolic Debug" if not yet enabled
-					if (!symbDebugEnabled)
-					{
-						symbDebugEnabled = true;
-						if (hDebug)
-							CheckDlgButton(hDebug, IDC_DEBUGGER_ENABLE_SYMBOLIC, BST_CHECKED);
-					}
-					UpdateCaption();
+					// only break at this Bank
+					if (j >= 0x8000 && bank != -1)
+						sprintf(condition, "T==#%02X", bank);
 				}
-				break;
+				checkCondition(condition, numWPs);
+
+				numWPs++;
+				{ extern int myNumWPs;
+				myNumWPs++; }
+				if (hDebug)
+					AddBreakList();
+				else
+					DoDebug(0);
 			}
 			break;
+		}
+		case ID_ADDRESS_ADDBP_W:
+		{
+			if (numWPs < MAXIMUM_NUMBER_OF_BREAKPOINTS)
+			{
+				watchpoint[numWPs].flags = WP_E | WP_W;
+				if (EditingMode == MODE_NES_PPU)
+					watchpoint[numWPs].flags |= BT_P;
+				if ((j <= CursorEndAddy) && (j >= CursorStartAddy))
+				{
+					watchpoint[numWPs].address = CursorStartAddy;
+					watchpoint[numWPs].endaddress = CursorEndAddy;
+				}
+				else
+				{
+					watchpoint[numWPs].address = j;
+					watchpoint[numWPs].endaddress = 0;
+				}
+				char condition[10] = { 0 };
+				if (EditingMode == MODE_NES_MEMORY)
+				{
+					// only break at this Bank
+					if (j >= 0x8000 && bank != -1)
+						sprintf(condition, "T==#%02X", bank);
+				}
+				checkCondition(condition, numWPs);
+
+				numWPs++;
+				{ extern int myNumWPs;
+				myNumWPs++; }
+				if (hDebug)
+					AddBreakList();
+				else
+					DoDebug(0);
+			}
+			break;
+		}
+		case ID_ADDRESS_ADDBP_X:
+		{
+			if (numWPs < MAXIMUM_NUMBER_OF_BREAKPOINTS)
+			{
+				watchpoint[numWPs].flags = WP_E | WP_X;
+				if ((j <= CursorEndAddy) && (j >= CursorStartAddy))
+				{
+					watchpoint[numWPs].address = CursorStartAddy;
+					watchpoint[numWPs].endaddress = CursorEndAddy;
+				}
+				else
+				{
+					watchpoint[numWPs].address = j;
+					watchpoint[numWPs].endaddress = 0;
+				}
+				char condition[10] = { 0 };
+				if (EditingMode == MODE_NES_MEMORY)
+				{
+					// only break at this Bank
+					if (j >= 0x8000 && bank != -1)
+						sprintf(condition, "T==#%02X", bank);
+				}
+				checkCondition(condition, numWPs);
+
+				numWPs++;
+				{ extern int myNumWPs;
+				myNumWPs++; }
+				if (hDebug)
+					AddBreakList();
+				else
+					DoDebug(0);
+			}
+			break;
+		}
+		case ID_ADDRESS_SEEK_IN_ROM:
+			ChangeMemViewFocus(MODE_NES_FILE, GetNesFileAddress(j), -1);
+			break;
+		case ID_ADDRESS_CREATE_GG_CODE:
+			SetGGConvFocus(j, GetMem(j));
+			break;
+		case ID_ADDRESS_BOOKMARK:
+		{
+			if (toggleBookmark(hwnd, CursorStartAddy, EditingMode))
+			{
+				MessageBox(hDebug, "Can't set more than 64 bookmarks", "Error", MB_OK | MB_ICONERROR);
+			}
+			else
+			{
+				updateBookmarkMenus(GetSubMenu(GetMenu(hwnd), BOOKMARKS_SUBMENU_POS));
+				UpdateColorTable();
+			}
+			break;
+		}
+		case ID_ADDRESS_SYMBOLIC_NAME:
+		{
+			if (DoSymbolicDebugNaming(j, hMemView))
+			{
+				// enable "Symbolic Debug" if not yet enabled
+				if (!symbDebugEnabled)
+				{
+					symbDebugEnabled = true;
+					if (hDebug)
+						CheckDlgButton(hDebug, IDC_DEBUGGER_ENABLE_SYMBOLIC, BST_CHECKED);
+				}
+				UpdateCaption();
+			}
+			break;
+		}
+		break;
 		}
 		//6 = Create GG Code
 
@@ -1807,8 +1817,8 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		if (EditingMode != MODE_NES_MEMORY) return 0;
 		x = GET_X_LPARAM(lParam);
 		y = GET_Y_LPARAM(lParam);
-		i = GetAddyFromCoord(x,y);
-		if(i < 0) return 0;
+		i = GetAddyFromCoord(x, y);
+		if (i < 0) return 0;
 		FreezeRam(i, 0, 1);
 		return 0;
 	}
@@ -1817,52 +1827,52 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		ZeroMemory(&si, sizeof(SCROLLINFO));
 		si.fMask = SIF_ALL;
 		si.cbSize = sizeof(SCROLLINFO);
-		GetScrollInfo(hwnd,SB_VERT,&si);
-		if(i < 0)si.nPos+=si.nPage;
-		if(i > 0)si.nPos-=si.nPage;
+		GetScrollInfo(hwnd, SB_VERT, &si);
+		if (i < 0)si.nPos += si.nPage;
+		if (i > 0)si.nPos -= si.nPage;
 		if (si.nPos < si.nMin) si.nPos = si.nMin;
-		if ((si.nPos+(int)si.nPage) > si.nMax) si.nPos = si.nMax-si.nPage; //added cast
-		CurOffset = si.nPos*16;
+		if ((si.nPos + (int)si.nPage) > si.nMax) si.nPos = si.nMax - si.nPage; //added cast
+		CurOffset = si.nPos * 16;
 		if (CurOffset >= MaxSize - DataAmount) CurOffset = MaxSize - DataAmount;
 		if (CurOffset < 0) CurOffset = 0;
-		SetScrollInfo(hwnd,SB_VERT,&si,TRUE);
+		SetScrollInfo(hwnd, SB_VERT, &si, TRUE);
 		UpdateColorTable();
 		return 0;
 
 	case WM_SIZE:
-		if(wParam == SIZE_RESTORED)										//If dialog was resized
+		if (wParam == SIZE_RESTORED)										//If dialog was resized
 		{
-			GetWindowRect(hwnd,&newMemViewRect);						//Get new size
-			MemViewSizeX = newMemViewRect.right-newMemViewRect.left;	//Store new size (this will be used to store in the .cfg file)	
-			MemViewSizeY = newMemViewRect.bottom-newMemViewRect.top;
+			GetWindowRect(hwnd, &newMemViewRect);						//Get new size
+			MemViewSizeX = newMemViewRect.right - newMemViewRect.left;	//Store new size (this will be used to store in the .cfg file)	
+			MemViewSizeY = newMemViewRect.bottom - newMemViewRect.top;
 		}
-		ClientHeight = HIWORD (lParam);
-		if (DataAmount != ((ClientHeight/MemFontHeight)*16))
+		ClientHeight = HIWORD(lParam);
+		if (DataAmount != ((ClientHeight / MemFontHeight) * 16))
 		{
-			DataAmount = ((ClientHeight/MemFontHeight)*16);
+			DataAmount = ((ClientHeight / MemFontHeight) * 16);
 			if (CurOffset >= MaxSize - DataAmount) CurOffset = MaxSize - DataAmount;
 			if (CurOffset < 0) CurOffset = 0;
 			//mbg merge 7/18/06 added casts:
-			TextColorList = (COLORREF*)realloc(TextColorList,DataAmount*sizeof(COLORREF));
-			BGColorList = (COLORREF*)realloc(BGColorList,DataAmount*sizeof(COLORREF));
-			PreviousValues = (int*)realloc(PreviousValues,(DataAmount)*sizeof(int));
-			HighlightedBytes = (unsigned int*)realloc(HighlightedBytes,(DataAmount)*sizeof(unsigned int));
+			TextColorList = (COLORREF*)realloc(TextColorList, DataAmount * sizeof(COLORREF));
+			BGColorList = (COLORREF*)realloc(BGColorList, DataAmount * sizeof(COLORREF));
+			PreviousValues = (int*)realloc(PreviousValues, (DataAmount) * sizeof(int));
+			HighlightedBytes = (unsigned int*)realloc(HighlightedBytes, (DataAmount) * sizeof(unsigned int));
 			resetHighlightingActivityLog();
 		}
 		//Set vertical scroll bar range and page size
 		ZeroMemory(&si, sizeof(SCROLLINFO));
-		si.cbSize = sizeof (si) ;
-		si.fMask  = (SIF_RANGE|SIF_PAGE) ;
-		si.nMin   = 0 ;
-		si.nMax   = MaxSize/16 ;
-		si.nPage  = ClientHeight/MemFontHeight;
-		SetScrollInfo (hwnd, SB_VERT, &si, TRUE);
+		si.cbSize = sizeof(si);
+		si.fMask = (SIF_RANGE | SIF_PAGE);
+		si.nMin = 0;
+		si.nMax = MaxSize / 16;
+		si.nPage = ClientHeight / MemFontHeight;
+		SetScrollInfo(hwnd, SB_VERT, &si, TRUE);
 		UpdateColorTable();
-		return 0 ;
+		return 0;
 
 	case WM_COMMAND:
 
-		switch(wParam)
+		switch (wParam)
 		{
 		case MENU_MV_FILE_SAVE:
 			FlushUndoBuffer();
@@ -1875,8 +1885,8 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			return 0;
 
 		case MENU_MV_FILE_LOAD_TBL:
-			if((i = LoadTableFile()) != -1){
-				sprintf(str,"Error Loading Table File At Line %d",i);
+			if ((i = LoadTableFile()) != -1) {
+				sprintf(str, "Error Loading Table File At Line %d", i);
 				MessageBox(hMemView, str, "error", MB_OK);
 			}
 			UpdateColorTable();
@@ -1888,91 +1898,91 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			return 0;
 
 		case MENU_MV_FILE_DUMP_RAM:
-			{
-				char bar[0x800];
-				unsigned int i;
-				for (i=0;i<sizeof(bar);i++) bar[i] = GetMem(i);
+		{
+			char bar[0x800];
+			unsigned int i;
+			for (i = 0; i < sizeof(bar); i++) bar[i] = GetMem(i);
 
-				dumpToFile(bar, sizeof(bar));
-				return 0;
-			}
+			dumpToFile(bar, sizeof(bar));
+			return 0;
+		}
 		case MENU_MV_FILE_DUMP_64K:
-			{
-				char *bar = new char[65536];
-				unsigned int i;
-				for (i=0;i<65536;i++) bar[i] = GetMem(i);
+		{
+			char *bar = new char[65536];
+			unsigned int i;
+			for (i = 0; i < 65536; i++) bar[i] = GetMem(i);
 
-				dumpToFile(bar, 65536);
-				delete [] bar;
-				return 0;
-			}
+			dumpToFile(bar, 65536);
+			delete[] bar;
+			return 0;
+		}
 		case MENU_MV_FILE_DUMP_PPU:
+		{
+			char bar[0x4000];
+			unsigned int i;
+			for (i = 0; i < sizeof(bar); i++)
 			{
-				char bar[0x4000];
-				unsigned int i;
-				for (i=0;i<sizeof(bar);i++)
-				{
-					//							bar[i] = GetPPUMem(i);
-					i &= 0x3FFF;
-					if(i < 0x2000) bar[i] = VPage[(i)>>10][(i)];
-					else if(i < 0x3F00) bar[i] = vnapage[(i>>10)&0x3][i&0x3FF];
-					else bar[i] = READPAL_MOTHEROFALL(i & 0x1F);
-				}
-				dumpToFile(bar, sizeof(bar));
-				return 0;
+				//							bar[i] = GetPPUMem(i);
+				i &= 0x3FFF;
+				if (i < 0x2000) bar[i] = VPage[(i) >> 10][(i)];
+				else if (i < 0x3F00) bar[i] = vnapage[(i >> 10) & 0x3][i & 0x3FF];
+				else bar[i] = READPAL_MOTHEROFALL(i & 0x1F);
 			}
+			dumpToFile(bar, sizeof(bar));
+			return 0;
+		}
 		case MENU_MV_FILE_DUMP_OAM:
-			{
-				char bar[0x200];
-				unsigned int i;
-				for (i=0;i<0x200;i++) bar[i] = SPRAM[i];
-				dumpToFile(bar,0x200);
-				return 0;
-			}
+		{
+			char bar[0x200];
+			unsigned int i;
+			for (i = 0; i < 0x200; i++) bar[i] = SPRAM[i];
+			dumpToFile(bar, 0x200);
+			return 0;
+		}
 
 		case MENU_MV_FILE_LOAD_RAM:
+		{
+			char bar[0x800];
+			if (loadFromFile(bar, sizeof(bar)))
 			{
-				char bar[0x800];
-				if (loadFromFile(bar, sizeof(bar)))
-				{
-					for (uint16 addr=0; addr<sizeof(bar); ++addr)
-						BWrite[addr](addr,bar[addr]);
-				}
-				return 0;
+				for (uint16 addr = 0; addr < sizeof(bar); ++addr)
+					BWrite[addr](addr, bar[addr]);
 			}
+			return 0;
+		}
 		case MENU_MV_FILE_LOAD_PPU:
+		{
+			char bar[0x4000];
+			if (loadFromFile(bar, sizeof(bar)))
 			{
-				char bar[0x4000];
-				if (loadFromFile(bar, sizeof(bar)))
+				for (uint16 addr = 0; addr < sizeof(bar); ++addr)
 				{
-					for (uint16 addr=0; addr<sizeof(bar); ++addr)
-					{
-						char v = bar[addr];
-						if(addr < 0x2000)
-							VPage[addr>>10][addr] = v; //todo: detect if this is vrom and turn it red if so
-						if((addr >= 0x2000) && (addr < 0x3F00))
-							vnapage[(addr>>10)&0x3][addr&0x3FF] = v; //todo: this causes 0x3000-0x3f00 to mirror 0x2000-0x2f00, is this correct?
-						if((addr >= 0x3F00) && (addr < 0x3FFF))
-							PalettePoke(addr,v);
-					}
+					char v = bar[addr];
+					if (addr < 0x2000)
+						VPage[addr >> 10][addr] = v; //todo: detect if this is vrom and turn it red if so
+					if ((addr >= 0x2000) && (addr < 0x3F00))
+						vnapage[(addr >> 10) & 0x3][addr & 0x3FF] = v; //todo: this causes 0x3000-0x3f00 to mirror 0x2000-0x2f00, is this correct?
+					if ((addr >= 0x3F00) && (addr < 0x3FFF))
+						PalettePoke(addr, v);
 				}
-				return 0;
 			}
+			return 0;
+		}
 		case MENU_MV_FILE_LOAD_OAM:
+		{
+			char bar[0x200];
+			if (loadFromFile(bar, sizeof(bar)))
 			{
-				char bar[0x200];
-				if (loadFromFile(bar, sizeof(bar)))
-				{
-					for (uint16 addr=0; addr<sizeof(bar); ++addr)
-						SPRAM[addr] = bar[addr];
-				}
-				return 0;
+				for (uint16 addr = 0; addr < sizeof(bar); ++addr)
+					SPRAM[addr] = bar[addr];
 			}
+			return 0;
+		}
 
 		case ID_MEMWVIEW_FILE_CLOSE:
 			KillMemView();
 			return 0;
-		
+
 		case MENU_MV_FILE_GOTO_ADDRESS:
 			GotoAddress(hwnd);
 			return 0;
@@ -1982,46 +1992,47 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			return 0;
 
 		case MENU_MV_EDIT_COPY:
-			if(CursorEndAddy == -1)i = 1;
-			else i = CursorEndAddy-CursorStartAddy+1;
+			if (CursorEndAddy == -1)i = 1;
+			else i = CursorEndAddy - CursorStartAddy + 1;
 
-			hGlobal = GlobalAlloc (GHND, 
-				(i*2)+1); //i*2 is two characters per byte, plus terminating null
+			hGlobal = GlobalAlloc(GHND,
+				(i * 2) + 1); //i*2 is two characters per byte, plus terminating null
 
-			pGlobal = (char*)GlobalLock (hGlobal) ; //mbg merge 7/18/06 added cast
-			if(!EditingText){
-				for(j = 0;j < i;j++){
+			pGlobal = (char*)GlobalLock(hGlobal); //mbg merge 7/18/06 added cast
+			if (!EditingText) {
+				for (j = 0; j < i; j++) {
 					str[0] = 0;
-					sprintf(str,"%02X",GetMemViewData((uint32)j+CursorStartAddy));
-					strcat(pGlobal,str);
-				}
-			} else {
-				for(j = 0;j < i;j++){
-					str[0] = 0;
-					sprintf(str,"%c",chartable[GetMemViewData(j+CursorStartAddy)]);
-					strcat(pGlobal,str);
+					sprintf(str, "%02X", GetMemViewData((uint32)j + CursorStartAddy));
+					strcat(pGlobal, str);
 				}
 			}
-			GlobalUnlock (hGlobal);
-			OpenClipboard (hwnd) ;
-			EmptyClipboard () ;
-			SetClipboardData (CF_TEXT, hGlobal) ;
-			CloseClipboard () ;
+			else {
+				for (j = 0; j < i; j++) {
+					str[0] = 0;
+					sprintf(str, "%c", chartable[GetMemViewData(j + CursorStartAddy)]);
+					strcat(pGlobal, str);
+				}
+			}
+			GlobalUnlock(hGlobal);
+			OpenClipboard(hwnd);
+			EmptyClipboard();
+			SetClipboardData(CF_TEXT, hGlobal);
+			CloseClipboard();
 			return 0;
 
 		case MENU_MV_EDIT_PASTE:
 
 			OpenClipboard(hwnd);
 			hGlobal = GetClipboardData(CF_TEXT);
-			if(hGlobal == NULL){
+			if (hGlobal == NULL) {
 				CloseClipboard();
 				return 0;
 			}
-			pGlobal = (char*)GlobalLock (hGlobal) ; //mbg merge 7/18/06 added cast
+			pGlobal = (char*)GlobalLock(hGlobal); //mbg merge 7/18/06 added cast
 			//for(i = 0;pGlobal[i] != 0;i++){
 			InputData(pGlobal);
 			//}
-			GlobalUnlock (hGlobal);
+			GlobalUnlock(hGlobal);
 			CloseClipboard();
 			return 0;
 
@@ -2036,7 +2047,7 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		case MENU_MV_VIEW_ROM:
 			EditingMode = wParam - MENU_MV_VIEW_RAM;
 			for (i = MODE_NES_MEMORY; i <= MODE_NES_FILE; i++)
-				if(EditingMode == i)
+				if (EditingMode == i)
 				{
 					CheckMenuRadioItem(GetMenu(hMemView), MENU_MV_VIEW_RAM, MENU_MV_VIEW_ROM, MENU_MV_VIEW_RAM + i, MF_BYCOMMAND);
 					break;
@@ -2044,37 +2055,34 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			if (EditingMode == MODE_NES_MEMORY)
 				MaxSize = 0x10000;
 			if (EditingMode == MODE_NES_PPU)
-			{
-				if (GameInfo->type==GIT_NSF) {MaxSize = 0x2000;} //Also disabled under GetMemViewData
-				else {MaxSize = 0x4000;}
-			}
+				MaxSize = 0x4000;
 			if (EditingMode == MODE_NES_OAM)
 				MaxSize = 0x200;
 			if (EditingMode == MODE_NES_FILE)
-				MaxSize = 16+CHRsize[0]+PRGsize[0]; //todo: add trainer size
+				MaxSize = 16 + CHRsize[0] + PRGsize[0]; //todo: add trainer size
 			if (CurOffset >= MaxSize - DataAmount) CurOffset = MaxSize - DataAmount;
 			if (CurOffset < 0) CurOffset = 0;
-			if(CursorEndAddy >= MaxSize) CursorEndAddy = -1;
-			if(CursorStartAddy >= MaxSize) CursorStartAddy= MaxSize-1;
+			if (CursorEndAddy >= MaxSize) CursorEndAddy = -1;
+			if (CursorStartAddy >= MaxSize) CursorStartAddy = MaxSize - 1;
 
 			//Set vertical scroll bar range and page size
 			ZeroMemory(&si, sizeof(SCROLLINFO));
-			si.cbSize = sizeof (si) ;
-			si.fMask  = (SIF_RANGE|SIF_PAGE) ;
-			si.nMin   = 0 ;
-			si.nMax   = MaxSize/16 ;
-			si.nPage  = ClientHeight/MemFontHeight;
-			SetScrollInfo (hwnd, SB_VERT, &si, TRUE);
+			si.cbSize = sizeof(si);
+			si.fMask = (SIF_RANGE | SIF_PAGE);
+			si.nMin = 0;
+			si.nMax = MaxSize / 16;
+			si.nPage = ClientHeight / MemFontHeight;
+			SetScrollInfo(hwnd, SB_VERT, &si, TRUE);
 
 			resetHighlightingActivityLog();
 			UpdateColorTable();
 			UpdateCaption();
 			return 0;
-		
+
 		case ID_HIGHLIGHTING_HIGHLIGHT_ACTIVITY:
 		{
 			MemView_HighlightActivity ^= 1;
-			CheckMenuItem(GetMenu(hMemView), ID_HIGHLIGHTING_HIGHLIGHT_ACTIVITY, (MemView_HighlightActivity) ? MF_CHECKED: MF_UNCHECKED);
+			CheckMenuItem(GetMenu(hMemView), ID_HIGHLIGHTING_HIGHLIGHT_ACTIVITY, (MemView_HighlightActivity) ? MF_CHECKED : MF_UNCHECKED);
 			resetHighlightingActivityLog();
 			if (!MemView_HighlightActivity)
 				UpdateMemoryView(1);
@@ -2101,7 +2109,7 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		case ID_HIGHLIGHTING_FADEWHENPAUSED:
 		{
 			MemView_HighlightActivity_FadeWhenPaused ^= 1;
-			CheckMenuItem(GetMenu(hMemView), ID_HIGHLIGHTING_FADEWHENPAUSED, (MemView_HighlightActivity_FadeWhenPaused) ? MF_CHECKED: MF_UNCHECKED);
+			CheckMenuItem(GetMenu(hMemView), ID_HIGHLIGHTING_FADEWHENPAUSED, (MemView_HighlightActivity_FadeWhenPaused) ? MF_CHECKED : MF_UNCHECKED);
 			resetHighlightingActivityLog();
 			return 0;
 		}
@@ -2129,7 +2137,7 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 
 				if (newValue != -1)
 				{
-					ChangeMemViewFocus(hexBookmarks[bookmark].editmode,newValue,-1);
+					ChangeMemViewFocus(hexBookmarks[bookmark].editmode, newValue, -1);
 					UpdateColorTable();
 				}
 				return 0;
@@ -2138,17 +2146,17 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 
 	case WM_MOVE: {
 		if (!IsIconic(hwnd)) {
-		RECT wrect;
-		GetWindowRect(hwnd,&wrect);
-		MemView_wndx = wrect.left;
-		MemView_wndy = wrect.top;
+			RECT wrect;
+			GetWindowRect(hwnd, &wrect);
+			MemView_wndx = wrect.left;
+			MemView_wndy = wrect.top;
 
-		#ifdef WIN32
-		WindowBoundsCheckResize(MemView_wndx,MemView_wndy,MemViewSizeX,wrect.right);
-		#endif
+#ifdef WIN32
+			WindowBoundsCheckResize(MemView_wndx, MemView_wndy, MemViewSizeX, wrect.right);
+#endif
 		}
 		return 0;
-				  }
+	}
 
 	case WM_CLOSE:
 		KillMemView();
@@ -2158,51 +2166,48 @@ LRESULT CALLBACK MemViewCallB(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		//hMemView = 0;
 		return 0;
 	}
-	return DefWindowProc (hwnd, message, wParam, lParam) ;
+	return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
 
 
 void DoMemView()
 {
-	WNDCLASSEX     wndclass ;
+	WNDCLASSEX     wndclass;
 	//static RECT al;
 
 	if (!GameInfo) {
 		FCEUD_PrintError("You must have a game loaded before you can use the Hex Editor.");
 		return;
 	}
-	//if (GameInfo->type==GIT_NSF) {
-	//	FCEUD_PrintError("Sorry, you can't yet use the Memory Viewer with NSFs.");
-	//	return;
-	//}
 
 	if (!hMemView)
 	{
-		memset(&wndclass,0,sizeof(wndclass));
-		wndclass.cbSize=sizeof(WNDCLASSEX);
-		wndclass.style         = CS_HREDRAW | CS_VREDRAW ;
-		wndclass.lpfnWndProc   = MemViewCallB ;
-		wndclass.cbClsExtra    = 0 ;
-		wndclass.cbWndExtra    = 0 ;
-		wndclass.hInstance     = fceu_hInstance;
-		wndclass.hIcon         = LoadIcon(fceu_hInstance, "ICON_1");
-		wndclass.hIconSm       = LoadIcon(fceu_hInstance, "ICON_1");
-		wndclass.hCursor       = LoadCursor (NULL, IDC_ARROW);
-		wndclass.hbrBackground = (HBRUSH) GetStockObject(WHITE_BRUSH);
-		wndclass.lpszMenuName  = "MEMVIEWMENU";
+		memset(&wndclass, 0, sizeof(wndclass));
+		wndclass.cbSize = sizeof(WNDCLASSEX);
+		wndclass.style = CS_HREDRAW | CS_VREDRAW;
+		wndclass.lpfnWndProc = MemViewCallB;
+		wndclass.cbClsExtra = 0;
+		wndclass.cbWndExtra = 0;
+		wndclass.hInstance = fceu_hInstance;
+		wndclass.hIcon = LoadIcon(fceu_hInstance, "ICON_1");
+		wndclass.hIconSm = LoadIcon(fceu_hInstance, "ICON_1");
+		wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wndclass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+		wndclass.lpszMenuName = "MEMVIEWMENU";
 		wndclass.lpszClassName = "MEMVIEW";
 
-		if(!RegisterClassEx(&wndclass)) {FCEUD_PrintError("Error Registering MEMVIEW Window Class."); return;}
+		if (!RegisterClassEx(&wndclass)) { FCEUD_PrintError("Error Registering MEMVIEW Window Class."); return; }
 
-		hMemView = CreateWindowEx(0,"MEMVIEW","Memory Editor",
+		hMemView = CreateWindowEx(0, "MEMVIEW", "Memory Editor",
 			//WS_OVERLAPPEDWINDOW|WS_CLIPSIBLINGS,  /* Style */
-			WS_SYSMENU|WS_MAXIMIZEBOX|WS_MINIMIZEBOX|WS_THICKFRAME|WS_VSCROLL,
-			CW_USEDEFAULT,CW_USEDEFAULT,580,248,  /* X,Y ; Width, Height */
-			NULL,NULL,fceu_hInstance,NULL ); 
-		ShowWindow (hMemView, SW_SHOW) ;
+			WS_SYSMENU | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_THICKFRAME | WS_VSCROLL,
+			CW_USEDEFAULT, CW_USEDEFAULT, 580, 248,  /* X,Y ; Width, Height */
+			NULL, NULL, fceu_hInstance, NULL);
+		ShowWindow(hMemView, SW_SHOW);
 		UpdateCaption();
-	} else
+	}
+	else
 	{
 		//SetWindowPos(hMemView, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE|SWP_NOMOVE|SWP_NOOWNERZORDER);
 		ShowWindow(hMemView, SW_SHOWNORMAL);
@@ -2221,19 +2226,19 @@ void DoMemView()
 
 INT_PTR CALLBACK MemFindCallB(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
-	switch(uMsg) {
+	switch (uMsg) {
 	case WM_INITDIALOG:
-		SetWindowPos(hwndDlg,0,MemFind_wndx,MemFind_wndy,0,0,SWP_NOSIZE|SWP_NOZORDER|SWP_NOOWNERZORDER);
+		SetWindowPos(hwndDlg, 0, MemFind_wndx, MemFind_wndy, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
 
-		if(FindDirectionUp) CheckDlgButton(hwndDlg, IDC_MEMVIEWFIND_DIR_UP, BST_CHECKED);
+		if (FindDirectionUp) CheckDlgButton(hwndDlg, IDC_MEMVIEWFIND_DIR_UP, BST_CHECKED);
 		else CheckDlgButton(hwndDlg, IDC_MEMVIEWFIND_DIR_DOWN, BST_CHECKED);
 
-		if(FindAsText) CheckDlgButton(hwndDlg, IDC_MEMVIEWFIND_TYPE_TEXT, BST_CHECKED);
+		if (FindAsText) CheckDlgButton(hwndDlg, IDC_MEMVIEWFIND_TYPE_TEXT, BST_CHECKED);
 		else CheckDlgButton(hwndDlg, IDC_MEMVIEWFIND_TYPE_HEX, BST_CHECKED);
 
-		if(FindTextBox[0])SetDlgItemText(hwndDlg,IDC_MEMVIEWFIND_WHAT,FindTextBox);
+		if (FindTextBox[0])SetDlgItemText(hwndDlg, IDC_MEMVIEWFIND_WHAT, FindTextBox);
 
-		SendDlgItemMessage(hwndDlg,IDC_MEMVIEWFIND_WHAT,EM_SETLIMITTEXT,59,0);
+		SendDlgItemMessage(hwndDlg, IDC_MEMVIEWFIND_WHAT, EM_SETLIMITTEXT, 59, 0);
 		break;
 	case WM_CREATE:
 
@@ -2242,7 +2247,7 @@ INT_PTR CALLBACK MemFindCallB(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		break;
 	case WM_CLOSE:
 	case WM_QUIT:
-		GetDlgItemText(hwndDlg,IDC_MEMVIEWFIND_WHAT,FindTextBox,60);
+		GetDlgItemText(hwndDlg, IDC_MEMVIEWFIND_WHAT, FindTextBox, 60);
 		DestroyWindow(hwndDlg);
 		hMemFind = 0;
 		hwndDlg = 0;
@@ -2251,17 +2256,17 @@ INT_PTR CALLBACK MemFindCallB(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		break;
 	case WM_MOVE: {
 		if (!IsIconic(hwndDlg)) {
-		RECT wrect;
-		GetWindowRect(hwndDlg,&wrect);
-		MemFind_wndx = wrect.left;
-		MemFind_wndy = wrect.top;
-		
-		#ifdef WIN32
-		WindowBoundsCheckNoResize(MemFind_wndx,MemFind_wndy,wrect.right);
-		#endif
+			RECT wrect;
+			GetWindowRect(hwndDlg, &wrect);
+			MemFind_wndx = wrect.left;
+			MemFind_wndy = wrect.top;
+
+#ifdef WIN32
+			WindowBoundsCheckNoResize(MemFind_wndx, MemFind_wndy, wrect.right);
+#endif
 		}
 		break;
-				  }
+	}
 	case WM_RBUTTONDBLCLK:
 	case WM_RBUTTONDOWN:
 		break;
@@ -2269,117 +2274,120 @@ INT_PTR CALLBACK MemFindCallB(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		break;
 
 	case WM_COMMAND:
-		switch(HIWORD(wParam)) {
-	case BN_CLICKED:
-		switch(LOWORD(wParam)) {
-	case IDC_MEMVIEWFIND_TYPE_HEX :
-		FindAsText=0;
-		break;
-	case IDC_MEMVIEWFIND_TYPE_TEXT :
-		FindAsText=1;
-		break;
+		switch (HIWORD(wParam)) {
+		case BN_CLICKED:
+			switch (LOWORD(wParam)) {
+			case IDC_MEMVIEWFIND_TYPE_HEX:
+				FindAsText = 0;
+				break;
+			case IDC_MEMVIEWFIND_TYPE_TEXT:
+				FindAsText = 1;
+				break;
 
-	case IDC_MEMVIEWFIND_DIR_UP :
-		FindDirectionUp = 1;
-		break;
-	case IDC_MEMVIEWFIND_DIR_DOWN :
-		FindDirectionUp = 0;
-		break;
-	case IDC_MEMVIEWFIND_NEXT :
-		FindNext();
-		break;
-		}
-		break;
+			case IDC_MEMVIEWFIND_DIR_UP:
+				FindDirectionUp = 1;
+				break;
+			case IDC_MEMVIEWFIND_DIR_DOWN:
+				FindDirectionUp = 0;
+				break;
+			case IDC_MEMVIEWFIND_NEXT:
+				FindNext();
+				break;
+			}
+			break;
 		}
 		break;
 	case WM_HSCROLL:
 		break;
-		}
+	}
 	return FALSE;
 }
-void FindNext(){
+void FindNext() {
 	char str[60];
 	unsigned char data[60];
 	int datasize = 0, i, j, inputc = -1, found;
 
-	if(hMemFind) GetDlgItemText(hMemFind,IDC_MEMVIEWFIND_WHAT,str,60);
-	else strcpy(str,FindTextBox);
+	if (hMemFind) GetDlgItemText(hMemFind, IDC_MEMVIEWFIND_WHAT, str, 60);
+	else strcpy(str, FindTextBox);
 
-	for(i = 0;str[i] != 0;i++){
-		if(!FindAsText){
-			if(inputc == -1){
-				if((str[i] >= 'a') && (str[i] <= 'f')) inputc = str[i]-('a'-0xA);
-				if((str[i] >= 'A') && (str[i] <= 'F')) inputc = str[i]-('A'-0xA);
-				if((str[i] >= '0') && (str[i] <= '9')) inputc = str[i]-'0';
-			} else {
-				if((str[i] >= 'a') && (str[i] <= 'f')) inputc = (inputc<<4)|(str[i]-('a'-0xA));
-				if((str[i] >= 'A') && (str[i] <= 'F')) inputc = (inputc<<4)|(str[i]-('A'-0xA));
-				if((str[i] >= '0') && (str[i] <= '9')) inputc = (inputc<<4)|(str[i]-'0');
+	for (i = 0; str[i] != 0; i++) {
+		if (!FindAsText) {
+			if (inputc == -1) {
+				if ((str[i] >= 'a') && (str[i] <= 'f')) inputc = str[i] - ('a' - 0xA);
+				if ((str[i] >= 'A') && (str[i] <= 'F')) inputc = str[i] - ('A' - 0xA);
+				if ((str[i] >= '0') && (str[i] <= '9')) inputc = str[i] - '0';
+			}
+			else {
+				if ((str[i] >= 'a') && (str[i] <= 'f')) inputc = (inputc << 4) | (str[i] - ('a' - 0xA));
+				if ((str[i] >= 'A') && (str[i] <= 'F')) inputc = (inputc << 4) | (str[i] - ('A' - 0xA));
+				if ((str[i] >= '0') && (str[i] <= '9')) inputc = (inputc << 4) | (str[i] - '0');
 
-				if(((str[i] >= 'a') && (str[i] <= 'f')) ||
+				if (((str[i] >= 'a') && (str[i] <= 'f')) ||
 					((str[i] >= 'A') && (str[i] <= 'F')) ||
-					((str[i] >= '0') && (str[i] <= '9'))){
-						data[datasize++] = inputc;
-						inputc = -1;
+					((str[i] >= '0') && (str[i] <= '9'))) {
+					data[datasize++] = inputc;
+					inputc = -1;
 				}
 			}
-		} else {
-			for(j = 0;j < 256;j++)if(chartable[j] == str[i])break;
-			if(j == 256)continue;
+		}
+		else {
+			for (j = 0; j < 256; j++)if (chartable[j] == str[i])break;
+			if (j == 256)continue;
 			data[datasize++] = j;
 		}
 	}
 
-	if(datasize < 1){
-		MessageBox(hMemView,"Invalid String","Error", MB_OK);
+	if (datasize < 1) {
+		MessageBox(hMemView, "Invalid String", "Error", MB_OK);
 		return;
 	}
-	if(!FindDirectionUp){
-		for(i = CursorStartAddy+1;i+datasize <= MaxSize;i++){
+	if (!FindDirectionUp) {
+		for (i = CursorStartAddy + 1; i + datasize <= MaxSize; i++) {
 			found = 1;
-			for(j = 0;j < datasize;j++){
-				if(GetMemViewData(i+j) != data[j])found = 0;
+			for (j = 0; j < datasize; j++) {
+				if (GetMemViewData(i + j) != data[j])found = 0;
 			}
-			if(found == 1){
-				ChangeMemViewFocus(EditingMode,i, i+datasize-1);
+			if (found == 1) {
+				ChangeMemViewFocus(EditingMode, i, i + datasize - 1);
 				return;
 			}
 		}
-		for(i = 0;i < CursorStartAddy;i++){
+		for (i = 0; i < CursorStartAddy; i++) {
 			found = 1;
-			for(j = 0;j < datasize;j++){
-				if(GetMemViewData(i+j) != data[j])found = 0;
+			for (j = 0; j < datasize; j++) {
+				if (GetMemViewData(i + j) != data[j])found = 0;
 			}
-			if(found == 1){
-				ChangeMemViewFocus(EditingMode,i, i+datasize-1);
+			if (found == 1) {
+				ChangeMemViewFocus(EditingMode, i, i + datasize - 1);
 				return;
 			}
 		}
-	} else { //FindDirection is up
-		for(i = CursorStartAddy-1;i >= 0;i--){
+	}
+	else { //FindDirection is up
+		for (i = CursorStartAddy - 1; i >= 0; i--) {
 			found = 1;
-			for(j = 0;j < datasize;j++){
-				if(GetMemViewData(i+j) != data[j])found = 0;
+			for (j = 0; j < datasize; j++) {
+				if (GetMemViewData(i + j) != data[j])found = 0;
 			}
-			if(found == 1){
-				ChangeMemViewFocus(EditingMode,i, i+datasize-1);
+			if (found == 1) {
+				ChangeMemViewFocus(EditingMode, i, i + datasize - 1);
 				return;
 			}
 		}
-		for(i = MaxSize-datasize;i > CursorStartAddy;i--){
+		for (i = MaxSize - datasize; i > CursorStartAddy; i--) {
 			found = 1;
-			for(j = 0;j < datasize;j++){
-				if(GetMemViewData(i+j) != data[j])found = 0;
+			for (j = 0; j < datasize; j++) {
+				if (GetMemViewData(i + j) != data[j])found = 0;
 			}
-			if(found == 1){
-				ChangeMemViewFocus(EditingMode,i, i+datasize-1);
+			if (found == 1) {
+				ChangeMemViewFocus(EditingMode, i, i + datasize - 1);
 				return;
 			}
 		}
 	}
 
 
-	MessageBox(hMemView,"String Not Found","Error", MB_OK);
+	MessageBox(hMemView, "String Not Found", "Error", MB_OK);
 	return;
 }
 
@@ -2392,7 +2400,7 @@ void OpenFindDialog()
 		// set focus to the text field
 		SendMessage(hMemFind, WM_NEXTDLGCTL, (WPARAM)GetDlgItem(hMemFind, IDC_MEMVIEWFIND_WHAT), true);
 	else
-		hMemFind = CreateDialog(fceu_hInstance,"MEMVIEWFIND",hMemView,MemFindCallB);
+		hMemFind = CreateDialog(fceu_hInstance, "MEMVIEWFIND", hMemView, MemFindCallB);
 	return;
 }
 
@@ -2409,7 +2417,7 @@ void PalettePoke(uint32 addr, uint8 data)
 		}
 		else
 		{
-			UPALRAM[addr-1] = UPALRAM[0x10|(addr-1)] = data;
+			UPALRAM[addr - 1] = UPALRAM[0x10 | (addr - 1)] = data;
 		}
 	}
 	else

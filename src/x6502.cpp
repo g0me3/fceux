@@ -33,7 +33,7 @@
 X6502 X;
 uint32 timestamp;
 uint32 soundtimestamp;
-void (*MapIRQHook)(int a);
+void(*MapIRQHook)(int a);
 
 #define ADDCYC(x) \
 {                 \
@@ -47,46 +47,46 @@ void (*MapIRQHook)(int a);
 //normal memory read
 static INLINE uint8 RdMem(unsigned int A)
 {
- return(_DB=ARead[A](A));
+	return(_DB = ARead[A](A));
 }
 
 //normal memory write
 static INLINE void WrMem(unsigned int A, uint8 V)
 {
-	BWrite[A](A,V);
-	#ifdef _S9XLUA_H
+	BWrite[A](A, V);
+#ifdef _S9XLUA_H
 	CallRegisteredLuaMemHook(A, 1, V, LUAMEMHOOK_WRITE);
-	#endif
+#endif
 }
 
 static INLINE uint8 RdRAM(unsigned int A)
 {
-  //bbit edited: this was changed so cheat substituion would work
-  return(_DB=ARead[A](A));
-  // return(_DB=RAM[A]);
+	//bbit edited: this was changed so cheat substituion would work
+	return(_DB = ARead[A](A));
+	// return(_DB=RAM[A]);
 }
 
 static INLINE void WrRAM(unsigned int A, uint8 V)
 {
-	RAM[A]=V;
-	#ifdef _S9XLUA_H
+	RAM[A] = V;
+#ifdef _S9XLUA_H
 	CallRegisteredLuaMemHook(A, 1, V, LUAMEMHOOK_WRITE);
-	#endif
+#endif
 }
 
 uint8 X6502_DMR(uint32 A)
 {
- ADDCYC(1);
- return(X.DB=ARead[A](A));
+	ADDCYC(1);
+	return(X.DB = ARead[A](A));
 }
 
 void X6502_DMW(uint32 A, uint8 V)
 {
- ADDCYC(1);
- BWrite[A](A,V);
- #ifdef _S9XLUA_H
- CallRegisteredLuaMemHook(A, 1, V, LUAMEMHOOK_WRITE);
- #endif
+	ADDCYC(1);
+	BWrite[A](A, V);
+#ifdef _S9XLUA_H
+	CallRegisteredLuaMemHook(A, 1, V, LUAMEMHOOK_WRITE);
+#endif
 }
 
 #define PUSH(V) \
@@ -127,7 +127,7 @@ static uint8 ZNTable[256];
 #define LDX     _X=x;X_ZN(_X)
 #define LDY  _Y=x;X_ZN(_Y)
 
-/*  All of the freaky arithmetic operations. */
+   /*  All of the freaky arithmetic operations. */
 #define AND  _A&=x;X_ZN(_A)
 #define BIT  _P&=~(Z_FLAG|V_FLAG|N_FLAG);_P|=ZNTable[x&_A]&Z_FLAG;_P|=x&(V_FLAG|N_FLAG)
 #define EOR  _A^=x;X_ZN(_A)
@@ -337,47 +337,47 @@ static uint8 ZNTable[256];
 
 static uint8 CycTable[256] =
 {
-/*0x00*/ 7,6,2,8,3,3,5,5,3,2,2,2,4,4,6,6,
-/*0x10*/ 2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7,
-/*0x20*/ 6,6,2,8,3,3,5,5,4,2,2,2,4,4,6,6,
-/*0x30*/ 2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7,
-/*0x40*/ 6,6,2,8,3,3,5,5,3,2,2,2,3,4,6,6,
-/*0x50*/ 2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7,
-/*0x60*/ 6,6,2,8,3,3,5,5,4,2,2,2,5,4,6,6,
-/*0x70*/ 2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7,
-/*0x80*/ 2,6,2,6,3,3,3,3,2,2,2,2,4,4,4,4,
-/*0x90*/ 2,6,2,6,4,4,4,4,2,5,2,5,5,5,5,5,
-/*0xA0*/ 2,6,2,6,3,3,3,3,2,2,2,2,4,4,4,4,
-/*0xB0*/ 2,5,2,5,4,4,4,4,2,4,2,4,4,4,4,4,
-/*0xC0*/ 2,6,2,8,3,3,5,5,2,2,2,2,4,4,6,6,
-/*0xD0*/ 2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7,
-/*0xE0*/ 2,6,3,8,3,3,5,5,2,2,2,2,4,4,6,6,
-/*0xF0*/ 2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7,
+	/*0x00*/ 7,6,2,8,3,3,5,5,3,2,2,2,4,4,6,6,
+	/*0x10*/ 2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7,
+	/*0x20*/ 6,6,2,8,3,3,5,5,4,2,2,2,4,4,6,6,
+	/*0x30*/ 2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7,
+	/*0x40*/ 6,6,2,8,3,3,5,5,3,2,2,2,3,4,6,6,
+	/*0x50*/ 2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7,
+	/*0x60*/ 6,6,2,8,3,3,5,5,4,2,2,2,5,4,6,6,
+	/*0x70*/ 2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7,
+	/*0x80*/ 2,6,2,6,3,3,3,3,2,2,2,2,4,4,4,4,
+	/*0x90*/ 2,6,2,6,4,4,4,4,2,5,2,5,5,5,5,5,
+	/*0xA0*/ 2,6,2,6,3,3,3,3,2,2,2,2,4,4,4,4,
+	/*0xB0*/ 2,5,2,5,4,4,4,4,2,4,2,4,4,4,4,4,
+	/*0xC0*/ 2,6,2,8,3,3,5,5,2,2,2,2,4,4,6,6,
+	/*0xD0*/ 2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7,
+	/*0xE0*/ 2,6,3,8,3,3,5,5,2,2,2,2,4,4,6,6,
+	/*0xF0*/ 2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7,
 };
 
 void X6502_IRQBegin(int w)
 {
- _IRQlow|=w;
+	_IRQlow |= w;
 }
 
 void X6502_IRQEnd(int w)
 {
- _IRQlow&=~w;
+	_IRQlow &= ~w;
 }
 
 void TriggerNMI(void)
 {
- _IRQlow|=FCEU_IQNMI;
+	_IRQlow |= FCEU_IQNMI;
 }
 
 void TriggerNMI2(void)
 {
- _IRQlow|=FCEU_IQNMI2;
+	_IRQlow |= FCEU_IQNMI2;
 }
 
 void X6502_Reset(void)
 {
- _IRQlow=FCEU_IQRESET;
+	_IRQlow = FCEU_IQRESET;
 }
 /**
 * Initializes the 6502 CPU
@@ -387,15 +387,15 @@ void X6502_Init(void)
 	unsigned int i;
 
 	// Initialize the CPU structure
-	memset((void *)&X,0,sizeof(X));
+	memset((void *)&X, 0, sizeof(X));
 
-	for(i = 0; i < sizeof(ZNTable); i++)
+	for (i = 0; i < sizeof(ZNTable); i++)
 	{
-		if(!i)
+		if (!i)
 		{
 			ZNTable[i] = Z_FLAG;
 		}
-		else if ( i & 0x80 )
+		else if (i & 0x80)
 		{
 			ZNTable[i] = N_FLAG;
 		}
@@ -409,156 +409,156 @@ void X6502_Init(void)
 extern int StackAddrBackup;
 void X6502_Power(void)
 {
- _count=_tcount=_IRQlow=_PC=_A=_X=_Y=_P=_PI=_DB=_jammed=0;
- _S=0xFD;
- timestamp=soundtimestamp=0;
- X6502_Reset();
- StackAddrBackup = -1;
+	_count = _tcount = _IRQlow = _PC = _A = _X = _Y = _P = _PI = _DB = _jammed = 0;
+	_S = 0xFD;
+	timestamp = soundtimestamp = 0;
+	X6502_Reset();
+	StackAddrBackup = -1;
 }
 
 void X6502_Run(int32 cycles)
 {
-  if(PAL)
-   cycles*=15;    // 15*4=60
-  else
-   cycles*=16;    // 16*4=64
+	if (PAL)
+		cycles *= 15;    // 15*4=60
+	else
+		cycles *= 16;    // 16*4=64
 
-  _count+=cycles;
-extern int test; test++;
-  while(_count>0)
-  {
-   int32 temp;
-   uint8 b1;
+	_count += cycles;
+	extern int test; test++;
+	while (_count > 0)
+	{
+		int32 temp;
+		uint8 b1;
 
-   if(_IRQlow)
-   {
-    if(_IRQlow&FCEU_IQRESET)
-    {
-	 DEBUG( if(debug_loggingCD) LogCDVectors(0xFFFC); )
-     _PC=RdMem(0xFFFC);
-     _PC|=RdMem(0xFFFD)<<8;
-     _jammed=0;
-     _PI=_P=I_FLAG;
-     _IRQlow&=~FCEU_IQRESET;
-    }
-    else if(_IRQlow&FCEU_IQNMI2)
-     {
-     _IRQlow&=~FCEU_IQNMI2;
-     _IRQlow|=FCEU_IQNMI;
-    }
-    else if(_IRQlow&FCEU_IQNMI)
-    {
-     if(!_jammed)
-     {
-      ADDCYC(7);
-      PUSH(_PC>>8);
-      PUSH(_PC);
-      PUSH((_P&~B_FLAG)|(U_FLAG));
-      _P|=I_FLAG;
-	  DEBUG( if(debug_loggingCD) LogCDVectors(0xFFFA) );
-      _PC=RdMem(0xFFFA);
-      _PC|=RdMem(0xFFFB)<<8;
-      _IRQlow&=~FCEU_IQNMI;
-     }
-    }
-    else
-    {
-     if(!(_PI&I_FLAG) && !_jammed)
-     {
-      ADDCYC(7);
-      PUSH(_PC>>8);
-      PUSH(_PC);
-      PUSH((_P&~B_FLAG)|(U_FLAG));
-      _P|=I_FLAG;
-	  DEBUG( if(debug_loggingCD) LogCDVectors(0xFFFE) );
-      _PC=RdMem(0xFFFE);
-      _PC|=RdMem(0xFFFF)<<8;
-     }
-    }
-    _IRQlow&=~(FCEU_IQTEMP);
-    if(_count<=0)
-    {
-     _PI=_P;
-     return;
-     } //Should increase accuracy without a
-              //major speed hit.
-   }
+		if (_IRQlow)
+		{
+			if (_IRQlow&FCEU_IQRESET)
+			{
+				DEBUG(if (debug_loggingCD) LogCDVectors(0xFFFC); )
+					_PC = RdMem(0xFFFC);
+				_PC |= RdMem(0xFFFD) << 8;
+				_jammed = 0;
+				_PI = _P = I_FLAG;
+				_IRQlow &= ~FCEU_IQRESET;
+			}
+			else if (_IRQlow&FCEU_IQNMI2)
+			{
+				_IRQlow &= ~FCEU_IQNMI2;
+				_IRQlow |= FCEU_IQNMI;
+			}
+			else if (_IRQlow&FCEU_IQNMI)
+			{
+				if (!_jammed)
+				{
+					ADDCYC(7);
+					PUSH(_PC >> 8);
+					PUSH(_PC);
+					PUSH((_P&~B_FLAG) | (U_FLAG));
+					_P |= I_FLAG;
+					DEBUG(if (debug_loggingCD) LogCDVectors(0xFFFA));
+					_PC = RdMem(0xFFFA);
+					_PC |= RdMem(0xFFFB) << 8;
+					_IRQlow &= ~FCEU_IQNMI;
+				}
+			}
+			else
+			{
+				if (!(_PI&I_FLAG) && !_jammed)
+				{
+					ADDCYC(7);
+					PUSH(_PC >> 8);
+					PUSH(_PC);
+					PUSH((_P&~B_FLAG) | (U_FLAG));
+					_P |= I_FLAG;
+					DEBUG(if (debug_loggingCD) LogCDVectors(0xFFFE));
+					_PC = RdMem(0xFFFE);
+					_PC |= RdMem(0xFFFF) << 8;
+				}
+			}
+			_IRQlow &= ~(FCEU_IQTEMP);
+			if (_count <= 0)
+			{
+				_PI = _P;
+				return;
+			} //Should increase accuracy without a
+					 //major speed hit.
+		}
 
-	//will probably cause a major speed decrease on low-end systems
-   DEBUG( DebugCycle() );
+		//will probably cause a major speed decrease on low-end systems
+		DEBUG(DebugCycle());
 
-   IncrementInstructionsCounters();
+		IncrementInstructionsCounters();
 
-   _PI=_P;
-   b1=RdMem(_PC);
+		_PI = _P;
+		b1 = RdMem(_PC);
 
-   ADDCYC(CycTable[b1]);
+		ADDCYC(CycTable[b1]);
 
-   temp=_tcount;
-   _tcount=0;
-   if(MapIRQHook) MapIRQHook(temp);
-   
-   if (!overclocking)
-    FCEU_SoundCPUHook(temp);
-   #ifdef _S9XLUA_H
-   CallRegisteredLuaMemHook(_PC, 1, 0, LUAMEMHOOK_EXEC);
-   #endif
-   _PC++;
-   switch(b1)
-   {
-    #include "ops.inc"
-   }
-  }
+		temp = _tcount;
+		_tcount = 0;
+		if (MapIRQHook) MapIRQHook(temp);
+
+		if (!overclocking)
+			FCEU_SoundCPUHook(temp);
+#ifdef _S9XLUA_H
+		CallRegisteredLuaMemHook(_PC, 1, 0, LUAMEMHOOK_EXEC);
+#endif
+		_PC++;
+		switch (b1)
+		{
+#include "ops.inc"
+		}
+	}
 }
 
 //--------------------------
 //---Called from debuggers
 void FCEUI_NMI(void)
 {
- _IRQlow|=FCEU_IQNMI;
+	_IRQlow |= FCEU_IQNMI;
 }
 
 void FCEUI_IRQ(void)
 {
- _IRQlow|=FCEU_IQTEMP;
+	_IRQlow |= FCEU_IQTEMP;
 }
 
 void FCEUI_GetIVectors(uint16 *reset, uint16 *irq, uint16 *nmi)
 {
- fceuindbg=1;
+	fceuindbg = 1;
 
- *reset=RdMem(0xFFFC);
- *reset|=RdMem(0xFFFD)<<8;
- *nmi=RdMem(0xFFFA);
- *nmi|=RdMem(0xFFFB)<<8;
- *irq=RdMem(0xFFFE);
- *irq|=RdMem(0xFFFF)<<8;
- fceuindbg=0;
+	*reset = RdMem(0xFFFC);
+	*reset |= RdMem(0xFFFD) << 8;
+	*nmi = RdMem(0xFFFA);
+	*nmi |= RdMem(0xFFFB) << 8;
+	*irq = RdMem(0xFFFE);
+	*irq |= RdMem(0xFFFF) << 8;
+	fceuindbg = 0;
 }
 
 //the opsize table is used to quickly grab the instruction sizes (in bytes)
 const uint8 opsize[256] = {
 #ifdef BRK_3BYTE_HACK
-/*0x00*/	3, //BRK
-#else
-/*0x00*/	1, //BRK
-#endif
-/*0x01*/      2,0,0,0,2,2,0,1,2,1,0,0,3,3,0,
-/*0x10*/	2,2,0,0,0,2,2,0,1,3,0,0,0,3,3,0,
-/*0x20*/	3,2,0,0,2,2,2,0,1,2,1,0,3,3,3,0,
-/*0x30*/	2,2,0,0,0,2,2,0,1,3,0,0,0,3,3,0,
-/*0x40*/	1,2,0,0,0,2,2,0,1,2,1,0,3,3,3,0,
-/*0x50*/	2,2,0,0,0,2,2,0,1,3,0,0,0,3,3,0,
-/*0x60*/	1,2,0,0,0,2,2,0,1,2,1,0,3,3,3,0,
-/*0x70*/	2,2,0,0,0,2,2,0,1,3,0,0,0,3,3,0,
-/*0x80*/	0,2,0,0,2,2,2,0,1,0,1,0,3,3,3,0,
-/*0x90*/	2,2,0,0,2,2,2,0,1,3,1,0,0,3,0,0,
-/*0xA0*/	2,2,2,0,2,2,2,0,1,2,1,0,3,3,3,0,
-/*0xB0*/	2,2,0,0,2,2,2,0,1,3,1,0,3,3,3,0,
-/*0xC0*/	2,2,0,0,2,2,2,0,1,2,1,0,3,3,3,0,
-/*0xD0*/	2,2,0,0,0,2,2,0,1,3,0,0,0,3,3,0,
-/*0xE0*/	2,2,0,0,2,2,2,0,1,2,1,0,3,3,3,0,
-/*0xF0*/	2,2,0,0,0,2,2,0,1,3,0,0,0,3,3,0
+	/*0x00*/	3, //BRK
+	#else
+	/*0x00*/	1, //BRK
+	#endif
+	/*0x01*/      2,0,0,0,2,2,0,1,2,1,0,0,3,3,0,
+	/*0x10*/	2,2,0,0,0,2,2,0,1,3,0,0,0,3,3,0,
+	/*0x20*/	3,2,0,0,2,2,2,0,1,2,1,0,3,3,3,0,
+	/*0x30*/	2,2,0,0,0,2,2,0,1,3,0,0,0,3,3,0,
+	/*0x40*/	1,2,0,0,0,2,2,0,1,2,1,0,3,3,3,0,
+	/*0x50*/	2,2,0,0,0,2,2,0,1,3,0,0,0,3,3,0,
+	/*0x60*/	1,2,0,0,0,2,2,0,1,2,1,0,3,3,3,0,
+	/*0x70*/	2,2,0,0,0,2,2,0,1,3,0,0,0,3,3,0,
+	/*0x80*/	0,2,0,0,2,2,2,0,1,0,1,0,3,3,3,0,
+	/*0x90*/	2,2,0,0,2,2,2,0,1,3,1,0,0,3,0,0,
+	/*0xA0*/	2,2,2,0,2,2,2,0,1,2,1,0,3,3,3,0,
+	/*0xB0*/	2,2,0,0,2,2,2,0,1,3,1,0,3,3,3,0,
+	/*0xC0*/	2,2,0,0,2,2,2,0,1,2,1,0,3,3,3,0,
+	/*0xD0*/	2,2,0,0,0,2,2,0,1,3,0,0,0,3,3,0,
+	/*0xE0*/	2,2,0,0,2,2,2,0,1,2,1,0,3,3,3,0,
+	/*0xF0*/	2,2,0,0,0,2,2,0,1,3,0,0,0,3,3,0
 };
 
 
@@ -575,22 +575,22 @@ const uint8 opsize[256] = {
 //  8 = Zero Page,Y
 //
 const uint8 optype[256] = {
-/*0x00*/	0,1,0,1,2,2,2,2,0,0,0,0,3,3,3,3,
-/*0x10*/	0,4,0,3,5,5,5,5,0,6,0,6,7,7,7,7,
-/*0x20*/	0,1,0,1,2,2,2,2,0,0,0,0,3,3,3,3,
-/*0x30*/	0,4,0,3,5,5,5,5,0,6,0,6,7,7,7,7,
-/*0x40*/	0,1,0,1,2,2,2,2,0,0,0,0,3,3,3,3,
-/*0x50*/	0,4,0,3,5,5,5,5,0,6,0,6,7,7,7,7,
-/*0x60*/	0,1,0,1,2,2,2,2,0,0,0,0,3,3,3,3,
-/*0x70*/	0,4,0,3,5,5,5,5,0,6,0,6,7,7,7,7,
-/*0x80*/	0,1,0,1,2,2,2,2,0,0,0,0,3,3,3,3,
-/*0x90*/	0,4,0,3,5,5,8,8,0,6,0,6,7,7,6,6,
-/*0xA0*/	0,1,0,1,2,2,2,2,0,0,0,0,3,3,3,3,
-/*0xB0*/	0,4,0,3,5,5,8,8,0,6,0,6,7,7,6,6,
-/*0xC0*/	0,1,0,1,2,2,2,2,0,0,0,0,3,3,3,3,
-/*0xD0*/	0,4,0,3,5,5,5,5,0,6,0,6,7,7,7,7,
-/*0xE0*/	0,1,0,1,2,2,2,2,0,0,0,0,3,3,3,3,
-/*0xF0*/	0,4,0,3,5,5,5,5,0,6,0,6,7,7,7,7,
+	/*0x00*/	0,1,0,1,2,2,2,2,0,0,0,0,3,3,3,3,
+	/*0x10*/	0,4,0,3,5,5,5,5,0,6,0,6,7,7,7,7,
+	/*0x20*/	0,1,0,1,2,2,2,2,0,0,0,0,3,3,3,3,
+	/*0x30*/	0,4,0,3,5,5,5,5,0,6,0,6,7,7,7,7,
+	/*0x40*/	0,1,0,1,2,2,2,2,0,0,0,0,3,3,3,3,
+	/*0x50*/	0,4,0,3,5,5,5,5,0,6,0,6,7,7,7,7,
+	/*0x60*/	0,1,0,1,2,2,2,2,0,0,0,0,3,3,3,3,
+	/*0x70*/	0,4,0,3,5,5,5,5,0,6,0,6,7,7,7,7,
+	/*0x80*/	0,1,0,1,2,2,2,2,0,0,0,0,3,3,3,3,
+	/*0x90*/	0,4,0,3,5,5,8,8,0,6,0,6,7,7,6,6,
+	/*0xA0*/	0,1,0,1,2,2,2,2,0,0,0,0,3,3,3,3,
+	/*0xB0*/	0,4,0,3,5,5,8,8,0,6,0,6,7,7,6,6,
+	/*0xC0*/	0,1,0,1,2,2,2,2,0,0,0,0,3,3,3,3,
+	/*0xD0*/	0,4,0,3,5,5,5,5,0,6,0,6,7,7,7,7,
+	/*0xE0*/	0,1,0,1,2,2,2,2,0,0,0,0,3,3,3,3,
+	/*0xF0*/	0,4,0,3,5,5,5,5,0,6,0,6,7,7,7,7,
 };
 
 // the opwrite table aids in predicting the value written for any 6502 opcode
@@ -613,20 +613,20 @@ const uint8 optype[256] = {
 // 15 = (TAS)
 
 const uint8 opwrite[256] = {
-/*0x00*/	 0, 0, 0, 5, 0, 0, 5, 5, 4, 0, 0, 0, 0, 0, 5, 5,
-/*0x10*/	 0, 0, 0, 5, 0, 0, 5, 5, 0, 0, 0, 5, 0, 0, 5, 5,
-/*0x20*/	 0, 0, 0, 7, 0, 0, 7, 7, 0, 0, 7, 0, 0, 0, 7, 7,
-/*0x30*/	 0, 0, 0, 7, 0, 0, 7, 7, 0, 0, 0, 7, 0, 0, 7, 7,
-/*0x40*/	 0, 0, 0, 6, 0, 0, 6, 6, 1, 0, 6, 0, 0, 0, 6, 6,
-/*0x50*/	 0, 0, 0, 6, 0, 0, 6, 6, 0, 0, 0, 6, 0, 0, 6, 6,
-/*0x60*/	 0, 0, 0, 8, 0, 0, 8, 8, 0, 0, 8, 0, 0, 0, 8, 8,
-/*0x70*/	 0, 0, 0, 8, 0, 0, 8, 8, 0, 0, 0, 8, 0, 0, 8, 8,
-/*0x80*/	 0, 1, 0,11, 3, 1, 2,11, 0, 0, 0, 0, 3, 1, 2,11,
-/*0x90*/	 0, 1, 0,12, 3, 1, 2,11, 0, 1, 0,15,13, 1,14,12,
-/*0xA0*/	 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-/*0xB0*/	 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-/*0xC0*/	 0, 0, 0,10, 0, 0,10,10, 0, 0, 0, 0, 0, 0,10,10,
-/*0xD0*/	 0, 0, 0,10, 0, 0,10,10, 0, 0, 0,10, 0, 0,10,10,
-/*0xE0*/	 0, 0, 0, 9, 0, 0, 9, 9, 0, 0, 0, 0, 0, 0, 9, 9,
-/*0xF0*/	 0, 0, 0, 9, 0, 0, 9, 9, 0, 0, 0, 9, 0, 0, 9, 9,
+	/*0x00*/	 0, 0, 0, 5, 0, 0, 5, 5, 4, 0, 0, 0, 0, 0, 5, 5,
+	/*0x10*/	 0, 0, 0, 5, 0, 0, 5, 5, 0, 0, 0, 5, 0, 0, 5, 5,
+	/*0x20*/	 0, 0, 0, 7, 0, 0, 7, 7, 0, 0, 7, 0, 0, 0, 7, 7,
+	/*0x30*/	 0, 0, 0, 7, 0, 0, 7, 7, 0, 0, 0, 7, 0, 0, 7, 7,
+	/*0x40*/	 0, 0, 0, 6, 0, 0, 6, 6, 1, 0, 6, 0, 0, 0, 6, 6,
+	/*0x50*/	 0, 0, 0, 6, 0, 0, 6, 6, 0, 0, 0, 6, 0, 0, 6, 6,
+	/*0x60*/	 0, 0, 0, 8, 0, 0, 8, 8, 0, 0, 8, 0, 0, 0, 8, 8,
+	/*0x70*/	 0, 0, 0, 8, 0, 0, 8, 8, 0, 0, 0, 8, 0, 0, 8, 8,
+	/*0x80*/	 0, 1, 0,11, 3, 1, 2,11, 0, 0, 0, 0, 3, 1, 2,11,
+	/*0x90*/	 0, 1, 0,12, 3, 1, 2,11, 0, 1, 0,15,13, 1,14,12,
+	/*0xA0*/	 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	/*0xB0*/	 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	/*0xC0*/	 0, 0, 0,10, 0, 0,10,10, 0, 0, 0, 0, 0, 0,10,10,
+	/*0xD0*/	 0, 0, 0,10, 0, 0,10,10, 0, 0, 0,10, 0, 0,10,10,
+	/*0xE0*/	 0, 0, 0, 9, 0, 0, 9, 9, 0, 0, 0, 0, 0, 0, 9, 9,
+	/*0xF0*/	 0, 0, 0, 9, 0, 0, 9, 9, 0, 0, 0, 9, 0, 0, 9, 9,
 };

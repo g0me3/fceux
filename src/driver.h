@@ -10,9 +10,9 @@
 #include <iosfwd>
 
 FILE *FCEUD_UTF8fopen(const char *fn, const char *mode);
-inline FILE *FCEUD_UTF8fopen(const std::string &n, const char *mode) { return FCEUD_UTF8fopen(n.c_str(),mode); }
+inline FILE *FCEUD_UTF8fopen(const std::string &n, const char *mode) { return FCEUD_UTF8fopen(n.c_str(), mode); }
 EMUFILE_FILE* FCEUD_UTF8_fstream(const char *n, const char *m);
-inline EMUFILE_FILE* FCEUD_UTF8_fstream(const std::string &n, const char *m) { return FCEUD_UTF8_fstream(n.c_str(),m); }
+inline EMUFILE_FILE* FCEUD_UTF8_fstream(const std::string &n, const char *m) { return FCEUD_UTF8_fstream(n.c_str(), m); }
 FCEUFILE* FCEUD_OpenArchiveIndex(ArchiveScanRecord& asr, std::string& fname, int innerIndex);
 FCEUFILE* FCEUD_OpenArchiveIndex(ArchiveScanRecord& asr, std::string& fname, int innerIndex, int* userCancel);
 FCEUFILE* FCEUD_OpenArchive(ArchiveScanRecord& asr, std::string& fname, std::string* innerFilename);
@@ -28,7 +28,7 @@ void FCEU_printf(char *format, ...);
 
 //Video interface
 void FCEUD_SetPalette(uint8 index, uint8 r, uint8 g, uint8 b);
-void FCEUD_GetPalette(uint8 i,uint8 *r, uint8 *g, uint8 *b);
+void FCEUD_GetPalette(uint8 i, uint8 *r, uint8 *g, uint8 *b);
 
 //Displays an error.  Can block or not.
 void FCEUD_PrintError(const char *s);
@@ -157,8 +157,8 @@ int FCEUI_SelectState(int, int);
 extern void FCEUI_SelectStateNext(int);
 
 //"fname" overrides the default save state filename code if non-NULL.
-void FCEUI_SaveState(const char *fname, bool display_message=true);
-void FCEUI_LoadState(const char *fname, bool display_message=true);
+void FCEUI_SaveState(const char *fname, bool display_message = true);
+void FCEUI_LoadState(const char *fname, bool display_message = true);
 
 void FCEUD_SaveStateAs(void);
 void FCEUD_LoadStateFrom(void);
@@ -186,14 +186,14 @@ int FCEUI_ToggleCheat(uint32 which);
 int FCEUI_GlobalToggleCheat(int global_enable);
 
 int32 FCEUI_CheatSearchGetCount(void);
-void FCEUI_CheatSearchGetRange(uint32 first, uint32 last, int (*callb)(uint32 a, uint8 last, uint8 current));
-void FCEUI_CheatSearchGet(int (*callb)(uint32 a, uint8 last, uint8 current, void *data), void *data);
+void FCEUI_CheatSearchGetRange(uint32 first, uint32 last, int(*callb)(uint32 a, uint8 last, uint8 current));
+void FCEUI_CheatSearchGet(int(*callb)(uint32 a, uint8 last, uint8 current, void *data), void *data);
 void FCEUI_CheatSearchBegin(void);
 void FCEUI_CheatSearchEnd(int type, uint8 v1, uint8 v2);
-void FCEUI_ListCheats(int (*callb)(char *name, uint32 a, uint8 v, int compare, int s, int type, void *data), void *data);
+void FCEUI_ListCheats(int(*callb)(char *name, uint32 a, uint8 v, int compare, int s, int type, void *data), void *data);
 
 int FCEUI_GetCheat(uint32 which, char **name, uint32 *a, uint8 *v, int *compare, int *s, int *type);
-int FCEUI_SetCheat(uint32 which, const char *name, int32 a, int32 v, int compare,int s, int type);
+int FCEUI_SetCheat(uint32 which, const char *name, int32 a, int32 v, int compare, int s, int type);
 
 void FCEUI_CheatSearchShowExcluded(void);
 void FCEUI_CheatSearchSetCurrentAsOriginal(void);
@@ -216,21 +216,13 @@ void FCEUI_CheatSearchSetCurrentAsOriginal(void);
 
 void FCEUI_SetDirOverride(int which, char *n);
 
-void FCEUI_MemDump(uint16 a, int32 len, void (*callb)(uint16 a, uint8 v));
-uint8 FCEUI_MemSafePeek(uint16 A);
-void FCEUI_MemPoke(uint16 a, uint8 v, int hl);
 void FCEUI_NMI(void);
 void FCEUI_IRQ(void);
-uint16 FCEUI_Disassemble(void *XA, uint16 a, char *stringo);
 void FCEUI_GetIVectors(uint16 *reset, uint16 *irq, uint16 *nmi);
 
 uint32 FCEUI_CRC32(uint32 crc, uint8 *buf, uint32 len);
 
 void FCEUI_SetLowPass(int q);
-
-void FCEUI_NSFSetVis(int mode);
-int FCEUI_NSFChange(int amount);
-int FCEUI_NSFGetInfo(uint8 *name, uint8 *artist, uint8 *copyright, int maxlen);
 
 void FCEUI_VSUniToggleDIPView(void);
 void FCEUI_VSUniToggleDIP(int w);
@@ -287,7 +279,7 @@ void FCEUI_HandleEmuCommands(TestCommandState* testfn);
 //Emulation speed
 enum EMUSPEED_SET
 {
-	EMUSPEED_SLOWEST=0,
+	EMUSPEED_SLOWEST = 0,
 	EMUSPEED_SLOWER,
 	EMUSPEED_NORMAL,
 	EMUSPEED_FASTER,
@@ -328,7 +320,7 @@ void FCEUD_VideoChanged();
 enum EFCEUI
 {
 	FCEUI_STOPAVI, FCEUI_QUICKSAVE, FCEUI_QUICKLOAD, FCEUI_SAVESTATE, FCEUI_LOADSTATE,
-	FCEUI_NEXTSAVESTATE,FCEUI_PREVIOUSSAVESTATE,FCEUI_VIEWSLOTS,
+	FCEUI_NEXTSAVESTATE, FCEUI_PREVIOUSSAVESTATE, FCEUI_VIEWSLOTS,
 	FCEUI_STOPMOVIE, FCEUI_RECORDMOVIE, FCEUI_PLAYMOVIE,
 	FCEUI_OPENGAME, FCEUI_CLOSEGAME,
 	FCEUI_TASEDITOR,

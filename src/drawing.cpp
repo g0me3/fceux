@@ -106,20 +106,20 @@ static uint8 Font6x7[792] =
 
 void DrawTextLineBG(uint8 *dest)
 {
-	int x,y;
-	static int otable[7]={81,49,30,17,8,3,0};
+	int x, y;
+	static int otable[7] = { 81,49,30,17,8,3,0 };
 	//100,40,15,10,7,5,2};
-	for(y=0;y<14;y++)
+	for (y = 0; y < 14; y++)
 	{
 		int offs;
 
-		if(y>=7) offs=otable[13-y];
-		else offs=otable[y];
+		if (y >= 7) offs = otable[13 - y];
+		else offs = otable[y];
 
-		for(x=offs;x<(256-offs);x++)
+		for (x = offs; x < (256 - offs); x++)
 		{
 			// Choose the dimmest set of colours and then dim that
-			dest[y*256+x]=(dest[y*256+x]&0x0F)|0xC0;
+			dest[y * 256 + x] = (dest[y * 256 + x] & 0x0F) | 0xC0;
 		}
 	}
 }
@@ -127,19 +127,19 @@ void DrawTextLineBG(uint8 *dest)
 
 void DrawMessage(bool beforeMovie)
 {
-	if(guiMessage.howlong)
+	if (guiMessage.howlong)
 	{
 		//don't display movie messages if we're not before the movie
-		if(beforeMovie && !guiMessage.isMovieMessage)
+		if (beforeMovie && !guiMessage.isMovieMessage)
 			return;
 
 		uint8 *t;
 		guiMessage.howlong--;
 
 		if (guiMessage.linesFromBottom > 0)
-			t=XBuf+FCEU_TextScanlineOffsetFromBottom(guiMessage.linesFromBottom)+1;
+			t = XBuf + FCEU_TextScanlineOffsetFromBottom(guiMessage.linesFromBottom) + 1;
 		else
-			t=XBuf+FCEU_TextScanlineOffsetFromBottom(20)+1;
+			t = XBuf + FCEU_TextScanlineOffsetFromBottom(20) + 1;
 
 		/*
 		FCEU palette:
@@ -152,37 +152,37 @@ void DrawMessage(bool beforeMovie)
 
 		*/
 
-		if(t>=XBuf)
+		if (t >= XBuf)
 		{
 			int color = 0x20;
-			if(guiMessage.howlong <= 40) color = 0x3C;
-			if(guiMessage.howlong <= 32) color = 0x31;
-			if(guiMessage.howlong <= 24) color = 0x21;
-			if(guiMessage.howlong <= 16) color = 0x51;
-			if(guiMessage.howlong <=  8) color = 0x41;
-			DrawTextTrans(ClipSidesOffset+t, 256, (uint8 *)guiMessage.errmsg, color+0x80);
+			if (guiMessage.howlong <= 40) color = 0x3C;
+			if (guiMessage.howlong <= 32) color = 0x31;
+			if (guiMessage.howlong <= 24) color = 0x21;
+			if (guiMessage.howlong <= 16) color = 0x51;
+			if (guiMessage.howlong <= 8) color = 0x41;
+			DrawTextTrans(ClipSidesOffset + t, 256, (uint8 *)guiMessage.errmsg, color + 0x80);
 		}
 	}
 
-	if(subtitleMessage.howlong)
+	if (subtitleMessage.howlong)
 	{
 		//don't display movie messages if we're not before the movie
-		if(beforeMovie && !subtitleMessage.isMovieMessage)
+		if (beforeMovie && !subtitleMessage.isMovieMessage)
 			return;
 
 		uint8 *tt;
 		subtitleMessage.howlong--;
-		tt=XBuf+FCEU_TextScanlineOffsetFromBottom(216);
+		tt = XBuf + FCEU_TextScanlineOffsetFromBottom(216);
 
-		if(tt>=XBuf)
+		if (tt >= XBuf)
 		{
 			int color = 0x20;
-			if(subtitleMessage.howlong == 39) color = 0x38;
-			if(subtitleMessage.howlong <= 30) color = 0x2C;
-			if(subtitleMessage.howlong <= 20) color = 0x1C;
-			if(subtitleMessage.howlong <= 10) color = 0x11;
-			if(subtitleMessage.howlong <= 5) color = 0x1;
-			DrawTextTrans(ClipSidesOffset+tt, 256, (uint8 *)subtitleMessage.errmsg, color+0x80);
+			if (subtitleMessage.howlong == 39) color = 0x38;
+			if (subtitleMessage.howlong <= 30) color = 0x2C;
+			if (subtitleMessage.howlong <= 20) color = 0x1C;
+			if (subtitleMessage.howlong <= 10) color = 0x11;
+			if (subtitleMessage.howlong <= 5) color = 0x1;
+			DrawTextTrans(ClipSidesOffset + tt, 256, (uint8 *)subtitleMessage.errmsg, color + 0x80);
 		}
 	}
 }
@@ -213,7 +213,7 @@ static uint8 sstat[2541] =
 
 
 
-static uint8 play_slines[]=
+static uint8 play_slines[] =
 {
 	0, 0, 1,
 	1, 0, 2,
@@ -233,7 +233,7 @@ static uint8 play_slines[]=
 	99,
 };
 
-static uint8 record_slines[]=
+static uint8 record_slines[] =
 {
 	0, 5, 9,
 	1, 3, 11,
@@ -253,7 +253,7 @@ static uint8 record_slines[]=
 	99,
 };
 
-static uint8 pause_slines[]=
+static uint8 pause_slines[] =
 {
 	0, 2, 6,
 	1, 2, 6,
@@ -289,12 +289,12 @@ static uint8 pause_slines[]=
 	99,
 };
 
-static uint8 no_slines[]=
+static uint8 no_slines[] =
 {
 	99
 };
 
-static uint8* sline_icons[4]=
+static uint8* sline_icons[4] =
 {
 	no_slines,
 	play_slines,
@@ -304,50 +304,50 @@ static uint8* sline_icons[4]=
 
 static void drawstatus(uint8* XBuf, int n, int y, int xofs)
 {
-	uint8* slines=sline_icons[n];
+	uint8* slines = sline_icons[n];
 	int i;
 
 
 	XBuf += FCEU_TextScanlineOffsetFromBottom(y) + 240 + 255 + xofs;
-	for(i=0; slines[i]!=99; i+=3)
+	for (i = 0; slines[i] != 99; i += 3)
 	{
-		int y=slines[i];
-		uint8* dest=XBuf+(y*256);
+		int y = slines[i];
+		uint8* dest = XBuf + (y * 256);
 		int x;
-		for(x=slines[i+1]; x!=slines[i+2]; ++x)
-			dest[x]=0;
+		for (x = slines[i + 1]; x != slines[i + 2]; ++x)
+			dest[x] = 0;
 	}
 
 	XBuf -= 255;
-	for(i=0; slines[i]!=99; i+=3)
+	for (i = 0; slines[i] != 99; i += 3)
 	{
-		int y=slines[i];
-		uint8* dest=XBuf+(y*256);
+		int y = slines[i];
+		uint8* dest = XBuf + (y * 256);
 		int x;
-		for(x=slines[i+1]; x!=slines[i+2]; ++x)
-			dest[x]=4;
+		for (x = slines[i + 1]; x != slines[i + 2]; ++x)
+			dest[x] = 4;
 	}
 }
 
 /// this draws the recording icon (play/pause/record)
 void FCEU_DrawRecordingStatus(uint8* XBuf)
 {
-	if(FCEUD_ShowStatusIcon())
+	if (FCEUD_ShowStatusIcon())
 	{
 		bool hasPlayRecIcon = false;
-		if(FCEUMOV_Mode(MOVIEMODE_RECORD))
+		if (FCEUMOV_Mode(MOVIEMODE_RECORD))
 		{
-			drawstatus(XBuf-ClipSidesOffset,2,28,0);
+			drawstatus(XBuf - ClipSidesOffset, 2, 28, 0);
 			hasPlayRecIcon = true;
 		}
-		else if(FCEUMOV_Mode(MOVIEMODE_PLAY|MOVIEMODE_FINISHED))
+		else if (FCEUMOV_Mode(MOVIEMODE_PLAY | MOVIEMODE_FINISHED))
 		{
-			drawstatus(XBuf-ClipSidesOffset,1,28,0);
+			drawstatus(XBuf - ClipSidesOffset, 1, 28, 0);
 			hasPlayRecIcon = true;
 		}
 
-		if(FCEUI_EmulationPaused())
-			drawstatus(XBuf-ClipSidesOffset,3,28,hasPlayRecIcon?-16:0);
+		if (FCEUI_EmulationPaused())
+			drawstatus(XBuf - ClipSidesOffset, 3, 28, hasPlayRecIcon ? -16 : 0);
 	}
 }
 
@@ -355,37 +355,38 @@ void FCEU_DrawRecordingStatus(uint8* XBuf)
 void FCEU_DrawNumberRow(uint8 *XBuf, int *nstatus, int cur)
 {
 	uint8 *XBaf;
-	int z,x,y;
+	int z, x, y;
 
-	XBaf=XBuf - 4 + (FSettings.LastSLine-34)*256;
-	if(XBaf>=XBuf)
-		for(z=1;z<11;z++)
+	XBaf = XBuf - 4 + (FSettings.LastSLine - 34) * 256;
+	if (XBaf >= XBuf)
+		for (z = 1; z < 11; z++)
 		{
-			if(nstatus[z%10])
+			if (nstatus[z % 10])
 			{
-				for(y=0;y<13;y++)
-					for(x=0;x<21;x++)
-						XBaf[y*256+x+z*21+z]=sstat[y*21+x+(z-1)*21*12]^0x80;
-			} else {
-				for(y=0;y<13;y++)
-					for(x=0;x<21;x++)
-						if(sstat[y*21+x+(z-1)*21*12]!=0x83)
-							XBaf[y*256+x+z*21+z]=sstat[y*21+x+(z-1)*21*12]^0x80;
+				for (y = 0; y < 13; y++)
+					for (x = 0; x < 21; x++)
+						XBaf[y * 256 + x + z * 21 + z] = sstat[y * 21 + x + (z - 1) * 21 * 12] ^ 0x80;
+			}
+			else {
+				for (y = 0; y < 13; y++)
+					for (x = 0; x < 21; x++)
+						if (sstat[y * 21 + x + (z - 1) * 21 * 12] != 0x83)
+							XBaf[y * 256 + x + z * 21 + z] = sstat[y * 21 + x + (z - 1) * 21 * 12] ^ 0x80;
 
 						else
-							XBaf[y*256+x+z*21+z]=(XBaf[y*256+x+z*21+z]&0xF)|0xC0;
+							XBaf[y * 256 + x + z * 21 + z] = (XBaf[y * 256 + x + z * 21 + z] & 0xF) | 0xC0;
 			}
-			if(cur==z%10)
+			if (cur == z % 10)
 			{
-				for(x=0;x<21;x++)
-					XBaf[x+z*21+z*1]=4;
-				for(x=1;x<12;x++)
+				for (x = 0; x < 21; x++)
+					XBaf[x + z * 21 + z * 1] = 4;
+				for (x = 1; x < 12; x++)
 				{
-					XBaf[256*x+z*21+z*1]=
-						XBaf[256*x+z*21+z*1+20]=4;
+					XBaf[256 * x + z * 21 + z * 1] =
+						XBaf[256 * x + z * 21 + z * 1 + 20] = 4;
 				}
-				for(x=0;x<21;x++)
-					XBaf[12*256+x+z*21+z*1]=4;
+				for (x = 0; x < 21; x++)
+					XBaf[12 * 256 + x + z * 21 + z * 1] = 4;
 			}
 		}
 }
@@ -397,34 +398,34 @@ static int FixJoedChar(uint8 ch)
 }
 static int JoedCharWidth(uint8 ch)
 {
-	return Font6x7[FixJoedChar(ch)*8];
+	return Font6x7[FixJoedChar(ch) * 8];
 }
 
 char target[64][256];
 
 void DrawTextTransWH(uint8 *dest, int width, uint8 *textmsg, uint8 fgcolor, int max_w, int max_h, int border)
 {
-	int beginx=2, x=beginx;
-	int y=2;
+	int beginx = 2, x = beginx;
+	int y = 2;
 
 	memset(target, 0, 64 * 256);
 
-	assert(width==256);
+	assert(width == 256);
 	if (max_w > 256) max_w = 256;
-	if (max_h >  64) max_h =  64;
+	if (max_h > 64) max_h = 64;
 
 	int ch = 0, wid = 0, nx = 0, ny = 0, max_x = x, offs = 0;
 	int pixel_color;
-	for(; *textmsg; ++textmsg)
+	for (; *textmsg; ++textmsg)
 	{
-		if(*textmsg == '\n')
+		if (*textmsg == '\n')
 		{
 			// new line
 			x = beginx;
 			y += 8;
 			continue;
 		}
-		ch  = FixJoedChar(*textmsg);
+		ch = FixJoedChar(*textmsg);
 		wid = Font6x7[ch * 8];
 
 		if ((x + wid) >= (int)width)
@@ -434,10 +435,10 @@ void DrawTextTransWH(uint8 *dest, int width, uint8 *textmsg, uint8 fgcolor, int 
 			y += 8;
 		}
 
-		for(ny = 0; ny < 7; ++ny)
+		for (ny = 0; ny < 7; ++ny)
 		{
 			uint8 d = Font6x7[ch * 8 + 1 + ny];
-			for(nx = 0; nx < wid; ++nx)
+			for (nx = 0; nx < wid; ++nx)
 			{
 				pixel_color = (d >> (7 - nx)) & 1;
 				if (pixel_color)
@@ -448,7 +449,8 @@ void DrawTextTransWH(uint8 *dest, int width, uint8 *textmsg, uint8 fgcolor, int 
 						goto textoverflow;
 					}
 					target[y + ny][x + nx] = 2;
-				} else
+				}
+				else
 				{
 					target[y + ny][x + nx] = 1;
 				}
@@ -477,41 +479,41 @@ textoverflow:
 			offs = y * width + x;
 			pixel_color = target[y][x] * 100;
 
-			if(border>=1)
+			if (border >= 1)
 			{
-				x>=(     1) && (pixel_color += target[y][x-1]);
-				x<(width-1) && (pixel_color += target[y][x+1]);
-				y>=(     1) && (pixel_color += target[y-1][x]);
-				y<(16   -1) && (pixel_color += target[y+1][x]);
+				x >= (1) && (pixel_color += target[y][x - 1]);
+				x < (width - 1) && (pixel_color += target[y][x + 1]);
+				y >= (1) && (pixel_color += target[y - 1][x]);
+				y < (16 - 1) && (pixel_color += target[y + 1][x]);
 			}
-			if(border>=2)
+			if (border >= 2)
 			{
-				x>=(     1) && (pixel_color += target[y][x-1]*10);
-				x<(width-1) && (pixel_color += target[y][x+1]*10);
-				y>=(     1) && (pixel_color += target[y-1][x]*10);
-				y<(16   -1) && (pixel_color += target[y+1][x]*10);
+				x >= (1) && (pixel_color += target[y][x - 1] * 10);
+				x < (width - 1) && (pixel_color += target[y][x + 1] * 10);
+				y >= (1) && (pixel_color += target[y - 1][x] * 10);
+				y < (16 - 1) && (pixel_color += target[y + 1][x] * 10);
 
-				x>=(     1) && y>=(  1) && (pixel_color += target[y-1][x-1]);
-				x<(width-1) && y>=(  1) && (pixel_color += target[y-1][x+1]);
-				x>=(     1) && y<(16-1) && (pixel_color += target[y+1][x-1]);
-				x<(width-1) && y<(16-1) && (pixel_color += target[y+1][x+1]);
+				x >= (1) && y >= (1) && (pixel_color += target[y - 1][x - 1]);
+				x < (width - 1) && y >= (1) && (pixel_color += target[y - 1][x + 1]);
+				x >= (1) && y < (16 - 1) && (pixel_color += target[y + 1][x - 1]);
+				x < (width - 1) && y < (16 - 1) && (pixel_color += target[y + 1][x + 1]);
 
-				x>=(     2) && (pixel_color += target[y][x-2]);
-				x<(width-2) && (pixel_color += target[y][x+2]);
-				y>=(     2) && (pixel_color += target[y-2][x]);
-				y<(16   -2) && (pixel_color += target[y+2][x]);
+				x >= (2) && (pixel_color += target[y][x - 2]);
+				x < (width - 2) && (pixel_color += target[y][x + 2]);
+				y >= (2) && (pixel_color += target[y - 2][x]);
+				y < (16 - 2) && (pixel_color += target[y + 2][x]);
 			}
 
-			if(pixel_color >= 200)
+			if (pixel_color >= 200)
 				dest[offs] = fgcolor;
-			else if(pixel_color >= 10)
+			else if (pixel_color >= 10)
 			{
-				if(dest[offs] < 0xA0)
+				if (dest[offs] < 0xA0)
 					dest[offs] = 0xC1;
 				else
 					dest[offs] = 0xD1;
 			}
-			else if(pixel_color > 0)
+			else if (pixel_color > 0)
 			{
 				dest[offs] = 0xCF;
 			}

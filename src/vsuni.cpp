@@ -134,11 +134,14 @@ static uint8 xevselect = 0;
 static DECLFR(XevRead) {
 	if (A == 0x54FF) {
 		return(0x5);
-	} else if (A == 0x5678) {
+	}
+	else if (A == 0x5678) {
 		return(xevselect ? 0 : 1);
-	} else if (A == 0x578F) {
+	}
+	else if (A == 0x578F) {
 		return(xevselect ? 0xd1 : 0x89);
-	} else if (A == 0x5567) {
+	}
+	else if (A == 0x5567) {
 		xevselect ^= 1;
 		return(xevselect ? 0x37 : 0x3E);
 	}
@@ -163,10 +166,12 @@ void FCEU_VSUniPower(void) {
 	if (curppu == RC2C05_04) {
 		OldReadPPU = GetReadHandler(0x2002);
 		SetReadHandler(0x2002, 0x2002, A2002_Topgun);
-	} else if (curppu == RC2C05_03) {
+	}
+	else if (curppu == RC2C05_03) {
 		OldReadPPU = GetReadHandler(0x2002);
 		SetReadHandler(0x2002, 0x2002, A2002_Gumshoe);
-	} else if (curppu == RC2C05_02) {
+	}
+	else if (curppu == RC2C05_02) {
 		OldReadPPU = GetReadHandler(0x2002);
 		SetReadHandler(0x2002, 0x2002, A2002_MBJ);
 	}
@@ -327,7 +332,8 @@ void FCEU_VSUniCheck(uint64 md5partial, int *MapperNo, uint8 *Mirroring) {
 			if (vs->ioption & IOPTION_GUN) {
 				GameInfo->input[0] = SI_ZAPPER;
 				GameInfo->input[1] = SI_NONE;
-			} else {
+			}
+			else {
 				GameInfo->input[0] = GameInfo->input[1] = SI_GAMEPAD;
 			}
 			curvs = vs;

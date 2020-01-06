@@ -18,8 +18,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-/// \file
-/// \brief This file contains all code for coordinating the mapping in of the address space external to the NES.
+ /// \file
+ /// \brief This file contains all code for coordinating the mapping in of the address space external to the NES.
 
 #include "types.h"
 #include "fceu.h"
@@ -169,7 +169,8 @@ void setprg8r(int r, uint32 A, uint32 V) {
 	if (PRGsize[r] >= 8192) {
 		V &= PRGmask8[r];
 		setpageptr(8, A, PRGptr[r] ? (&PRGptr[r][V << 13]) : 0, PRGram[r]);
-	} else {
+	}
+	else {
 		uint32 VA = V << 2;
 		int x;
 		for (x = 0; x < 4; x++)
@@ -185,7 +186,8 @@ void setprg16r(int r, uint32 A, uint32 V) {
 	if (PRGsize[r] >= 16384) {
 		V &= PRGmask16[r];
 		setpageptr(16, A, PRGptr[r] ? (&PRGptr[r][V << 14]) : 0, PRGram[r]);
-	} else {
+	}
+	else {
 		uint32 VA = V << 3;
 		int x;
 
@@ -202,7 +204,8 @@ void setprg32r(int r, uint32 A, uint32 V) {
 	if (PRGsize[r] >= 32768) {
 		V &= PRGmask32[r];
 		setpageptr(32, A, PRGptr[r] ? (&PRGptr[r][V << 15]) : 0, PRGram[r]);
-	} else {
+	}
+	else {
 		uint32 VA = V << 4;
 		int x;
 
@@ -242,7 +245,7 @@ void setchr4r(int r, unsigned int A, unsigned int V) {
 	FCEUPPU_LineUpdate();
 	V &= CHRmask4[r];
 	VPageR[(A) >> 10] = VPageR[((A) >> 10) + 1] =
-							VPageR[((A) >> 10) + 2] = VPageR[((A) >> 10) + 3] = &CHRptr[r][(V) << 12] - (A);
+		VPageR[((A) >> 10) + 2] = VPageR[((A) >> 10) + 3] = &CHRptr[r][(V) << 12] - (A);
 	if (CHRram[r])
 		PPUCHRRAM |= (15 << (A >> 10));
 	else
@@ -323,7 +326,8 @@ void SetupCartMirroring(int m, int hard, uint8 *extra) {
 	if (m < 4) {
 		mirrorhard = 0;
 		setmirror(m);
-	} else {
+	}
+	else {
 		vnapage[0] = NTARAM;
 		vnapage[1] = NTARAM + 0x400;
 		vnapage[2] = extra;
@@ -361,7 +365,7 @@ bool FCEU_OpenGenie(void)
 		}
 		if (fread(GENIEROM, 1, 16, fp) != 16)
 		{
- grerr:
+		grerr:
 			FCEU_PrintError("Error reading from Game Genie ROM image!");
 			free(GENIEROM);
 			GENIEROM = 0;
@@ -377,7 +381,8 @@ bool FCEU_OpenGenie(void)
 				goto grerr;
 			if (fread(GENIEROM + 4096, 1, 256, fp) != 256)
 				goto grerr;
-		} else
+		}
+		else
 		{
 			if (fread(GENIEROM + 16, 1, 4352 - 16, fp) != (4352 - 16))
 				goto grerr;
@@ -533,11 +538,12 @@ void FCEU_SaveGameSave(CartInfo *LocalHWInfo) {
 		std::string soot = FCEU_MakeFName(FCEUMKF_SAV, 0, "sav");
 		if ((sp = FCEUD_UTF8fopen(soot, "wb")) == NULL) {
 			FCEU_PrintError("WRAM file \"%s\" cannot be written to.\n", soot.c_str());
-		} else {
+		}
+		else {
 			for (int x = 0; x < 4; x++)
 				if (LocalHWInfo->SaveGame[x]) {
 					fwrite(LocalHWInfo->SaveGame[x], 1,
-						   LocalHWInfo->SaveGameLen[x], sp);
+						LocalHWInfo->SaveGameLen[x], sp);
 				}
 		}
 	}

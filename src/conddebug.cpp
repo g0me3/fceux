@@ -18,28 +18,28 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-/*
-* The parser was heavily inspired by the following two websites:
+ /*
+ * The parser was heavily inspired by the following two websites:
 
-* http://www.cs.utsa.edu/~wagner/CS5363/rdparse.html
-* http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm
-*
-* Grammar of the parser:
-*
-* P         -> Connect
-* Connect   -> Compare {('||' | '&&') Compare}
-* Compare   -> Sum {('==' | '!=' | '<=' | '>=' | '<' | '>') Sum}
-* Sum       -> Product {('+' | '-') Product}
-* Product   -> Primitive {('*' | '/') Primitive}
-* Primitive -> Number | Address | Register | Flag | PC Bank | '(' Connect ')'
-* Number    -> '#' [1-9A-F]*
-* Address   -> '$' [1-9A-F]* | '$' '[' Connect ']'
-* Register  -> 'A' | 'X' | 'Y' | 'P' | 'S'
-* Flag      -> 'N' | 'C' | 'Z' | 'I' | 'B' | 'V' | 'U' | 'D'
-* PC Bank   -> 'K'
-* Data Bank -> 'T'
-* Value     -> 'R' | 'W'
-*/
+ * http://www.cs.utsa.edu/~wagner/CS5363/rdparse.html
+ * http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm
+ *
+ * Grammar of the parser:
+ *
+ * P         -> Connect
+ * Connect   -> Compare {('||' | '&&') Compare}
+ * Compare   -> Sum {('==' | '!=' | '<=' | '>=' | '<' | '>') Sum}
+ * Sum       -> Product {('+' | '-') Product}
+ * Product   -> Primitive {('*' | '/') Primitive}
+ * Primitive -> Number | Address | Register | Flag | PC Bank | '(' Connect ')'
+ * Number    -> '#' [1-9A-F]*
+ * Address   -> '$' [1-9A-F]* | '$' '[' Connect ']'
+ * Register  -> 'A' | 'X' | 'Y' | 'P' | 'S'
+ * Flag      -> 'N' | 'C' | 'Z' | 'I' | 'B' | 'V' | 'U' | 'D'
+ * PC Bank   -> 'K'
+ * Data Bank -> 'T'
+ * Value     -> 'R' | 'W'
+ */
 
 #include "types.h"
 #include "conddebug.h"
@@ -96,7 +96,7 @@ Condition* InfixOperator(const char** str, Condition(*nextPart(const char**)), i
 
 		if (t1 == 0)
 		{
-			if(t)
+			if (t)
 				freeTree(t);
 			return 0;
 		}
@@ -169,16 +169,16 @@ int isValueWrite(char c)
 // Reads a hexadecimal number from str
 int getNumber(unsigned int* number, const char** str)
 {
-//	char buffer[5];
+	//	char buffer[5];
 
 	if (sscanf(*str, "%X", number) == EOF || *number > 0xFFFF)
 	{
 		return 0;
 	}
 
-// Older, inferior version which doesn't work with leading zeros
-//	sprintf(buffer, "%X", *number);
-//	*str += strlen(buffer);
+	// Older, inferior version which doesn't work with leading zeros
+	//	sprintf(buffer, "%X", *number);
+	//	*str += strlen(buffer);
 	while (ishex(**str)) (*str)++;
 	scan(str);
 
@@ -400,9 +400,9 @@ Condition* Term(const char** str)
 	Condition* t1;
 	Condition* mid;
 
-    t = (Condition*)FCEU_dmalloc(sizeof(Condition));
-    if (!t)
-        return NULL;
+	t = (Condition*)FCEU_dmalloc(sizeof(Condition));
+	if (!t)
+		return NULL;
 
 	memset(t, 0, sizeof(Condition));
 
@@ -419,7 +419,7 @@ Condition* Term(const char** str)
 		scan(str);
 
 		if (!(t1 = (Condition*)FCEU_dmalloc(sizeof(Condition))))
-            return NULL;
+			return NULL;
 
 		memset(t1, 0, sizeof(Condition));
 
@@ -431,7 +431,7 @@ Condition* Term(const char** str)
 		}
 
 		if (!(mid = (Condition*)FCEU_dmalloc(sizeof(Condition))))
-            return NULL;
+			return NULL;
 
 		memset(mid, 0, sizeof(Condition));
 
@@ -450,9 +450,9 @@ int SumOperators(const char** str)
 {
 	switch (next)
 	{
-		case '+': return OP_PLUS;
-		case '-': return OP_MINUS;
-		default: return OP_NO;
+	case '+': return OP_PLUS;
+	case '-': return OP_MINUS;
+	default: return OP_NO;
 	}
 }
 
@@ -496,10 +496,10 @@ Condition* Compare(const char** str)
 int ConnectOperators(const char** str)
 {
 	int val = TwoCharOperator(str, '|', '|', OP_OR);
-	if(val) return val;
+	if (val) return val;
 
 	val = TwoCharOperator(str, '&', '&', OP_AND);
-	if(val) return val;
+	if (val) return val;
 
 	return OP_NO;
 }
