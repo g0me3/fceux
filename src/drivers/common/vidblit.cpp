@@ -36,8 +36,8 @@ extern u8 *XDBuf;
 extern u8 *XDBackBuf;
 extern pal *palo;
 
-extern uint16 PALBG[512];
-extern uint16 PALSP[512];
+extern uint16 *PALBGW;
+extern uint16 *PALSPW;
 
 #include "../../ppu.h"  // for PPU[]
 
@@ -889,7 +889,21 @@ void Blit8ToHigh(uint8 *src, uint8 *dest, int xr, int yr, int pitch, int xscale,
 					for (x = xr; x; x--)
 					{
 						//THE MAIN BLITTING CODEPATH (there may be others that are important)
-						*(uint32 *)dest = ModernDeemphColorMap(src, XBuf, 1, 1);
+						uint32 col, r, g, b;
+						uint16 curpal;
+						if (src[0] & 0x10)
+							curpal = PALSPW[((src[0] >> 1) & 0x30) | (src[0] & 0xF)];
+						else
+							curpal = PALBGW[src[0] & 0xF];
+						b = ((curpal >>  0) & 0x1F) << 3;
+						b |= (curpal >>  0) & 7;
+						g = ((curpal >>  5) & 0x1F) << 3;
+						g |= (curpal >>  5) & 7;
+						r = ((curpal >> 10) & 0x1F) << 3;
+						r |= (curpal >> 10) & 7;
+						col = (b << 0) | (g << 8) | (r << 16);
+						*(uint32 *)dest = col;
+
 						dest += 4;
 						src++;
 					}
