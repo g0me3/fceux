@@ -152,7 +152,7 @@ uint8 READPAL_MOTHEROFALL(uint32 A) {
 //mostly involving mmc5.
 //this might be incomplete.
 uint8* FCEUPPU_GetCHR(uint32 vadr, uint32 refreshaddr) {
-	return &VPage[(V) >> 10][(V)];
+	return &VPage[(vadr) >> 10][(vadr)];
 }
 
 //likewise for ATTR
