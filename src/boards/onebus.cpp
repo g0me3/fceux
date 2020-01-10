@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * VR02/VT03 Console and OneBus System
+ * OneBus Derived System
  *
- * Street Dance (Dance pad) (Unl)
- * 101-in-1 Arcade Action II
- * DreamGEAR 75-in-1, etc.
- *
+ * Known issues:
+ * - Demo mode hangs
+ * - CPU freq and scanline timings unknown
+ * -
+ * 
  */
 
 #include "mapinc.h"

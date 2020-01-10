@@ -682,9 +682,9 @@ int GetMemViewData(uint32 i)
 	{
 		i &= 0x3FFF;
 		if (i < 0x2000)return VPage[(i) >> 10][(i)];
-		if (i < 0x3F00)
+		if (i < 0x3C00)
 			return vnapage[(i >> 10) & 0x3][i & 0x3FF];
-		return READPAL_MOTHEROFALL(i & 0x1F);
+		return READPAL_MOTHEROFALL(i & 0x3FF);
 	}
 
 	if (EditingMode == MODE_NES_OAM)

@@ -137,14 +137,10 @@ uint16 *PALBGW = (uint16*)&PALBG;
 uint16 *PALSPW = (uint16*)&PALSP;
 
 uint8 READPAL_MOTHEROFALL(uint32 A) {
-	if (!(A & 3)) {
-		if (!(A & 0xC))
-			return READPAL(0x00);
-		else
-			return READUPAL(((A & 0xC) >> 2) - 1);
-	}
+	if (A < 0x3E00)
+		return PALBG[A & 0x1FF];
 	else
-		return READPAL(A & 0x1F);
+		return PALSP[A & 0x1FF];
 }
 
 //this duplicates logic which is embedded in the ppu rendering code
@@ -194,29 +190,19 @@ int GetCHRAddress(int A) {
 }
 
 uint8 FASTCALL FFCEUX_PPURead_Default(uint32 A) {
-	uint32 tmp = A;
-
-	if (tmp < 0x2000) {
-		return VPage[tmp >> 10][tmp];
+	if (A < 0x2000) {
+		return VPage[A >> 10][A];
 	}
-	else if (tmp < 0x3F00) {
-		return vnapage[(tmp >> 10) & 0x3][tmp & 0x3FF];
+	else if (A < 0x3C00) {
+		return vnapage[(A >> 10) & 0x3][A & 0x3FF];
 	}
-	else {
-		uint8 ret;
-		if (!(tmp & 3)) {
-			if (!(tmp & 0xC))
-				ret = READPAL(0x00);
-			else
-				ret = READUPAL(((tmp & 0xC) >> 2) - 1);
-		}
-		else
-			ret = READPAL(tmp & 0x1F);
-		return ret;
-	}
+	else if (A < 0x3E00)
+		return PALBG[A & 0x1FF];
+	else
+		return PALSP[A & 0x1FF];
 }
 
-uint8(FASTCALL *FFCEUX_PPURead)(uint32 A) = 0;
+uint8(FASTCALL *FFCEUX_PPURead)(uint32 A) = NULL;
 
 void ppu_getScroll(int &xpos, int &ypos) {
 	xpos = ((RefreshAddr & 0x400) >> 2) | ((RefreshAddr & 0x1F) << 3) | XOffset;
@@ -352,12 +338,12 @@ static DECLFW(B2000) {
 
 static DECLFW(B2001) {
 	FCEUPPU_LineUpdate();
-	if (paldeemphswap)
-		V = (V & 0x9F) | ((V & 0x40) >> 1) | ((V & 0x20) << 1);
+	//	if (paldeemphswap)
+	//		V = (V & 0x9F) | ((V & 0x40) >> 1) | ((V & 0x20) << 1);
 	PPUGenLatch = V;
 	PPU[1] = V;
-	if (V & 0xE0)
-		deemp = V >> 5;
+	//	if (V & 0xE0)
+	//		deemp = V >> 5;
 }
 
 static DECLFW(B2002) {
@@ -465,7 +451,7 @@ static int tofix = 0;
 
 static void ResetRL(uint32 scan) {
 	uint8* target = XBuf + (scan << 8);
-	memset(target, 0xFF, 256);
+	memset(target, 0, 256);
 	InputScanlineHook(0, 0, 0, 0);
 	Plinef = Pline = target;
 	firsttile = 0;
@@ -502,7 +488,7 @@ void FCEUI_GetRenderPlanes(bool& sprites, bool& bg) {
 static int32 sphitx;
 static uint8 sphitdata;
 
-static void CheckSpriteHit(int p) {
+/*static void CheckSpriteHit(int p) {
 	int l = p - 16;
 	int x;
 
@@ -515,7 +501,7 @@ static void CheckSpriteHit(int p) {
 			break;
 		}
 	}
-}
+}*/
 
 //spork the world.  Any sprites on this line? Then this will be set to 1.
 //Needed for zapper emulation and *gasp* sprite emulation.
@@ -532,12 +518,12 @@ static void RefreshLine(int lastpixel) {
 	uint8 *P = Pline;
 	int lasttile = lastpixel >> 3;
 	int numtiles;
-
-	if (sphitx != 0x100 && !(PPU_status & 0x40)) {
-		if ((sphitx < (lastpixel - 16)) && !(sphitx < ((lasttile - 2) * 8)))
-			lasttile++;
-	}
-
+	/*
+		if (sphitx != 0x100 && !(PPU_status & 0x40)) {
+			if ((sphitx < (lastpixel - 16)) && !(sphitx < ((lasttile - 2) * 8)))
+				lasttile++;
+		}
+	*/
 	if (lasttile > 34) lasttile = 34;
 	numtiles = lasttile - firsttile;
 
@@ -549,7 +535,6 @@ static void RefreshLine(int lastpixel) {
 	if (!ScreenON && !SpriteON) {
 		uint32 tem;
 		tem = 0;
-		tem |= 0x40404040;
 		FCEU_dwmemset(Pline, tem, numtiles * 8);
 		P += numtiles * 8;
 		Pline = P;
@@ -615,7 +600,6 @@ static void RefreshLine(int lastpixel) {
 	if (firsttile <= 2 && 2 < lasttile && !(PPU[1] & 2)) {
 		uint32 tem;
 		tem = 0;
-		tem |= 0x40404040;
 		*(uint32*)Plinef = *(uint32*)(Plinef + 4) = tem;
 	}
 
@@ -623,8 +607,6 @@ static void RefreshLine(int lastpixel) {
 		uint32 tem;
 		int tstart, tcount;
 		tem = 0;
-		tem |= 0x40404040;
-
 		tcount = lasttile - firsttile;
 		tstart = firsttile - 2;
 		if (tstart < 0) {
@@ -686,7 +668,7 @@ static void DoLine(void) {
 		return;
 	}
 
-//	int x;
+	//	int x;
 	uint8 *target = XBuf + ((scanline < 240 ? scanline : 240) << 8);
 	uint8* dtarget = XDBuf + ((scanline < 240 ? scanline : 240) << 8);
 
@@ -695,42 +677,42 @@ static void DoLine(void) {
 	RefreshLine(272);
 	if (tofix)
 		Fixit1();
-//	CheckSpriteHit(272);
+	//	CheckSpriteHit(272);
 	Pline = 0;
 
-	if (!renderbg) {	// User asked to not display background data.
-		uint32 tem = 0;
-		tem |= 0x40404040;
-		FCEU_dwmemset(target, tem, 256);
-	}
+	//	if (!renderbg) {	// User asked to not display background data.
+	//		uint32 tem = 0;
+	//		tem |= 0x40404040;
+	//		FCEU_dwmemset(target, 0, 256);
+	//	}
 
 	if (SpriteON)
 		CopySprites(target);
 
-/*	//greyscale handling (mask some bits off the color) ? ? ?
-	if (ScreenON || SpriteON) {
-		if (PPU[1] & 0x01) {
-			for (x = 63; x >= 0; x--)
-				*(uint32*)&target[x << 2] = (*(uint32*)&target[x << 2]) & 0x30303030;
+	/*	//greyscale handling (mask some bits off the color) ? ? ?
+		if (ScreenON || SpriteON) {
+			if (PPU[1] & 0x01) {
+				for (x = 63; x >= 0; x--)
+					*(uint32*)&target[x << 2] = (*(uint32*)&target[x << 2]) & 0x30303030;
+			}
 		}
-	}
 
-	//some pathetic attempts at deemph
-	if ((PPU[1] >> 5) == 0x7) {
-		for (x = 63; x >= 0; x--)
-			*(uint32*)&target[x << 2] = ((*(uint32*)&target[x << 2]) & 0x3f3f3f3f) | 0xc0c0c0c0;
-	}
-	else if (PPU[1] & 0xE0)
-		for (x = 63; x >= 0; x--)
-			*(uint32*)&target[x << 2] = (*(uint32*)&target[x << 2]) | 0x40404040;
-	else
-		for (x = 63; x >= 0; x--)
-			*(uint32*)&target[x << 2] = ((*(uint32*)&target[x << 2]) & 0x3f3f3f3f) | 0x80808080;
+		//some pathetic attempts at deemph
+		if ((PPU[1] >> 5) == 0x7) {
+			for (x = 63; x >= 0; x--)
+				*(uint32*)&target[x << 2] = ((*(uint32*)&target[x << 2]) & 0x3f3f3f3f) | 0xc0c0c0c0;
+		}
+		else if (PPU[1] & 0xE0)
+			for (x = 63; x >= 0; x--)
+				*(uint32*)&target[x << 2] = (*(uint32*)&target[x << 2]) | 0x40404040;
+		else
+			for (x = 63; x >= 0; x--)
+				*(uint32*)&target[x << 2] = ((*(uint32*)&target[x << 2]) & 0x3f3f3f3f) | 0x80808080;
 
-	//write the actual deemph
-	for (x = 63; x >= 0; x--)
-		*(uint32*)&dtarget[x << 2] = ((PPU[1] >> 5) << 0) | ((PPU[1] >> 5) << 8) | ((PPU[1] >> 5) << 16) | ((PPU[1] >> 5) << 24);
-*/
+		//write the actual deemph
+		for (x = 63; x >= 0; x--)
+			*(uint32*)&dtarget[x << 2] = ((PPU[1] >> 5) << 0) | ((PPU[1] >> 5) << 8) | ((PPU[1] >> 5) << 16) | ((PPU[1] >> 5) << 24);
+	*/
 	sphitx = 0x100;
 
 	if (ScreenON || SpriteON)
@@ -817,13 +799,13 @@ static void FetchSpriteData(void) {
 	}
 
 	//Handle case when >8 sprites per scanline option is enabled.
-	if (ns > 8) PPU_status |= 0x20;
+//	if (ns > 8) PPU_status |= 0x20;
 	numsprites = ns;
 	SpriteBlurp = sb;
 }
 
 static void RefreshSprites(void) {
-	int n;
+	int n, m;
 	SPRB *spr;
 
 	spork = 0;
@@ -836,45 +818,20 @@ static void RefreshSprites(void) {
 	for (n = numsprites; n >= 0; n--, spr--) {
 		uint64 pixdata;
 		int x = spr->x;
-		uint8 *C;
+		uint8 *C, len;
 
 		pixdata = spr->ca;
 		if (pixdata) {
 			C = sprlinebuf + x;
-
-			if (pixdata & 0xF) C[0] = 0x10 | (pixdata & 0xF) | ((spr->atr & 3) << 5);
-			pixdata >>= 4;
-			if (pixdata & 0xF) C[1] = 0x10 | (pixdata & 0xF) | ((spr->atr & 3) << 5);
-			pixdata >>= 4;
-			if (pixdata & 0xF) C[2] = 0x10 | (pixdata & 0xF) | ((spr->atr & 3) << 5);
-			pixdata >>= 4;
-			if (pixdata & 0xF) C[3] = 0x10 | (pixdata & 0xF) | ((spr->atr & 3) << 5);
-			pixdata >>= 4;
-			if (pixdata & 0xF) C[4] = 0x10 | (pixdata & 0xF) | ((spr->atr & 3) << 5);
-			pixdata >>= 4;
-			if (pixdata & 0xF) C[5] = 0x10 | (pixdata & 0xF) | ((spr->atr & 3) << 5);
-			pixdata >>= 4;
-			if (pixdata & 0xF) C[6] = 0x10 | (pixdata & 0xF) | ((spr->atr & 3) << 5);
-			pixdata >>= 4;
-			if (pixdata & 0xF) C[7] = 0x10 | (pixdata & 0xF) | ((spr->atr & 3) << 5);
-			pixdata >>= 4;
-			if (pixdata & 0xF) C[8] = 0x10 | (pixdata & 0xF) | ((spr->atr & 3) << 5);
-			pixdata >>= 4;
-			if (pixdata & 0xF) C[9] = 0x10 | (pixdata & 0xF) | ((spr->atr & 3) << 5);
-			pixdata >>= 4;
-			if (pixdata & 0xF) C[10] = 0x10 | (pixdata & 0xF) | ((spr->atr & 3) << 5);
-			pixdata >>= 4;
-			if (pixdata & 0xF) C[11] = 0x10 | (pixdata & 0xF) | ((spr->atr & 3) << 5);
-			pixdata >>= 4;
-			if (pixdata & 0xF) C[12] = 0x10 | (pixdata & 0xF) | ((spr->atr & 3) << 5);
-			pixdata >>= 4;
-			if (pixdata & 0xF) C[13] = 0x10 | (pixdata & 0xF) | ((spr->atr & 3) << 5);
-			pixdata >>= 4;
-			if (pixdata & 0xF) C[14] = 0x10 | (pixdata & 0xF) | ((spr->atr & 3) << 5);
-			pixdata >>= 4;
-			if (pixdata & 0xF) C[15] = 0x10 | (pixdata & 0xF) | ((spr->atr & 3) << 5);
-			pixdata >>= 4;
-
+			if ((256 - x) >= 16)
+				len = 16;
+			else
+				len = 256 - x;
+			for (m = 0; m < 16; m++) {
+				if (pixdata & 0xF)
+					C[m] = 0x10 | (pixdata & 0xF) | ((spr->atr & 3) << 5);
+				pixdata >>= 4;
+			}
 		}
 	}
 	SpriteBlurp = 0;
@@ -895,8 +852,7 @@ static void CopySprites(uint8 *target) {
 	for (int i = 0; i < 256; i++) {
 		uint8 t = sprlinebuf[i];
 		if (!(t & 0x80))
-			if (!(t & 0x40) || (P[i] & 0x40))		// Normal sprite || behind bg sprite
-				P[i] = t;
+			P[i] = t;
 	}
 }
 
