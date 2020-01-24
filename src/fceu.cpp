@@ -447,9 +447,6 @@ FCEUGI *FCEUI_LoadGameVirtual(const char *name, int OverwriteVidMode, bool silen
 	GameInfo->inputfc = SIFC_UNSET;
 	GameInfo->cspecial = SIS_NONE;
 
-	//try to load each different format
-	bool FCEUXLoad(const char *name, FCEUFILE * fp);
-
 	if (iNESLoad(fullname, fp, OverwriteVidMode) ||
 		UNIFLoad(fullname, fp) ||
 		BinROMLoad(fullname, fp) )

@@ -833,13 +833,10 @@ int main(int argc,char *argv[])
 
 	InitSpeedThrottle();
 
-	// load oregon rom
-//	sprintf(TempArray, "%s\\%s", BaseDirectory.c_str(), "oregon.nes");
+	// try to autoload oregon rom if any in the base directory
 	sprintf(TempArray, "%s\\%s", BaseDirectory.c_str(), "oregon.bin");
-	if (!FCEUI_LoadGameVirtual(TempArray, !(pal_setting_specified || dendy_setting_specified), false)) {
-		do_exit();
-		return 1;
-	}
+	FCEUI_LoadGameVirtual(TempArray, !(pal_setting_specified || dendy_setting_specified), true);
+	// continue as usual if no such file
 
 	if (PAL && pal_setting_specified && !dendy_setting_specified)
 		dendy = 0;
