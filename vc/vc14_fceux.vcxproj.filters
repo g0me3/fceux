@@ -531,6 +531,7 @@
     <ClCompile Include="..\src\input\fns.cpp">
       <Filter>input</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\bin.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\drivers\common\args.h">
@@ -1036,6 +1037,9 @@
     </ClInclude>
     <ClInclude Include="..\src\drivers\win\header_editor.h">
       <Filter>drivers\win</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\bin.h">
+      <Filter>include files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

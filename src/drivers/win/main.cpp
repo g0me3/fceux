@@ -834,7 +834,8 @@ int main(int argc,char *argv[])
 	InitSpeedThrottle();
 
 	// load oregon rom
-	sprintf(TempArray, "%s\\%s", BaseDirectory.c_str(), "oregon.nes");
+//	sprintf(TempArray, "%s\\%s", BaseDirectory.c_str(), "oregon.nes");
+	sprintf(TempArray, "%s\\%s", BaseDirectory.c_str(), "oregon.bin");
 	if (!FCEUI_LoadGameVirtual(TempArray, !(pal_setting_specified || dendy_setting_specified), false)) {
 		do_exit();
 		return 1;

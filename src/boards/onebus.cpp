@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * OneBus Derived System
+ * Oregon Trail (tm) Handheld by Basic Fun (c) 2017
+ * (OneBus Derived System)
  *
  * Known issues:
  * - Demo mode hangs
@@ -69,31 +70,20 @@ static void PSync(void) {
 	uint8 bankmode = cpu410x[0xb] & 7;
 	uint8 mask = (bankmode == 0x7) ? (0xff) : (0x3f >> bankmode);
 	uint32 block = ((cpu410x[0x0] & 0xf0) << 4) + (cpu410x[0xa] & (~mask));
-	uint32 pswap = (mmc3cmd & 0x40) << 8;
 
 	uint8 bank0 = cpu410x[0x7 ^ inv_hack];
 	uint8 bank1 = cpu410x[0x8 ^ inv_hack];
 	uint8 bank2 = (cpu410x[0xb] & 0x40) ? (cpu410x[0x9]) : (~1);
 	uint8 bank3 = ~0;
 
-	setprg8(0x8000 ^ pswap, block | (bank0 & mask));
+	setprg8(0x8000, block | (bank0 & mask));
 	setprg8(0xa000, block | (bank1 & mask));
-	setprg8(0xc000 ^ pswap, block | (bank2 & mask));
+	setprg8(0xc000, block | (bank2 & mask));
 	setprg8(0xe000, block | (bank3 & mask));
 }
 
 static void CSync(void) {
-
-	setchr8(ppu20xx[0x20]);
-
-//	setchr8(0x0000, ppu20xx[0x20] << 3);
-//	setchr1(0x1000, ppu20xx[0x22] << 3);
-
-//	setchr2(0x0000, ppu20xx[0x20]);
-//	setchr2(0x0800, ppu20xx[0x21]);
-//	setchr2(0x1000, ppu20xx[0x22]);
-//	setchr2(0x1800, ppu20xx[0x23]);
-
+	setchr8(ppu20xx[0x20]);	// for compatibility with CHR view (temporary)
 	setmirror((mirror ^ 1) & 1);
 }
 
@@ -120,32 +110,6 @@ static DECLFW(UNLOneBusWritePPU20XX) {
 	ppu20xx[A - 0x2010 + 0x10] = V;
 	Sync();
 }
-
-//static DECLFW(UNLOneBusWriteMMC3) {
-//	FCEU_printf("MMC %04x:%04x\n",A,V);
-//	switch (A & 0xe001) {
-//	case 0x8000: mmc3cmd = (mmc3cmd & 0x38) | (V & 0xc7); Sync(); break;
-//	case 0x8001:
-//	{
-//		switch (mmc3cmd & 7) {
-//		case 0: ppu20xx[0x16] = V; CSync(); break;
-//		case 1: ppu20xx[0x17] = V; CSync(); break;
-//		case 2: ppu20xx[0x12] = V; CSync(); break;
-//		case 3: ppu20xx[0x13] = V; CSync(); break;
-//		case 4: ppu20xx[0x14] = V; CSync(); break;
-//		case 5: ppu20xx[0x15] = V; CSync(); break;
-//		case 6: cpu410x[0x17] = V; PSync(); break;
-//		case 7: cpu410x[0x18] = V; PSync(); break;
-//		}
-//		break;
-//	}
-//	case 0xa000: mirror = V; CSync(); break;
-//	case 0xc000: IRQLatch = V & 0xfe; break;
-//	case 0xc001: IRQReload = 1; break;
-//	case 0xe000: X6502_IRQEnd(FCEU_IQEXT); IRQa = 0; break;
-//	case 0xe001: IRQa = 1; break;
-//	}
-//}
 
 static void UNLOneBusIRQHook(void) {
 	uint32 count = IRQCount;
@@ -421,7 +385,6 @@ static void UNLOneBusPower(void) {
 	SetReadHandler(0x8000, 0xFFFF, CartBR);
 	SetWriteHandler(0x2010, 0x205f, UNLOneBusWritePPU20XX);
 	SetWriteHandler(0x4100, 0x410f, UNLOneBusWriteCPU410X);
-//	SetWriteHandler(0x8000, 0xffff, UNLOneBusWriteMMC3);
 
 	Sync();
 }
@@ -448,7 +411,6 @@ static void StateRestore(int version) {
 void UNLOneBus_Init(CartInfo *info) {
 	info->Power = UNLOneBusPower;
 	info->Reset = UNLOneBusReset;
-
 	GameHBIRQHook = UNLOneBusIRQHook;
 	MapIRQHook = UNLOneBusCpuHook;
 	GameStateRestore = StateRestore;

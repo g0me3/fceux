@@ -359,6 +359,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\bin.cpp" />
     <ClCompile Include="..\src\boards\onebus.cpp" />
     <ClCompile Include="..\src\drivers\common\args.cpp" />
     <ClCompile Include="..\src\drivers\common\cheat.cpp" />
@@ -808,6 +809,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\asm.h" />
+    <ClInclude Include="..\src\bin.h" />
     <ClInclude Include="..\src\cart.h" />
     <ClInclude Include="..\src\cheat.h" />
     <ClInclude Include="..\src\conddebug.h" />
