@@ -706,6 +706,7 @@ int main(int argc,char *argv[])
 	LoadConfig(TempArray);
 	//initDirectories();
 
+
 	// Parse the commandline arguments
 	t = ParseArgies(argc, argv);
 
@@ -832,15 +833,11 @@ int main(int argc,char *argv[])
 
 	InitSpeedThrottle();
 
-	if (t)
-	{
-		ALoad(t);
-	} else
-	{
-		if (AutoResumePlay && romNameWhenClosingEmulator && romNameWhenClosingEmulator[0])
-			ALoad(romNameWhenClosingEmulator, 0, true);
-		if (eoptions & EO_FOAFTERSTART)
-			LoadNewGamey(hAppWnd, 0);
+	// load oregon rom
+	sprintf(TempArray, "%s\\%s", BaseDirectory.c_str(), "oregon.nes");
+	if (!FCEUI_LoadGameVirtual(TempArray, !(pal_setting_specified || dendy_setting_specified), false)) {
+		do_exit();
+		return 1;
 	}
 
 	if (PAL && pal_setting_specified && !dendy_setting_specified)
@@ -1057,25 +1054,6 @@ void FCEUD_Update(uint8 *XBuf, int32 *Buffer, int Count)
 	if(!JustFrameAdvanced && FCEUI_EmulationPaused()) {
 		Sleep(50);
 	}
-
-	//while(EmulationPaused==1 && inDebugger)
-	//{
-	//	Sleep(50);
-	//	BlockingCheck();
-	//	FCEUD_UpdateInput(); //should this update the CONTROLS??? or only the hotkeys etc?
-	//}
-
-	////so, we're not paused anymore.
-
-	////something of a hack, but straightforward:
-	////if we were paused, but not in the debugger, then unpause ourselves and step.
-	////this is so that the cpu won't cut off execution due to being paused, but the debugger _will_
-	////cut off execution as soon as it makes it into the main cpu cycle loop
-	//if(FCEUI_EmulationPaused() && !inDebugger) {
-	//	FCEUI_ToggleEmulationPause();
-	//	FCEUI_Debugger().step = 1;
-	//	FCEUD_DebugBreakpoint();
-	//}
 
 	//make sure to update the input once per frame
 	FCEUD_UpdateInput();

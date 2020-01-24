@@ -51,7 +51,6 @@ extern bool autoMovieBackup;
 extern bool bindSavestate;
 extern int PPUViewRefresh;
 extern int NTViewRefresh;
-extern uint8 gNoBGFillColor;
 extern bool rightClickEnabled;
 extern bool fullscreenByDoubleclick;
 extern int CurrentState;
@@ -187,7 +186,6 @@ static CFGSTRUCT fceuconfig[] =
 	AC(AutoResumePlay),
 	ACS(ResumeROM),
 
-	AC(gNoBGFillColor),
 	AC(ntsccol_enable),AC(ntsctint),AC(ntschue),
 	AC(force_grayscale),
 	AC(dendy),

@@ -192,8 +192,6 @@ void ChangeMirroring() {
 INLINE void DrawChr(uint8 *pbitmap, const uint8 *chr, int pal) {
 	int y, x, tmp, index = 0, p = 0;
 	uint8 chr0, chr1;
-	//uint8 *table = &VPage[0][0]; //use the background table
-	//pbitmap += 3*
 
 	for (y = 0; y < 8; y++) { //todo: use index for y?
 		chr0 = chr[index];
@@ -204,7 +202,6 @@ INLINE void DrawChr(uint8 *pbitmap, const uint8 *chr, int pal) {
 			p |= ((chr1 >> tmp) & 1) << 1;
 			p = palcache[p + (pal * 4)];
 			tmp--;
-
 			*(uint8*)(pbitmap++) = palo[p].b;
 			*(uint8*)(pbitmap++) = palo[p].g;
 			*(uint8*)(pbitmap++) = palo[p].r;
@@ -212,8 +209,6 @@ INLINE void DrawChr(uint8 *pbitmap, const uint8 *chr, int pal) {
 		index++;
 		pbitmap += (NTWIDTH * 3) - 24;
 	}
-	//index+=8;
-	//pbitmap -= (((PALETTEBITWIDTH>>2)<<3)-24);
 }
 
 void DrawNameTable(int scanline, int ntnum, bool invalidateCache) {
@@ -253,24 +248,9 @@ void DrawNameTable(int scanline, int ntnum, bool invalidateCache) {
 				int temp = (((y & 2) << 1) + (x & 2));
 				a = (table[attraddr] & (3 << temp)) >> temp;
 
-				//the commented out code below is all allegedly equivalent to the single line above:
-				//tmpx = x>>2;
-				//tmpy = y>>2;
-				//a = 0x3C0+(tmpy*8)+tmpx;
-				//if((((x>>1)&1) == 0) && (((y>>1)&1) == 0)) a = table[a]&0x3;
-				//if((((x>>1)&1) == 1) && (((y>>1)&1) == 0)) a = (table[a]&0xC)>>2;
-				//if((((x>>1)&1) == 0) && (((y>>1)&1) == 1)) a = (table[a]&0x30)>>4;
-				//if((((x>>1)&1) == 1) && (((y>>1)&1) == 1)) a = (table[a]&0xC0)>>6;
-
 				int chr = table[ntaddr] * 16;
 
 				extern int FCEUPPU_GetAttr(int ntnum, int xt, int yt);
-
-				//test.. instead of pretending that the nametable is a screen at 0,0 we pretend that it is at the current xscroll and yscroll
-				//int xpos = ((RefreshAddr & 0x400) >> 2) | ((RefreshAddr & 0x1F) << 3) | XOffset;
-				//int ypos = ((RefreshAddr & 0x3E0) >> 2) | ((RefreshAddr & 0x7000) >> 12); 
-				//if(RefreshAddr & 0x800) ypos += 240;
-				//int refreshaddr = (xpos/8+x)+(ypos/8+y)*32;
 
 				int refreshaddr = (x)+(y) * 32;
 
@@ -294,11 +274,6 @@ void DrawNameTable(int scanline, int ntnum, bool invalidateCache) {
 		}
 		pbitmap += 7 * ((NTWIDTH * 3));
 	}
-
-	//this copies the attribute tables to the cache if needed. but we arent using it now because 
-   //if(redrawtables){
-   //	memcpy(tablecache+0x3c0,table+0x3c0,0x40);
-   //}
 }
 
 static void CalculateBitmapPositions(HWND hwndDlg)

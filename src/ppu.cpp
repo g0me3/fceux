@@ -67,21 +67,9 @@ static void CopySprites(uint8 *target);
 
 static void Fixit1(void);
 
-int test = 0;
-
-struct PPUSTATUS {
-	int32 sl;
-	int32 cycle, end_cycle;
-};
-
 static int ppudead = 1;
 static int kook = 0;
 int fceuindbg = 0;
-
-//mbg 6/23/08
-//make the no-bg fill color configurable
-//0xFF shall indicate to use palette[0]
-uint8 gNoBGFillColor = 0xFF;
 
 uint8 VRAMBuffer = 0, PPUGenLatch = 0;
 uint8 *vnapage[4];
@@ -485,8 +473,8 @@ void FCEUI_GetRenderPlanes(bool& sprites, bool& bg) {
 	bg = renderbg;
 }
 
-static int32 sphitx;
-static uint8 sphitdata;
+//static int32 sphitx;
+//static uint8 sphitdata;
 
 /*static void CheckSpriteHit(int p) {
 	int l = p - 16;
@@ -712,8 +700,8 @@ static void DoLine(void) {
 		//write the actual deemph
 		for (x = 63; x >= 0; x--)
 			*(uint32*)&dtarget[x << 2] = ((PPU[1] >> 5) << 0) | ((PPU[1] >> 5) << 8) | ((PPU[1] >> 5) << 16) | ((PPU[1] >> 5) << 24);
+		sphitx = 0x100;
 	*/
-	sphitx = 0x100;
 
 	if (ScreenON || SpriteON)
 		FetchSpriteData();
@@ -977,9 +965,9 @@ int FCEUPPU_Loop(int skip) {
 			totalscanlines = normalscanlines + (overclock_enabled ? postrenderscanlines : 0);
 
 		for (scanline = 0; scanline < totalscanlines; ) {	//scanline is incremented in  DoLine.  Evil. :/
-			deempcnt[deemp]++;
-			if (scanline < 240)
-				DEBUG(FCEUD_UpdatePPUView(scanline, 1));
+//			deempcnt[deemp]++;
+//			if (scanline < 240)
+//				DEBUG(FCEUD_UpdatePPUView(scanline, 1));
 			DoLine();
 
 			if (scanline < normalscanlines || scanline == totalscanlines)

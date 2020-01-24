@@ -892,27 +892,6 @@ void FCEUI_StopMovie()
 
 void poweron(bool shouldDisableBatteryLoading)
 {
-	//// make a for-movie-recording power-on clear the game's save data, too
-	//extern char lastLoadedGameName [2048];
-	//extern int disableBatteryLoading, suppressAddPowerCommand;
-	//suppressAddPowerCommand=1;
-	//if(shouldDisableBatteryLoading) disableBatteryLoading=1;
-	//suppressMovieStop=true;
-	//{
-	//	//we need to save the pause state through this process
-	//	int oldPaused = EmulationPaused;
-
-	//	// NOTE:  this will NOT write an FCEUNPCMD_POWER into the movie file
-	//	FCEUGI* gi = FCEUI_LoadGame(lastLoadedGameName, 0);
-	//	assert(gi);
-	//	PowerNES();
-
-	//	EmulationPaused = oldPaused;
-	//}
-	//suppressMovieStop=false;
-	//if(shouldDisableBatteryLoading) disableBatteryLoading=0;
-	//suppressAddPowerCommand=0;
-
 	extern int disableBatteryLoading;
 	if (!bogorf) disableBatteryLoading = 1;
 	PowerNES();
@@ -931,7 +910,7 @@ void FCEUMOV_CreateCleanMovie()
 	currMovieData.ports[0] = joyports[0].type;
 	currMovieData.ports[1] = joyports[1].type;
 	currMovieData.ports[2] = portFC.type;
-	currMovieData.fds = isFDS;
+	currMovieData.fds = 0;
 	currMovieData.PPUflag = 0;
 	currMovieData.RAMInitOption = RAMInitOption;
 	currMovieData.RAMInitSeed = RAMInitSeed;
@@ -1204,10 +1183,6 @@ void FCEUMOV_AddInputState()
 			PowerNES();
 		if (mr->command_reset())
 			ResetNES();
-		if (mr->command_fds_insert())
-			FCEU_FDSInsert();
-		if (mr->command_fds_select())
-			FCEU_FDSSelect();
 		if (mr->command_vs_insertcoin())
 			FCEU_VSUniCoin();
 		_currCommand = 0;
@@ -1234,10 +1209,6 @@ void FCEUMOV_AddInputState()
 					PowerNES();
 				if (mr->command_reset())
 					ResetNES();
-				if (mr->command_fds_insert())
-					FCEU_FDSInsert();
-				if (mr->command_fds_select())
-					FCEU_FDSSelect();
 				if (mr->command_vs_insertcoin())
 					FCEU_VSUniCoin();
 

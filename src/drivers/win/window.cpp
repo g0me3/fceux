@@ -1072,10 +1072,6 @@ bool ALoad(const char *nameo, char* innerFilename, bool silent)
 {
 	int oldPaused = EmulationPaused;
 
-	// loading is not started yet, so the game can continue;
-	// FCEUI_LoadGameVirtual() already had an FCEUI_CloseGame() call after loading success;
-	// if (GameInfo) FCEUI_CloseGame();
-
 	if (FCEUI_LoadGameVirtual(nameo, !(pal_setting_specified || dendy_setting_specified), silent))
 	{
 		pal_emulation = FCEUI_GetCurrentVidSystem(0, 0);
@@ -1917,12 +1913,6 @@ LRESULT FAR PASCAL AppWndProc(HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam)
 				break;
 			case MENU_POWER:
 				FCEUI_PowerNES();
-				break;
-			case MENU_EJECT_DISK:
-				FCEUI_FDSInsert();
-				break;
-			case MENU_SWITCH_DISK:
-				FCEUI_FDSSelect();
 				break;
 			case MENU_INSERT_COIN:
 				FCEUI_VSUniCoin();

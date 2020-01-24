@@ -212,7 +212,6 @@ static void FCEU_CloseGame(void)
 
 uint64 timestampbase;
 
-
 FCEUGI *GameInfo = NULL;
 
 void(*GameInterface)(GI h);
@@ -380,7 +379,6 @@ void ResetGameLoaded(void) {
 
 int UNIFLoad(const char *name, FCEUFILE *fp);
 int iNESLoad(const char *name, FCEUFILE *fp, int OverwriteVidMode);
-int FDSLoad(const char *name, FCEUFILE *fp);
 
 //name should be UTF-8, hopefully, or else there may be trouble
 FCEUGI *FCEUI_LoadGameVirtual(const char *name, int OverwriteVidMode, bool silent)
@@ -392,7 +390,7 @@ FCEUGI *FCEUI_LoadGameVirtual(const char *name, int OverwriteVidMode, bool silen
 	int lastpal = PAL;
 	int lastdendy = dendy;
 
-	const char* romextensions[] = { "nes", "fds", 0 };
+	const char* romextensions[] = { "nes", "bin", 0 };
 
 	// indicator for if the operaton was canceled by user
 	// currently there's only one situation:
@@ -451,9 +449,9 @@ FCEUGI *FCEUI_LoadGameVirtual(const char *name, int OverwriteVidMode, bool silen
 	//try to load each different format
 	bool FCEUXLoad(const char *name, FCEUFILE * fp);
 
+	// TODO: raw binary load
 	if (iNESLoad(fullname, fp, OverwriteVidMode) ||
-		UNIFLoad(fullname, fp) ||
-		FDSLoad(fullname, fp))
+		UNIFLoad(fullname, fp))
 	{
 
 #ifdef WIN32

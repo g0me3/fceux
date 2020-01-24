@@ -230,10 +230,6 @@ uint8 FCEUI_VSUniGetDIPs(void);
 void FCEUI_VSUniSetDIP(int w, int state);
 void FCEUI_VSUniCoin(void);
 
-void FCEUI_FDSInsert(void); //mbg merge 7/17/06 changed to void fn(void) to make it an EMUCMDFN
-//int FCEUI_FDSEject(void);
-void FCEUI_FDSSelect(void);
-
 int FCEUI_DatachSet(const uint8 *rcode);
 
 ///returns a flag indicating whether emulation is paused

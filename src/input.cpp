@@ -615,8 +615,6 @@ void FCEU_DoSimpleCommand(int cmd)
 {
 	switch (cmd)
 	{
-	case FCEUNPCMD_FDSINSERT: FCEU_FDSInsert(); break;
-	case FCEUNPCMD_FDSSELECT: FCEU_FDSSelect(); break;
 	case FCEUNPCMD_VSUNICOIN: FCEU_VSUniCoin(); break;
 	case FCEUNPCMD_VSUNIDIP0:
 	case FCEUNPCMD_VSUNIDIP0 + 1:
@@ -642,24 +640,6 @@ void FCEU_QSimpleCommand(int cmd)
 		if (FCEUMOV_Mode(MOVIEMODE_RECORD | MOVIEMODE_TASEDITOR))
 			FCEUMOV_AddCommand(cmd);
 	}
-}
-
-void FCEUI_FDSSelect(void)
-{
-	if (!FCEU_IsValidUI(FCEUI_SWITCH_DISK))
-		return;
-
-	FCEU_DispMessage("Command: Switch disk side", 0);
-	FCEU_QSimpleCommand(FCEUNPCMD_FDSSELECT);
-}
-
-void FCEUI_FDSInsert(void)
-{
-	if (!FCEU_IsValidUI(FCEUI_EJECT_DISK))
-		return;
-
-	FCEU_DispMessage("Command: Insert/Eject disk", 0);
-	FCEU_QSimpleCommand(FCEUNPCMD_FDSINSERT);
 }
 
 void FCEUI_VSUniToggleDIP(int w)
@@ -845,9 +825,6 @@ struct EMUCMDTABLE FCEUI_CommandTable[] =
 
 	{ EMUCMD_AVI_RECORD_AS,					EMUCMDTYPE_AVI,		FCEUD_AviRecordTo,				0, 0, "Record AVI As...", EMUCMDFLAG_TASEDITOR },
 	{ EMUCMD_AVI_STOP,						EMUCMDTYPE_AVI,		FCEUD_AviStop,					0, 0, "Stop AVI", EMUCMDFLAG_TASEDITOR },
-
-	{ EMUCMD_FDS_EJECT_INSERT,				EMUCMDTYPE_FDS,		FCEUI_FDSInsert,				0, 0, "Eject or Insert FDS Disk", EMUCMDFLAG_TASEDITOR },
-	{ EMUCMD_FDS_SIDE_SELECT,				EMUCMDTYPE_FDS,		FCEUI_FDSSelect,				0, 0, "Switch FDS Disk Side", EMUCMDFLAG_TASEDITOR },
 
 	{ EMUCMD_VSUNI_COIN,					EMUCMDTYPE_VSUNI,	FCEUI_VSUniCoin,				0, 0, "Insert Coin", EMUCMDFLAG_TASEDITOR },
 	{ EMUCMD_VSUNI_TOGGLE_DIP_0,			EMUCMDTYPE_VSUNI,	CommandToggleDip,				0, 0, "Toggle Dipswitch 0", 0 },
