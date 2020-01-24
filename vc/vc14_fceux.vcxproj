@@ -788,7 +788,6 @@
     <ClCompile Include="..\src\debug.cpp" />
     <ClCompile Include="..\src\drawing.cpp" />
     <ClCompile Include="..\src\fceu.cpp" />
-    <ClCompile Include="..\src\fds.cpp" />
     <ClCompile Include="..\src\file.cpp" />
     <ClCompile Include="..\src\filter.cpp" />
     <ClCompile Include="..\src\ines.cpp" />
@@ -803,7 +802,6 @@
     <ClCompile Include="..\src\state.cpp" />
     <ClCompile Include="..\src\unif.cpp" />
     <ClCompile Include="..\src\video.cpp" />
-    <ClCompile Include="..\src\vsuni.cpp" />
     <ClCompile Include="..\src\wave.cpp" />
     <ClCompile Include="..\src\x6502.cpp" />
   </ItemGroup>
@@ -904,7 +902,6 @@
     <ClInclude Include="..\src\fceu.h" />
     <ClInclude Include="..\src\fceulua.h" />
     <ClInclude Include="..\src\fcoeffs.h" />
-    <ClInclude Include="..\src\fds.h" />
     <ClInclude Include="..\src\file.h" />
     <ClInclude Include="..\src\filter.h" />
     <ClInclude Include="..\src\fir\c44100ntsc.h" />
@@ -1133,7 +1130,6 @@
     </ClInclude>
     <ClInclude Include="..\src\version.h" />
     <ClInclude Include="..\src\video.h" />
-    <ClInclude Include="..\src\vsuni.h" />
     <ClInclude Include="..\src\wave.h" />
     <ClInclude Include="..\src\x6502.h" />
     <ClInclude Include="..\src\x6502abbrev.h" />

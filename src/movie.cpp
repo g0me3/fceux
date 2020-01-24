@@ -12,8 +12,6 @@
 #include "video.h"
 #include "movie.h"
 #include "cart.h"
-#include "fds.h"
-#include "vsuni.h"
 #ifdef _S9XLUA_H
 #include "fceulua.h"
 #endif
@@ -1183,8 +1181,6 @@ void FCEUMOV_AddInputState()
 			PowerNES();
 		if (mr->command_reset())
 			ResetNES();
-		if (mr->command_vs_insertcoin())
-			FCEU_VSUniCoin();
 		_currCommand = 0;
 	}
 	else
@@ -1209,8 +1205,6 @@ void FCEUMOV_AddInputState()
 					PowerNES();
 				if (mr->command_reset())
 					ResetNES();
-				if (mr->command_vs_insertcoin())
-					FCEU_VSUniCoin();
 
 				joyports[0].load(mr);
 				joyports[1].load(mr);
@@ -1286,10 +1280,6 @@ void FCEUMOV_AddCommand(int cmd)
 	{
 	case FCEUNPCMD_RESET: cmd = MOVIECMD_RESET; break;
 	case FCEUNPCMD_POWER: cmd = MOVIECMD_POWER; break;
-	case FCEUNPCMD_FDSINSERT: cmd = MOVIECMD_FDS_INSERT; break;
-	case FCEUNPCMD_FDSSELECT: cmd = MOVIECMD_FDS_SELECT; break;
-	case FCEUNPCMD_VSUNICOIN: cmd = MOVIECMD_VS_INSERTCOIN; break;
-		// all other netplay commands (e.g. FCEUNPCMD_VSUNIDIP0) are not supported by movie recorder for now
 	default: return;
 	}
 

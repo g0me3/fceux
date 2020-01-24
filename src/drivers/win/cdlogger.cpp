@@ -32,8 +32,6 @@
 #define INESPRIV
 #include "../../ines.h"
 
-#include "../../nsf.h"
-
 using namespace std;
 
 void CDLoggerROMClosed();

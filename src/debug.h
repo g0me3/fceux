@@ -3,7 +3,6 @@
 
 #include "conddebug.h"
 #include "git.h"
-#include "nsf.h"
 
 //watchpoint stuffs
 #define WP_E       0x01  //watchpoint, enable

@@ -501,13 +501,6 @@ static void ChoosePalette(void)
 	//user palette takes priority over others
 	if (palette_user_available)
 		palo = palette_user;
-	//NTSC takes priority next, if it's appropriate
-	else if (ntsccol_enable && !PAL && GameInfo->type != GIT_VSUNI)
-	{
-		//for NTSC games, we can actually use the NTSC palette
-		palo = palette_ntsc;
-		CalculatePalette();
-	}
 	//select the game's overridden palette if available
 	else if (palette_game_available)
 		palo = palette_game;

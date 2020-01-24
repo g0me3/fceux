@@ -1914,9 +1914,6 @@ LRESULT FAR PASCAL AppWndProc(HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam)
 			case MENU_POWER:
 				FCEUI_PowerNES();
 				break;
-			case MENU_INSERT_COIN:
-				FCEUI_VSUniCoin();
-				break;
 			
 			//Emulation submenu
 			case ID_NES_PAUSE:

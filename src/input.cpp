@@ -32,8 +32,6 @@
 #include "fceulua.h"
 #endif
 #include "input.h"
-#include "vsuni.h"
-#include "fds.h"
 #include "driver.h"
 
 #ifdef WIN32
@@ -102,8 +100,6 @@ uint8 FCEU_GetJoyJoy(void)
 {
 	return(joy[0] | joy[1] | joy[2] | joy[3]);
 }
-
-extern uint8 coinon;
 
 //set to true if the fourscore is attached
 static bool FSAttached = false;
@@ -398,44 +394,11 @@ void FCEU_UpdateInput(void)
 		portFC.driver->Update(portFC.ptr, portFC.attrib);
 	}
 
-	if (GameInfo->type == GIT_VSUNI)
-		if (coinon) coinon--;
-
 	if (FCEUnetplay)
 		NetplayUpdate(joy);
 
 	FCEUMOV_AddInputState();
-
-	//TODO - should this apply to the movie data? should this be displayed in the input hud?
-	if (GameInfo->type == GIT_VSUNI) {
-		FCEU_VSUniSwap(&joy[0], &joy[1]);
-	}
 }
-
-static DECLFR(VSUNIRead0)
-{
-	lagFlag = 0;
-	uint8 ret = 0;
-
-	ret |= (joyports[0].driver->Read(0)) & 1;
-
-	ret |= (vsdip & 3) << 3;
-	if (coinon)
-		ret |= 0x4;
-	return ret;
-}
-
-static DECLFR(VSUNIRead1)
-{
-	lagFlag = 0;
-	uint8 ret = 0;
-
-	ret |= (joyports[1].driver->Read(1)) & 1;
-	ret |= vsdip & 0xFC;
-	return ret;
-}
-
-
 
 //calls from the ppu;
 //calls the SLHook for any driver that needs it
@@ -453,12 +416,7 @@ static void SetInputStuff(int port)
 	switch (joyports[port].type)
 	{
 	case SI_GAMEPAD:
-		if (GameInfo->type == GIT_VSUNI) {
-			joyports[port].driver = &GPCVS;
-		}
-		else {
-			joyports[port].driver = &GPC;
-		}
+		joyports[port].driver = &GPC;
 		break;
 	case SI_SNES:
 		joyports[port].driver = &GPSNES;
@@ -567,13 +525,7 @@ void InitializeInput(void)
 	memset(joy, 0, sizeof(joy));
 	LastStrobe = 0;
 
-	if (GameInfo->type == GIT_VSUNI)
-	{
-		SetReadHandler(0x4016, 0x4016, VSUNIRead0);
-		SetReadHandler(0x4017, 0x4017, VSUNIRead1);
-	}
-	else
-		SetReadHandler(0x4016, 0x4017, JPRead);
+	SetReadHandler(0x4016, 0x4017, JPRead);
 
 	SetWriteHandler(0x4016, 0x4016, B4016);
 
@@ -615,15 +567,6 @@ void FCEU_DoSimpleCommand(int cmd)
 {
 	switch (cmd)
 	{
-	case FCEUNPCMD_VSUNICOIN: FCEU_VSUniCoin(); break;
-	case FCEUNPCMD_VSUNIDIP0:
-	case FCEUNPCMD_VSUNIDIP0 + 1:
-	case FCEUNPCMD_VSUNIDIP0 + 2:
-	case FCEUNPCMD_VSUNIDIP0 + 3:
-	case FCEUNPCMD_VSUNIDIP0 + 4:
-	case FCEUNPCMD_VSUNIDIP0 + 5:
-	case FCEUNPCMD_VSUNIDIP0 + 6:
-	case FCEUNPCMD_VSUNIDIP0 + 7:	FCEU_VSUniToggleDIP(cmd - FCEUNPCMD_VSUNIDIP0); break;
 	case FCEUNPCMD_POWER: PowerNES(); break;
 	case FCEUNPCMD_RESET: ResetNES(); break;
 	}
@@ -640,19 +583,6 @@ void FCEU_QSimpleCommand(int cmd)
 		if (FCEUMOV_Mode(MOVIEMODE_RECORD | MOVIEMODE_TASEDITOR))
 			FCEUMOV_AddCommand(cmd);
 	}
-}
-
-void FCEUI_VSUniToggleDIP(int w)
-{
-	FCEU_QSimpleCommand(FCEUNPCMD_VSUNIDIP0 + w);
-}
-
-void FCEUI_VSUniCoin(void)
-{
-	if (!FCEU_IsValidUI(FCEUI_INSERT_COIN))
-		return;
-
-	FCEU_QSimpleCommand(FCEUNPCMD_VSUNICOIN);
 }
 
 //Resets the frame counter if movie inactive and rom is reset or power-cycle
@@ -826,18 +756,6 @@ struct EMUCMDTABLE FCEUI_CommandTable[] =
 	{ EMUCMD_AVI_RECORD_AS,					EMUCMDTYPE_AVI,		FCEUD_AviRecordTo,				0, 0, "Record AVI As...", EMUCMDFLAG_TASEDITOR },
 	{ EMUCMD_AVI_STOP,						EMUCMDTYPE_AVI,		FCEUD_AviStop,					0, 0, "Stop AVI", EMUCMDFLAG_TASEDITOR },
 
-	{ EMUCMD_VSUNI_COIN,					EMUCMDTYPE_VSUNI,	FCEUI_VSUniCoin,				0, 0, "Insert Coin", EMUCMDFLAG_TASEDITOR },
-	{ EMUCMD_VSUNI_TOGGLE_DIP_0,			EMUCMDTYPE_VSUNI,	CommandToggleDip,				0, 0, "Toggle Dipswitch 0", 0 },
-	{ EMUCMD_VSUNI_TOGGLE_DIP_1,			EMUCMDTYPE_VSUNI,	CommandToggleDip,				0, 0, "Toggle Dipswitch 1", 0 },
-	{ EMUCMD_VSUNI_TOGGLE_DIP_2,			EMUCMDTYPE_VSUNI,	CommandToggleDip,				0, 0, "Toggle Dipswitch 2", 0 },
-	{ EMUCMD_VSUNI_TOGGLE_DIP_3,			EMUCMDTYPE_VSUNI,	CommandToggleDip,				0, 0, "Toggle Dipswitch 3", 0 },
-	{ EMUCMD_VSUNI_TOGGLE_DIP_4,			EMUCMDTYPE_VSUNI,	CommandToggleDip,				0, 0, "Toggle Dipswitch 4", 0 },
-	{ EMUCMD_VSUNI_TOGGLE_DIP_5,			EMUCMDTYPE_VSUNI,	CommandToggleDip,				0, 0, "Toggle Dipswitch 5", 0 },
-	{ EMUCMD_VSUNI_TOGGLE_DIP_6,			EMUCMDTYPE_VSUNI,	CommandToggleDip,				0, 0, "Toggle Dipswitch 6", 0 },
-	{ EMUCMD_VSUNI_TOGGLE_DIP_7,			EMUCMDTYPE_VSUNI,	CommandToggleDip,				0, 0, "Toggle Dipswitch 7", 0 },
-	{ EMUCMD_VSUNI_TOGGLE_DIP_8,			EMUCMDTYPE_VSUNI,	CommandToggleDip,				0, 0, "Toggle Dipswitch 8", 0 },
-	{ EMUCMD_VSUNI_TOGGLE_DIP_9,			EMUCMDTYPE_VSUNI,	CommandToggleDip,				0, 0, "Toggle Dipswitch 9", 0 },
-
 	{ EMUCMD_MISC_AUTOSAVE,					EMUCMDTYPE_MISC,	FCEUI_RewindToLastAutosave,		0, 0, "Load Last Auto-save", 0},
 	{ EMUCMD_MISC_SHOWSTATES,				EMUCMDTYPE_MISC,	ViewSlots,						0, 0, "View save slots", 0 },
 	{ EMUCMD_MISC_USE_INPUT_PRESET_1,		EMUCMDTYPE_MISC,	CommandUsePreset,				0, 0, "Use Input Preset 1", EMUCMDFLAG_TASEDITOR },
@@ -920,8 +838,6 @@ static void CommandUnImpl(void)
 
 static void CommandToggleDip(void)
 {
-	if (GameInfo->type == GIT_VSUNI)
-		FCEUI_VSUniToggleDIP(execcmd - EMUCMD_VSUNI_TOGGLE_DIP_0);
 }
 
 static void CommandEmulationSpeed(void)

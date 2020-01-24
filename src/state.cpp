@@ -29,7 +29,6 @@
 #include "utils/memory.h"
 #include "utils/xstring.h"
 #include "file.h"
-#include "fds.h"
 #include "state.h"
 #include "movie.h"
 #include "ppu.h"

@@ -23,7 +23,6 @@
 #include "x6502.h"
 #include "fceu.h"
 #include "ppu.h"
-#include "nsf.h"
 #include "sound.h"
 #include "file.h"
 #include "utils/endian.h"

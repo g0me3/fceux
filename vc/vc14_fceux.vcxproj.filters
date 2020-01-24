@@ -260,7 +260,6 @@
       <Filter>drivers\win\zlib</Filter>
     </ClCompile>
     <ClCompile Include="..\src\fceu.cpp" />
-    <ClCompile Include="..\src\fds.cpp" />
     <ClCompile Include="..\src\file.cpp" />
     <ClCompile Include="..\src\filter.cpp" />
     <ClCompile Include="..\src\ines.cpp" />
@@ -440,7 +439,6 @@
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="..\src\video.cpp" />
-    <ClCompile Include="..\src\vsuni.cpp" />
     <ClCompile Include="..\src\wave.cpp" />
     <ClCompile Include="..\src\x6502.cpp" />
     <ClCompile Include="..\src\emufile.cpp" />
@@ -957,9 +955,6 @@
     <ClInclude Include="..\src\fcoeffs.h">
       <Filter>include files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\fds.h">
-      <Filter>include files</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\file.h">
       <Filter>include files</Filter>
     </ClInclude>
@@ -1015,9 +1010,6 @@
       <Filter>include files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\video.h">
-      <Filter>include files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\vsuni.h">
       <Filter>include files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\wave.h">

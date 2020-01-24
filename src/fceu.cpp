@@ -30,8 +30,6 @@
 #include "utils/crc32.h"
 
 #include "cart.h"
-#include "nsf.h"
-#include "fds.h"
 #include "ines.h"
 #include "unif.h"
 #include "cheat.h"
@@ -41,7 +39,6 @@
 #include "video.h"
 #include "input.h"
 #include "file.h"
-#include "vsuni.h"
 #include "ines.h"
 #ifdef WIN32
 #include "drivers/win/pref.h"
@@ -888,8 +885,6 @@ void PowerNES(void) {
 	FCEUPPU_Power();
 
 	GameInterface(GI_POWER);
-	if (GameInfo->type == GIT_VSUNI)
-		FCEU_VSUniPower();
 
 	//if we are in a movie, then reset the saveram
 	extern int disableBatteryLoading;

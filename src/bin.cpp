@@ -36,7 +36,6 @@
 #include "utils/md5.h"
 #include "utils/xstring.h"
 #include "cheat.h"
-#include "vsuni.h"
 #include "driver.h"
 
 #include <cstdio>

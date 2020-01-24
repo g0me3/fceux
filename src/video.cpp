@@ -27,9 +27,7 @@
 #include "state.h"
 #include "movie.h"
 #include "palette.h"
-#include "nsf.h"
 #include "input.h"
-#include "vsuni.h"
 #include "drawing.h"
 #include "driver.h"
 #include "drivers/common/vidblit.h"
@@ -218,9 +216,6 @@ void FCEU_PutImage(void) {
 	}
 
 	if (!FCEUI_AviEnableHUDrecording()) snapAVI();
-
-	if (GameInfo->type == GIT_VSUNI)
-		FCEU_VSUniDraw(XBuf);
 
 	FCEU_DrawSaveStates(XBuf);
 	FCEU_DrawMovies(XBuf);

@@ -224,14 +224,6 @@ uint32 FCEUI_CRC32(uint32 crc, uint8 *buf, uint32 len);
 
 void FCEUI_SetLowPass(int q);
 
-void FCEUI_VSUniToggleDIPView(void);
-void FCEUI_VSUniToggleDIP(int w);
-uint8 FCEUI_VSUniGetDIPs(void);
-void FCEUI_VSUniSetDIP(int w, int state);
-void FCEUI_VSUniCoin(void);
-
-int FCEUI_DatachSet(const uint8 *rcode);
-
 ///returns a flag indicating whether emulation is paused
 int FCEUI_EmulationPaused();
 ///returns a flag indicating whether a one frame step has been requested

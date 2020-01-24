@@ -25,7 +25,6 @@
 #include "../../x6502.h"
 #include "../../fceu.h"
 #include "../../debug.h"
-#include "../../nsf.h"
 #include "../../ppu.h"
 #include "../../cart.h"
 #include "../../ines.h"

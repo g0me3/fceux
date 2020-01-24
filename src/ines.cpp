@@ -42,8 +42,6 @@
 #include <cstdlib>
 #include <cstring>
 
-extern SFORMAT FCEUVSUNI_STATEINFO[];
-
 //mbg merge 6/29/06 - these need to be global
 uint8 *trainerpoo = NULL;
 uint8 *ROM = NULL;
@@ -601,8 +599,6 @@ int iNESLoad(const char *name, FCEUFILE *fp, int OverwriteVidMode) {
 		for (x = 0; x < 8; x++) {
 			partialmd5 |= (uint64)iNESCart.MD5[7 - x] << (x * 8);
 		}
-
-		FCEU_VSUniCheck(partialmd5, &MapperNo, &Mirroring);
 	}
 	/* Must remain here because above functions might change value of
 	VROM_size and free(VROM).
@@ -723,9 +719,6 @@ static int iNES_Init(int num) {
 	BMAPPINGLocal *tmp = bmap;
 
 	CHRRAMSize = -1;
-
-	if (GameInfo->type == GIT_VSUNI)
-		AddExState(FCEUVSUNI_STATEINFO, ~0, 0, 0);
 
 	while (tmp->init) {
 		if (num == tmp->number) {
