@@ -18,5 +18,8 @@ Some of capabilities of upgraded NES derived from OneBus NES-on-a-chip systems a
 
  - GBA 4bpp Graphics format
  - Two separate palettes at $3C00 / $3F00 for BG/Sprites
- - 16x16 4bpp sprites support
+ -- BG palette 32 Bytes in size
+ -- SPR palette up to 32*4 bytes in size
+ - 16x16 4bpp sprites ONLY
  - 512Bytes OAM RAM ($2003/$2008 address registers)
+ - up to 128 sprites 16x16 in size! (never used)
