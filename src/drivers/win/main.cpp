@@ -835,7 +835,7 @@ int main(int argc,char *argv[])
 
 	// try to autoload oregon rom if any in the base directory
 	sprintf(TempArray, "%s\\%s", BaseDirectory.c_str(), "oregon.bin");
-	FCEUI_LoadGameVirtual(TempArray, !(pal_setting_specified || dendy_setting_specified), true);
+	ALoad(TempArray, NULL, true);
 	// continue as usual if no such file
 
 	if (PAL && pal_setting_specified && !dendy_setting_specified)
